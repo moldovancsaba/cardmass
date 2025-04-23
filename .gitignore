@@ -1,2 +1,27 @@
 .DS_Store
 .vercel
+
+# Node.js
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# package-lock.json # Commit this one as we use npm
+# yarn.lock # If not committed
+# pnpm-lock.yaml # If not committed
+
+# Next.js
+.next/
+out/
+# build/ Not standard for Next.js
+
+# Environment variables
+.env*.local
+.env
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Misc
+*.log
