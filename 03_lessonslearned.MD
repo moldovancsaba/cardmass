@@ -14,3 +14,10 @@
 - **Action:** Executed `git commit` and `git tag` separately, which succeeded. Root cause of initial failure unclear but likely related to command chaining or environment state.
 - **Safeguard:** If chained Git commands fail, try executing them individually to isolate the issue.
 
+
+## 2025-04-23: Post-Deployment Observation (v0.0.1)
+
+- **Observation:** Accessing the initial deployment URL (`https://workfromcloud-kjk2d3dmu-narimato.vercel.app`) resulted in a 404 Not Found error.
+- **Reason:** The deployed project (`v0.0.1`) contained only static assets (`show/` directory fonts) and configuration/documentation files (`README.md`, `.gitignore`, `.vercel/`), but no actual web application or `index.html` file at the root to be served by Vercel.
+- **Action:** Acknowledged this is expected behavior for a deployment lacking serveable web content at the root path.
+- **Resolution:** Proceed with the planned creation of the Next.js web application structure, which will provide the necessary index page (`app/page.tsx`) for future deployments.
