@@ -1,4 +1,11 @@
 
+## [v1.3.0] — 2025-09-13T11:07:01.776Z
+- Fix: left-side axis labels (Important/Not Important) visible with offset and z-index
+
+
+## [v1.3.0] — 2025-09-13T11:07:01.709Z
+- (update notes here)
+
 ## [v1.2.0] — 2025-09-13T11:03:06.896Z
 - Layout: Added matrix/kanban toggle with sticky composer
 - Eisenhower Matrix: Do/Decide/Delegate/Delete with axis labels (Important/Not Important, Urgent/Not-Urgent)
