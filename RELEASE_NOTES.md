@@ -1,4 +1,12 @@
 
+## [v1.16.0] — 2025-09-13T12:05:38.845Z
+- Matrix: axis labels (Urgent/Not-Urgent, Important/Not Important) positioned outside rectangles
+- Unified bottom bar spacing across pages
+
+
+## [v1.16.0] — 2025-09-13T12:05:38.774Z
+- (update notes here)
+
 ## [v1.15.0] — 2025-09-13T12:00:58.536Z
 - Layout: on md+ screens, outer layout is fixed to viewport; inner columns/rectangles scroll
 - Mobile remains unchanged
