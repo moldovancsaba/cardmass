@@ -4,7 +4,12 @@ import { Card } from '@/models/Card'
 
 export const runtime = 'nodejs'
 
-const allowedStatuses = ['delegate', 'decide', 'do', 'decline'] as const
+const allowedStatuses = [
+  'delegate', 'decide', 'do', 'decline',
+  'bmc:key_partners', 'bmc:key_activities', 'bmc:key_resources', 'bmc:value_propositions',
+  'bmc:customer_relationships', 'bmc:channels', 'bmc:customer_segments',
+  'bmc:cost_structure', 'bmc:revenue_streams'
+] as const
 export type Status = typeof allowedStatuses[number]
 
 // GET /api/cards?status=delegate|decide|do|decline&archived=true|false
@@ -24,6 +29,15 @@ export async function GET(req: Request) {
       decide: ['decide', 'backlog'],
       do: ['do', 'todo'],
       decline: ['decline'],
+      'bmc:key_partners': ['bmc:key_partners'],
+      'bmc:key_activities': ['bmc:key_activities'],
+      'bmc:key_resources': ['bmc:key_resources'],
+      'bmc:value_propositions': ['bmc:value_propositions'],
+      'bmc:customer_relationships': ['bmc:customer_relationships'],
+      'bmc:channels': ['bmc:channels'],
+      'bmc:customer_segments': ['bmc:customer_segments'],
+      'bmc:cost_structure': ['bmc:cost_structure'],
+      'bmc:revenue_streams': ['bmc:revenue_streams'],
     }
     filter.status = { $in: synonyms[status as Status] }
   }
