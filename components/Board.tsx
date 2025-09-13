@@ -7,6 +7,7 @@ import { fetchJSON } from '@/lib/client'
 import { daysBetweenUtc, hoursBetweenUtc } from '@/lib/date'
 import { interpolateColor } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
+import BottomBar from '@/components/BottomBar'
 
 export default function Board({ initialView = 'kanban' }: { initialView?: 'kanban' | 'matrix' }) {
   const router = useRouter()
@@ -185,26 +186,12 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
       </div>
 
       {/* Bottom sticky composer and layout toggle */}
-      <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2">
-        <Composer onCreate={createCard} />
-        <div className="ml-auto flex items-center gap-2">
-          <button
-            onClick={() => router.push('/archive')}
-            className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
-          >
-            archive
-          </button>
-          <button
-            onClick={() => {
-              const target = view === 'kanban' ? '/matrix' : '/kanban'
-              router.push(target)
-            }}
-            className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
-          >
-            {view === 'kanban' ? 'matrix' : 'kanban'}
-          </button>
-        </div>
-      </div>
+      <BottomBar
+        view={view}
+        onCreate={createCard}
+        onToggle={() => router.push(view === 'kanban' ? '/matrix' : '/kanban')}
+        onArchiveNav={() => router.push('/archive')}
+      />
     </div>
   )
 }
@@ -223,29 +210,6 @@ function Column({ title, children }: {
   )
 }
 
-function Composer({ onCreate }: { onCreate: (text: string) => Promise<void> }) {
-  const [value, setValue] = useState('')
-  return (
-    <div className="flex-1">
-      <textarea
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Type a card and press Enter"
-        className="w-full resize-none outline-none bg-white text-black min-h-[48px]"
-        onKeyDown={async (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault()
-            const text = value.trim()
-            if (!text) return
-            await onCreate(text)
-            setValue('')
-          }
-        }}
-      />
-      <div className="text-[10px] text-gray-500 mt-1">Enter to create • Shift+Enter for newline</div>
-    </div>
-  )
-}
 
 function Rect({ title, children }: { title: string; children: React.ReactNode }) {
   return (

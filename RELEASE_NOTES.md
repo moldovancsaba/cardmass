@@ -1,4 +1,12 @@
 
+## [v1.18.0] — 2025-09-13T12:16:39.485Z
+- BottomBar: unified input+buttons rectangle across pages; disabled on admin/archive
+- Cleanup: removed unused composer
+
+
+## [v1.18.0] — 2025-09-13T12:16:39.417Z
+- (update notes here)
+
 ## [v1.17.0] — 2025-09-13T12:11:20.895Z
 - Matrix: equal 2x2 grid; increased padding for visible axis labels; labels outside rectangles
 
