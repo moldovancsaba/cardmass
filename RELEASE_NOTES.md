@@ -1,4 +1,11 @@
 
+## [v2.0.0] — 2025-09-13T17:03:56.586Z
+- Major: Centralized BottomBar as a shared communication/navigation bar across all pages (kanban, matrix, archive, admin)
+- Layout: Adopt xl-only (>=1280px) no-scroll wrappers; internal panes (columns/rectangles) scroll
+- Matrix: 2x2 grid now perfectly fits available height above BottomBar; each quadrant scrolls internally
+- Consistency: Unified navigation handling with router.push; standardized vertical spacing
+- Docs: Updated ROADMAP/TASKLIST/WARP logs and synced version strings
+
 ## [v1.28.0] — 2025-09-13T16:37:11.433Z
 - Layout: Constrain kanban/matrix no-scroll wrappers to xl (>=1280px) to align with global >=1200px rule
 - Fix: Normalize Board/page wrappers to keep BottomBar aligned across all pages without overflow
