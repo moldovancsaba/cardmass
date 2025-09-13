@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
 import { hoursBetweenUtc } from '@/lib/date'
 import BottomBar from '@/components/BottomBar'
+import { interpolateColor } from '@/lib/color'
 
 export default function ArchivePage() {
   return (
@@ -38,7 +39,8 @@ type ACard = {
 function ArchiveGrid() {
   const [items, setItems] = useState<ACard[]>([])
   const settings = useSettings()
-  const rotStart = settings?.colors?.rotten?.least || '#2ecc71'
+  const archOldest = settings?.colors?.archive?.oldest || '#6b7280'
+  const archNewest = settings?.colors?.archive?.newest || '#d1d5db'
 
   useEffect(() => {
     let cancelled = false
@@ -59,8 +61,8 @@ function ArchiveGrid() {
       <div className="text-sm font-mono text-black mb-2">#archive</div>
       <div className="flex-1 overflow-auto pr-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {items.map((c) => (
-            <ArchivedCard key={c.id} card={c} rotStart={rotStart} />
+          {items.map((c, idx) => (
+            <ArchivedCard key={c.id} card={c} archOldest={archOldest} archNewest={archNewest} index={idx} total={items.length} />
           ))}
         </div>
       </div>
@@ -68,14 +70,16 @@ function ArchiveGrid() {
   )
 }
 
-function ArchivedCard({ card, rotStart }: { card: ACard, rotStart: string }) {
+function ArchivedCard({ card, archOldest, archNewest, index, total }: { card: ACard, archOldest: string, archNewest: string, index: number, total: number }) {
   const hoursAgo = useMemo(() => hoursBetweenUtc(card.archivedAt || card.updatedAt), [card.archivedAt, card.updatedAt])
   const daysAgo = Math.floor(hoursAgo / 24)
-  // For simplicity, use rotten color scale to theme the archived badge
+  // Interpolate color based on relative position (newest -> oldest)
+  const t = total > 1 ? index / (total - 1) : 1
+  const bg = interpolateColor(archOldest, archNewest, t)
   return (
     <div className="border border-gray-300 rounded-md p-3 bg-white text-black">
       <div className="whitespace-pre-wrap text-sm mb-2">{card.text}</div>
-      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotStart }}>
+      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg }}>
         #archived {daysAgo} days{hoursAgo > 0 ? ` (${hoursAgo} hours)` : ''} ago
       </span>
     </div>

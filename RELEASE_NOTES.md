@@ -1,4 +1,12 @@
 
+## [v1.21.0] — 2025-09-13T12:32:20.819Z
+- Settings: added archive color scale (oldest→newest) configurable in /admin
+- Archive: badges use interpolated archive colors
+
+
+## [v1.21.0] — 2025-09-13T12:32:20.750Z
+- (update notes here)
+
 ## [v1.20.0] — 2025-09-13T12:26:49.806Z
 - BottomBar: active nav buttons on /archive (kanban/matrix) and /admin (kanban/matrix/archive)
 - Input remains disabled on admin & archive
