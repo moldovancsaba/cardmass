@@ -1,4 +1,11 @@
 
+## [v1.7.0] — 2025-09-13T11:28:14.081Z
+- Routing: layout toggle now navigates to /kanban and /matrix
+
+
+## [v1.7.0] — 2025-09-13T11:28:14.011Z
+- (update notes here)
+
 ## [v1.6.0] — 2025-09-13T11:23:52.467Z
 - Routing: Added /kanban and /matrix; / redirects to /kanban
 - Board: accepts initialView prop (kanban/matrix)

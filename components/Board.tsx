@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card } from '@/types/card'
 import { fetchJSON } from '@/lib/client'
 import { daysBetweenUtc, hoursBetweenUtc } from '@/lib/date'
@@ -8,6 +9,7 @@ import { interpolateColor } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
 
 export default function Board({ initialView = 'kanban' }: { initialView?: 'kanban' | 'matrix' }) {
+  const router = useRouter()
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
   const [todo, setTodo] = useState<Card[]>([])
@@ -171,7 +173,10 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
       <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2">
         <Composer onCreate={createCard} />
         <button
-          onClick={() => setView((v) => (v === 'kanban' ? 'matrix' : 'kanban'))}
+          onClick={() => {
+            const target = view === 'kanban' ? '/matrix' : '/kanban'
+            router.push(target)
+          }}
           className="ml-auto border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
         >
           {view === 'kanban' ? 'matrix' : 'kanban'}
