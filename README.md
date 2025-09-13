@@ -1,14 +1,22 @@
 # Cardmass — 3-column card chat
 
-Version: v2.1.0
+Version: v2.2.0
 
 Overview
-Cardmass is a minimal 3-column board where you create cards in the center (#backlog) by typing and pressing Enter. Cards can be moved between #roadmap, #backlog, and #todo. Each card is persisted in MongoDB Atlas with createdAt and updatedAt timestamps. The UI shows “X days old” and “rotten for Y days” derived from those timestamps.
+Cardmass is a minimal board with two layouts:
+- Kanban: #delegate, #decide, #do
+- Matrix (Eisenhower): #do, #decide, #delegate, #decline (decline is only shown here)
+
+Native HTML5 drag-and-drop lets you move cards across columns/rectangles and reorder within them. Each card is persisted in MongoDB Atlas with createdAt and updatedAt timestamps. The UI shows “X days old” and “rotten for Y days” derived from those timestamps.
 
 Quickstart
 1) Copy .env.local.example to .env.local and set MONGODB_URI
-2) npm run dev
+2) npm run dev (predev bumps PATCH automatically)
 3) Open http://localhost:3000
+
+Migration (one-time, adds 'order' to existing cards)
+- Dry run: node scripts/migrate-add-order.mjs --dry
+- Execute: node scripts/migrate-add-order.mjs
 
 Documentation
 - ROADMAP.md

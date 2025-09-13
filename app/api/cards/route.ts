@@ -4,10 +4,10 @@ import { Card } from '@/models/Card'
 
 export const runtime = 'nodejs'
 
-const allowedStatuses = ['delegate', 'decide', 'do'] as const
+const allowedStatuses = ['delegate', 'decide', 'do', 'decline'] as const
 export type Status = typeof allowedStatuses[number]
 
-// GET /api/cards?status=delegate|decide|do&archived=true|false
+// GET /api/cards?status=delegate|decide|do|decline&archived=true|false
 export async function GET(req: Request) {
   await connectToDatabase()
   const url = new URL(req.url)
@@ -23,6 +23,7 @@ export async function GET(req: Request) {
       delegate: ['delegate', 'roadmap'],
       decide: ['decide', 'backlog'],
       do: ['do', 'todo'],
+      decline: ['decline'],
     }
     filter.status = { $in: synonyms[status as Status] }
   }
@@ -32,13 +33,14 @@ export async function GET(req: Request) {
   } else if (archivedParam === 'false' || archivedParam === '0' || archivedParam === null) {
     filter.archived = { $ne: true }
   }
-  const docs = await Card.find(filter).sort({ updatedAt: -1 })
+  // Sort by UI order (ascending) with updatedAt desc as a secondary key
+  const docs = await Card.find(filter).sort({ order: 1, updatedAt: -1 })
   const payload = docs.map((d) => d.toJSON())
   return NextResponse.json(payload)
 }
 
 // POST /api/cards
-// Body: { text: string, status?: 'delegate'|'decide'|'do' }
+// Body: { text: string, status?: 'delegate'|'decide'|'do'|'decline' }
 export async function POST(req: Request) {
   await connectToDatabase()
   let body: unknown
@@ -52,7 +54,10 @@ export async function POST(req: Request) {
   if (typeof b.status === 'string' && (allowedStatuses as readonly string[]).includes(b.status)) {
     status = b.status as Status
   }
-  const created = await Card.create({ text, status })
+  // Insert new cards at the top of the chosen status by assigning an order less than the current minimum.
+  const top = await Card.findOne({ status, archived: { $ne: true } }).sort({ order: 1 })
+  const order = top && typeof top.order === 'number' ? top.order - 1 : 0
+  const created = await Card.create({ text, status, order })
   // toJSON mapping ensures ISO timestamps and id
   return NextResponse.json(created.toJSON(), { status: 201 })
 }
