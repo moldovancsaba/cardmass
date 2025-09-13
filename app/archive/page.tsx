@@ -65,7 +65,7 @@ function ArchivedCard({ card, rotStart }: { card: ACard, rotStart: string }) {
     <div className="border border-gray-300 rounded-md p-3 bg-white text-black">
       <div className="whitespace-pre-wrap text-sm mb-2">{card.text}</div>
       <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotStart }}>
-        #archived {daysAgo} days ({hoursAgo} hours) ago
+        #archived {daysAgo} days{hoursAgo > 0 ? ` (${hoursAgo} hours)` : ''} ago
       </span>
     </div>
   )

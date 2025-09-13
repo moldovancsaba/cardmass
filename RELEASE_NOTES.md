@@ -1,4 +1,11 @@
 
+## [v1.13.0] — 2025-09-13T11:53:22.596Z
+- UX: hide (0 hours) in time hashtags across board and archive
+
+
+## [v1.13.0] — 2025-09-13T11:53:22.495Z
+- (update notes here)
+
 ## [v1.12.0] — 2025-09-13T11:50:39.145Z
 - Admin: added sticky layout nav buttons (kanban/matrix/archive)
 
