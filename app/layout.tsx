@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SettingsProvider } from "@/lib/settings";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
       >
-        {children}
+        {/* Provide runtime settings to the entire app so UI colors are consistent */}
+        {/* The provider fetches /api/settings once on mount and keeps values in memory */}
+        <SettingsProvider>
+          {children}
+        </SettingsProvider>
       </body>
     </html>
   );
