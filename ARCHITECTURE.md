@@ -12,12 +12,14 @@
   - All timestamps: ISO 8601 with milliseconds (UTC)
 
 - Client
-  - components/Board.tsx: manages 3 columns and CRUD actions
-  - app/page.tsx: renders Board
-  - lib/date.ts: daysBetweenUtc for “X days old” and “rotten for Y days”
+  - components/Board.tsx: manages kanban and matrix views; orchestrates CRUD and layout
+  - components/BottomBar.tsx: centralized communication/navigation bar; identical across pages
+  - app/{kanban,matrix,archive,admin}/page.tsx: each uses a consistent wrapper (xl:h-screen xl:overflow-hidden) with inner flex-1 xl:overflow-hidden content area
+  - Matrix: 2x2 grid uses h-full/min-h-0 and items-stretch to fill available height; each rectangle scrolls internally
+  - lib/date.ts: daysBetweenUtc / hoursBetweenUtc
   - lib/client.ts: fetch helper
 
 - Notes
   - No tests per policy
   - No breadcrumbs per policy
-  - Status values: roadmap | backlog | todo (default backlog)
+  - Status values: delegate | decide | do (default decide)
