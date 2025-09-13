@@ -13,12 +13,18 @@ export async function GET(req: Request) {
   const url = new URL(req.url)
   const status = url.searchParams.get('status')
   const archivedParam = url.searchParams.get('archived')
-  const filter: { status?: Status; archived?: boolean | { $ne: boolean } } = {}
+  const filter: { status?: Status | { $in: string[] }; archived?: boolean | { $ne: boolean } } = {}
   if (status) {
     if (!(allowedStatuses as readonly string[]).includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
-    filter.status = status as Status
+    // Backward-compatibility: include legacy statuses so existing cards still appear
+    const synonyms: Record<Status, string[]> = {
+      delegate: ['delegate', 'roadmap'],
+      decide: ['decide', 'backlog'],
+      do: ['do', 'todo'],
+    }
+    filter.status = { $in: synonyms[status as Status] }
   }
   // Default: exclude archived unless explicitly requested
   if (archivedParam === 'true' || archivedParam === '1') {
