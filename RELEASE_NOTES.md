@@ -1,4 +1,13 @@
 
+## [v1.8.0] — 2025-09-13T11:35:37.821Z
+- Archive: /archive view shows archived cards in grid, newest first
+- Cards: archive button sets archived & archivedAt via PATCH
+- Model: Card supports archived/archivedAt with indexes
+
+
+## [v1.8.0] — 2025-09-13T11:35:37.746Z
+- (update notes here)
+
 ## [v1.7.0] — 2025-09-13T11:28:14.081Z
 - Routing: layout toggle now navigates to /kanban and /matrix
 

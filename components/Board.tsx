@@ -327,6 +327,13 @@ function CardItem({ card, onUpdate, onDelete, bubbleContext }: {
             <option value="todo">todo</option>
           </select>
           <button
+            onClick={async () => { await onUpdate(card.id, { status: card.status }); await fetchJSON(`/api/cards/${card.id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); }}
+            className="text-gray-700 hover:underline"
+            aria-label="Archive card"
+          >
+            archive
+          </button>
+          <button
             onClick={() => setEditing((v) => !v)}
             className="text-blue-600 hover:underline"
             aria-label="Edit text"
