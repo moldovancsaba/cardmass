@@ -18,17 +18,19 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
-      <BottomBar
-        disabled
-        view="kanban"
-        showToggle={false}
-        showArchive={true}
-        showKanban={true}
-        showMatrix={true}
-        onArchiveNav={() => router.push('/archive')}
-        onKanbanNav={() => router.push('/kanban')}
-        onMatrixNav={() => router.push('/matrix')}
-      />
+      <div className="pt-2 xl:pt-2">
+        <BottomBar
+          disabled
+          view="kanban"
+          showToggle={false}
+          showArchive={true}
+          showKanban={true}
+          showMatrix={true}
+          onArchiveNav={() => router.push('/archive')}
+          onKanbanNav={() => router.push('/kanban')}
+          onMatrixNav={() => router.push('/matrix')}
+        />
+      </div>
     </main>
   )
 }

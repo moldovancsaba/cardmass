@@ -16,16 +16,18 @@ export default function ArchivePage() {
       <div className="flex-1 xl:overflow-hidden">
         <ArchiveGrid />
       </div>
-      <BottomBar
-        disabled
-        view="kanban"
-        showToggle={false}
-        showArchive={false}
-        showKanban={true}
-        showMatrix={true}
-        onKanbanNav={() => router.push('/kanban')}
-        onMatrixNav={() => router.push('/matrix')}
-      />
+      <div className="pt-2 xl:pt-2">
+        <BottomBar
+          disabled
+          view="kanban"
+          showToggle={false}
+          showArchive={false}
+          showKanban={true}
+          showMatrix={true}
+          onKanbanNav={() => router.push('/kanban')}
+          onMatrixNav={() => router.push('/matrix')}
+        />
+      </div>
     </main>
   )
 }
