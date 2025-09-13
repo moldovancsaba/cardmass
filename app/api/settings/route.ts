@@ -26,15 +26,22 @@ export async function PATCH(req: Request) {
     }
   }>
 
-  const update: Record<string, string | object> = {}
-  if (b.colors) update['colors'] = {}
-  if (b.colors?.age) update['colors.age'] = {}
-  if (typeof b.colors?.age?.oldest === 'string') update['colors.age.oldest'] = b.colors!.age!.oldest
-  if (typeof b.colors?.age?.newest === 'string') update['colors.age.newest'] = b.colors!.age!.newest
-  if (b.colors?.rotten) update['colors.rotten'] = {}
-  if (typeof b.colors?.rotten?.least === 'string') update['colors.rotten.least'] = b.colors!.rotten!.least
-  if (typeof b.colors?.rotten?.most === 'string') update['colors.rotten.most'] = b.colors!.rotten!.most
+  // Build a $set doc with only provided dotted fields to avoid conflicts
+  const setDoc: Record<string, string> = {}
+  if (typeof b.colors?.age?.oldest === 'string') setDoc['colors.age.oldest'] = b.colors!.age!.oldest!
+  if (typeof b.colors?.age?.newest === 'string') setDoc['colors.age.newest'] = b.colors!.age!.newest!
+  if (typeof b.colors?.rotten?.least === 'string') setDoc['colors.rotten.least'] = b.colors!.rotten!.least!
+  if (typeof b.colors?.rotten?.most === 'string') setDoc['colors.rotten.most'] = b.colors!.rotten!.most!
 
-  const updated = await Settings.findOneAndUpdate({ key: 'global' }, update, { new: true, upsert: true })
-  return NextResponse.json(updated.toJSON())
+  try {
+    const updated = await Settings.findOneAndUpdate(
+      { key: 'global' },
+      Object.keys(setDoc).length ? { $set: setDoc } : {},
+      { new: true, upsert: true, runValidators: true }
+    )
+    return NextResponse.json(updated.toJSON())
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unknown error'
+    return NextResponse.json({ error: msg }, { status: 500 })
+  }
 }
