@@ -1,4 +1,12 @@
 
+## [v1.1.0] — 2025-09-13T10:45:55.787Z
+- Fix: settings PATCH now uses \ for partial updates (age/rotten colors)
+- Admin: /admin continues to manage colors via settings
+
+
+## [v1.1.0] — 2025-09-13T10:45:55.718Z
+- (update notes here)
+
 ## [v1.0.0] — 2025-09-13T10:36:31.018Z
 - Major: Introduced configurable hashtag color system with /admin and persistent settings
 - Backward-incompatible UI styling behavior due to settings-driven colors
