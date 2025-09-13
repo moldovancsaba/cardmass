@@ -1,4 +1,11 @@
 
+## [v1.5.0] — 2025-09-13T11:16:30.177Z
+- UX: Reduced left gutter for Important/Not Important to match top labels
+
+
+## [v1.5.0] — 2025-09-13T11:16:30.112Z
+- (update notes here)
+
 ## [v1.4.0] — 2025-09-13T11:12:31.268Z
 - Fix: repositioned Important/Not Important labels inside left margin for visibility
 
