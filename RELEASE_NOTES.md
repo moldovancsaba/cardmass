@@ -1,4 +1,11 @@
 
+## [v1.25.0] — 2025-09-13T13:02:00.644Z
+- Landscape: page scroll disabled; only internal rectangles/columns scroll (matrix)
+
+
+## [v1.25.0] — 2025-09-13T13:02:00.571Z
+- (update notes here)
+
 ## [v1.24.0] — 2025-09-13T12:52:02.358Z
 - Desktop: page scroll enabled; internal columns/rectangles scroll; matrix rectangles constrained (min-h-0)
 
