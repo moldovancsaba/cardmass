@@ -1,4 +1,12 @@
 
+## [v1.20.0] — 2025-09-13T12:26:49.806Z
+- BottomBar: active nav buttons on /archive (kanban/matrix) and /admin (kanban/matrix/archive)
+- Input remains disabled on admin & archive
+
+
+## [v1.20.0] — 2025-09-13T12:26:49.739Z
+- (update notes here)
+
 ## [v1.19.0] — 2025-09-13T12:21:27.660Z
 - BottomBar: reused on admin and archive as disabled for identical layout, position, size
 

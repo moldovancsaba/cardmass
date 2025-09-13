@@ -10,7 +10,17 @@ export default function AdminPage() {
     <main className="min-h-screen p-4 bg-white text-black">
       <h1 className="text-xl font-mono mb-4">#admin — hashtag color settings</h1>
       <SettingsForm />
-      <BottomBar disabled view="kanban" />
+      <BottomBar
+        disabled
+        view="kanban"
+        showToggle={false}
+        showArchive={true}
+        showKanban={true}
+        showMatrix={true}
+        onArchiveNav={() => (window.location.href = '/archive')}
+        onKanbanNav={() => (window.location.href = '/kanban')}
+        onMatrixNav={() => (window.location.href = '/matrix')}
+      />
     </main>
   )
 }
