@@ -1,4 +1,13 @@
 
+## [v1.2.0] — 2025-09-13T11:03:06.896Z
+- Layout: Added matrix/kanban toggle with sticky composer
+- Eisenhower Matrix: Do/Decide/Delegate/Delete with axis labels (Important/Not Important, Urgent/Not-Urgent)
+- Kanban columns renamed: Delegate/Decide/Do
+
+
+## [v1.2.0] — 2025-09-13T11:03:06.824Z
+- (update notes here)
+
 ## [v1.1.0] — 2025-09-13T10:45:55.787Z
 - Fix: settings PATCH now uses \ for partial updates (age/rotten colors)
 - Admin: /admin continues to manage colors via settings
