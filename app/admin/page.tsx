@@ -26,6 +26,7 @@ export default function AdminPage() {
           showArchive={true}
           showKanban={true}
           showMatrix={true}
+          showAdmin={false}
           onArchiveNav={() => router.push('/archive')}
           onKanbanNav={() => router.push('/kanban')}
           onMatrixNav={() => router.push('/matrix')}

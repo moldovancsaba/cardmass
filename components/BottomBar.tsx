@@ -10,13 +10,15 @@ type Props = {
   onArchiveNav?: () => void
   onKanbanNav?: () => void
   onMatrixNav?: () => void
+  onAdminNav?: () => void
   showToggle?: boolean
   showArchive?: boolean
   showKanban?: boolean
   showMatrix?: boolean
+  showAdmin?: boolean
 }
 
-export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false }: Props) {
+export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, onAdminNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false, showAdmin = false }: Props) {
   const [value, setValue] = useState('')
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -59,6 +61,11 @@ export default function BottomBar({ disabled = false, view = 'kanban', onCreate,
         {showArchive && (
           <button onClick={() => onArchiveNav && onArchiveNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
             archive
+          </button>
+        )}
+        {showAdmin && (
+          <button onClick={() => onAdminNav && onAdminNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
+            admin
           </button>
         )}
         {showToggle && (
