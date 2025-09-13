@@ -37,7 +37,8 @@ export default function ArchivePage() {
 type ACard = {
   id: string
   text: string
-  status: 'roadmap'|'backlog'|'todo'
+  status: 'delegate'|'decide'|'do'|'decline'
+  order?: number
   archived?: boolean
   archivedAt?: string
   createdAt: string
@@ -56,7 +57,8 @@ function ArchiveGrid() {
       const all = await fetchJSON<ACard[]>(`/api/cards?status=delegate&archived=true`)
       const b = await fetchJSON<ACard[]>(`/api/cards?status=decide&archived=true`)
       const t = await fetchJSON<ACard[]>(`/api/cards?status=do&archived=true`)
-      const merged = [...all, ...b, ...t]
+      const d = await fetchJSON<ACard[]>(`/api/cards?status=decline&archived=true`)
+      const merged = [...all, ...b, ...t, ...d]
       merged.sort((a, b) => (new Date(b.archivedAt || 0).getTime()) - (new Date(a.archivedAt || 0).getTime()))
       if (!cancelled) setItems(merged)
     }

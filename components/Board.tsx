@@ -14,50 +14,39 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
   const [todo, setTodo] = useState<Card[]>([])
+  const [decline, setDecline] = useState<Card[]>([])
   const [view] = useState<'kanban' | 'matrix'>(initialView)
 
+  type Status = Card['status']
+
+  // Track current drag source and target for native HTML5 DnD.
+  const [dragging, setDragging] = useState<{ id: string; from: Status } | null>(null)
+  const [dropTarget, setDropTarget] = useState<{ status: Status; index: number | null } | null>(null)
+
   const load = useCallback(async () => {
-    const [r, b, t] = await Promise.all([
+    const [r, b, t, d] = await Promise.all([
       fetchJSON<Card[]>(`/api/cards?status=delegate`),
       fetchJSON<Card[]>(`/api/cards?status=decide`),
       fetchJSON<Card[]>(`/api/cards?status=do`),
+      fetchJSON<Card[]>(`/api/cards?status=decline`),
     ])
     setRoadmap(r)
     setBacklog(b)
     setTodo(t)
+    setDecline(d)
   }, [])
 
   useEffect(() => {
     load()
   }, [load])
 
-  const createCard = useCallback(async (text: string) => {
-    const created = await fetchJSON<Card>(`/api/cards`, {
-      method: 'POST',
-      body: JSON.stringify({ text, status: 'decide' }),
-    })
-    setBacklog((prev) => [created, ...prev])
-  }, [])
-
-  const updateCard = useCallback(async (id: string, data: Partial<Pick<Card, 'text' | 'status'>>) => {
-    const updated = await fetchJSON<Card>(`/api/cards/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    })
-    // Move between columns if status changed
-    setRoadmap((prev) => prev.filter((c) => c.id !== id))
-    setBacklog((prev) => prev.filter((c) => c.id !== id))
-    setTodo((prev) => prev.filter((c) => c.id !== id))
-    if (updated.status === 'delegate') setRoadmap((prev) => [updated, ...prev])
-    if (updated.status === 'decide') setBacklog((prev) => [updated, ...prev])
-    if (updated.status === 'do') setTodo((prev) => [updated, ...prev])
-  }, [])
 
   const deleteCard = useCallback(async (id: string) => {
     await fetchJSON<{ ok: boolean }>(`/api/cards/${id}`, { method: 'DELETE' })
     setRoadmap((prev) => prev.filter((c) => c.id !== id))
     setBacklog((prev) => prev.filter((c) => c.id !== id))
     setTodo((prev) => prev.filter((c) => c.id !== id))
+    setDecline((prev) => prev.filter((c) => c.id !== id))
   }, [])
 
   const archiveCard = useCallback(async (id: string) => {
@@ -65,13 +54,14 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
     setRoadmap((prev) => prev.filter((c) => c.id !== id))
     setBacklog((prev) => prev.filter((c) => c.id !== id))
     setTodo((prev) => prev.filter((c) => c.id !== id))
+    setDecline((prev) => prev.filter((c) => c.id !== id))
   }, [])
 
-  // For bubble gradients, compute min/max ages and rottenness per column
+  // For bubble gradients, compute min/max ages and rottenness per container
   const stats = useMemo(() => {
-    const columns = { roadmap, backlog, todo } as const
+    const containers = { roadmap, backlog, todo, decline } as const
     const result: Record<string, { minAge: number; maxAge: number; minRot: number; maxRot: number }> = {}
-    for (const [name, arr] of Object.entries(columns)) {
+    for (const [name, arr] of Object.entries(containers)) {
       if (!arr.length) { result[name] = { minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }; continue }
       const ages = arr.map((c) => Date.now() - new Date(c.createdAt).getTime())
       const rots = arr.map((c) => Date.now() - new Date(c.updatedAt).getTime())
@@ -83,90 +73,251 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
       }
     }
     return result
-  }, [roadmap, backlog, todo])
+  }, [roadmap, backlog, todo, decline])
+
+  // Helper: stable sort by order asc, then updatedAt desc for consistent UI.
+  const byOrder = useCallback((a: Card, b: Card) => {
+    const ao = Number.isFinite(a.order) ? a.order : Number.MAX_SAFE_INTEGER
+    const bo = Number.isFinite(b.order) ? b.order : Number.MAX_SAFE_INTEGER
+    if (ao !== bo) return ao - bo
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  }, [])
+
+  // Helper: insert and return a new sorted array
+  const insertSorted = useCallback((arr: Card[]) => {
+    const next = [...arr]
+    next.sort(byOrder)
+    return next
+  }, [byOrder])
+
+  // Compute order by neighbor averaging around dropIndex in given list
+  const computeOrder = useCallback((list: Card[], dropIndex: number) => {
+    const prev = list[dropIndex - 1] || null
+    const next = list[dropIndex] || null
+    if (prev && next && prev.order < next.order) return (prev.order + next.order) / 2
+    if (!prev && next) return next.order - 1
+    if (prev && !next) return prev.order + 1
+    return 0
+  }, [])
+
+  // CRUD helpers now that sorting helpers exist
+  const createCard = useCallback(async (text: string) => {
+    const created = await fetchJSON<Card>(`/api/cards`, {
+      method: 'POST',
+      body: JSON.stringify({ text, status: 'decide' }),
+    })
+    setBacklog((prev) => insertSorted([created, ...prev]))
+  }, [insertSorted])
+
+  const updateCard = useCallback(async (id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => {
+    const updated = await fetchJSON<Card>(`/api/cards/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+    // Move between columns if status changed
+    setRoadmap((prev) => prev.filter((c) => c.id !== id))
+    setBacklog((prev) => prev.filter((c) => c.id !== id))
+    setTodo((prev) => prev.filter((c) => c.id !== id))
+    setDecline((prev) => prev.filter((c) => c.id !== id))
+    if (updated.status === 'delegate') setRoadmap((prev) => insertSorted([...prev, updated]))
+    if (updated.status === 'decide') setBacklog((prev) => insertSorted([...prev, updated]))
+    if (updated.status === 'do') setTodo((prev) => insertSorted([...prev, updated]))
+    if (updated.status === 'decline') setDecline((prev) => insertSorted([...prev, updated]))
+  }, [insertSorted])
+
+  // Map status to current list
+  const getList = useCallback((s: Status) => {
+    if (s === 'delegate') return roadmap
+    if (s === 'decide') return backlog
+    if (s === 'do') return todo
+    return decline
+  }, [roadmap, backlog, todo, decline])
+
+  // Handle a drop on a container; uses dropTarget.index as insertion point
+  const handleDrop = useCallback(async (targetStatus: Status) => {
+    const drag = dragging
+    const target = dropTarget
+    setDropTarget(null)
+    setDragging(null)
+    if (!drag) return
+    const id = drag.id
+    const from = drag.from
+    const currentList = getList(targetStatus)
+    // Default to end
+    let dropIndex = typeof target?.index === 'number' && target.status === targetStatus ? target.index : currentList.length
+    // Exclude the dragged card if moving within the same list to compute correct index
+    const filtered = currentList.filter((c) => c.id !== id)
+    if (dropIndex > filtered.length) dropIndex = filtered.length
+    const newOrder = computeOrder(filtered, Math.max(0, Math.min(filtered.length, dropIndex)))
+    await updateCard(id, from === targetStatus ? { order: newOrder } : { status: targetStatus, order: newOrder })
+  }, [dragging, dropTarget, getList, computeOrder, updateCard])
+
+  // Container drag-over updates active target while preserving insertion index when hovering items within same container
+  const onContainerDragOver = useCallback((status: Status) => {
+    setDropTarget((prev) => ({ status, index: prev?.status === status ? (prev.index ?? null) : null }))
+  }, [])
 
   return (
     <div className="relative flex flex-col xl:h-full">
       <div className="flex-1 xl:overflow-hidden xl:min-h-0">
       {view === 'kanban' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:h-full md:min-h-0 relative">
-          <Column title="#delegate">
-            {roadmap.map((c) => (
+          <Column
+            title="#delegate"
+            status="delegate"
+            isActive={dropTarget?.status === 'delegate'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {roadmap.map((c, idx) => (
           <CardItem
             key={c.id}
+            index={idx}
+            status={'delegate'}
             card={c}
             onUpdate={updateCard}
             onDelete={deleteCard}
             onArchive={archiveCard}
+            onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
+            onDragFlag={setDragging}
           />
             ))}
           </Column>
-          <Column title="#decide">
-            {backlog.map((c) => (
+          <Column
+            title="#decide"
+            status="decide"
+            isActive={dropTarget?.status === 'decide'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {backlog.map((c, idx) => (
           <CardItem
             key={c.id}
+            index={idx}
+            status={'decide'}
             card={c}
             onUpdate={updateCard}
             onDelete={deleteCard}
             onArchive={archiveCard}
+            onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'decide', ...stats.backlog }}
+            onDragFlag={setDragging}
           />
             ))}
           </Column>
-          <Column title="#do">
-            {todo.map((c) => (
+          <Column
+            title="#do"
+            status="do"
+            isActive={dropTarget?.status === 'do'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {todo.map((c, idx) => (
           <CardItem
             key={c.id}
+            index={idx}
+            status={'do'}
             card={c}
             onUpdate={updateCard}
             onDelete={deleteCard}
             onArchive={archiveCard}
+            onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'do', ...stats.todo }}
+            onDragFlag={setDragging}
           />
             ))}
           </Column>
         </div>
       ) : (
         <div className="xl:pl-16 xl:pt-8 grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-full xl:min-h-0 gap-4 relative items-stretch">
-          <Rect title="#do">
-            {todo.map((c) => (
+          <Rect
+            title="#do"
+            status="do"
+            isActive={dropTarget?.status === 'do'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {todo.map((c, idx) => (
               <CardItem
                 key={c.id}
+                index={idx}
+                status={'do'}
                 card={c}
                 onUpdate={updateCard}
                 onDelete={deleteCard}
                 onArchive={archiveCard}
+                onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'do', ...stats.todo }}
+                onDragFlag={setDragging}
               />
             ))}
           </Rect>
-          <Rect title="#decide">
-            {backlog.map((c) => (
+          <Rect
+            title="#decide"
+            status="decide"
+            isActive={dropTarget?.status === 'decide'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {backlog.map((c, idx) => (
               <CardItem
                 key={c.id}
+                index={idx}
+                status={'decide'}
                 card={c}
                 onUpdate={updateCard}
                 onDelete={deleteCard}
                 onArchive={archiveCard}
+                onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'decide', ...stats.backlog }}
+                onDragFlag={setDragging}
               />
             ))}
           </Rect>
-          <Rect title="#delegate">
-            {roadmap.map((c) => (
+          <Rect
+            title="#delegate"
+            status="delegate"
+            isActive={dropTarget?.status === 'delegate'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {roadmap.map((c, idx) => (
               <CardItem
                 key={c.id}
+                index={idx}
+                status={'delegate'}
                 card={c}
                 onUpdate={updateCard}
                 onDelete={deleteCard}
                 onArchive={archiveCard}
+                onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
+                onDragFlag={setDragging}
               />
             ))}
           </Rect>
-          <Rect title="#delete">
-            <div className="text-xs text-gray-600">Use the delete action on any card to remove it.</div>
+          <Rect
+            title="#decline"
+            status="decline"
+            isActive={dropTarget?.status === 'decline'}
+            onContainerDragOver={onContainerDragOver}
+            onContainerDrop={handleDrop}
+          >
+            {decline.map((c, idx) => (
+              <CardItem
+                key={c.id}
+                index={idx}
+                status={'decline'}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                onArchive={archiveCard}
+                onHoverIndex={setDropTarget}
+                bubbleContext={{ kind: 'decline', ...stats.decline }}
+                onDragFlag={setDragging}
+              />
+            ))}
           </Rect>
           {/* Axis labels */}
           <div className="hidden md:block absolute left-2 top-1/4 -translate-y-1/2 z-10 pointer-events-none">
@@ -202,12 +353,21 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   )
 }
 
-function Column({ title, children }: {
+function Column({ title, status, isActive, onContainerDragOver, onContainerDrop, children }: {
   title: string
+  status: 'delegate' | 'decide' | 'do' | 'decline'
+  isActive: boolean
+  onContainerDragOver: (s: 'delegate'|'decide'|'do'|'decline') => void
+  onContainerDrop: (s: 'delegate'|'decide'|'do'|'decline') => void
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col xl:h-full xl:min-h-0 md:min-h-0 border border-gray-300 rounded-lg p-3 text-black bg-white">
+    <div
+      className={`flex flex-col xl:h-full xl:min-h-0 md:min-h-0 border rounded-lg p-3 text-black bg-white ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
+      onDragOver={(e) => { e.preventDefault(); onContainerDragOver(status) }}
+      onDragEnter={() => onContainerDragOver(status)}
+      onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
+    >
       <div className="text-sm font-mono text-black mb-2">{title}</div>
       <div className="flex-1 space-y-2 overflow-auto pr-1">
         {children}
@@ -217,9 +377,21 @@ function Column({ title, children }: {
 }
 
 
-function Rect({ title, children }: { title: string; children: React.ReactNode }) {
+function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, children }: {
+  title: string
+  status: 'delegate' | 'decide' | 'do' | 'decline'
+  isActive: boolean
+  onContainerDragOver: (s: 'delegate'|'decide'|'do'|'decline') => void
+  onContainerDrop: (s: 'delegate'|'decide'|'do'|'decline') => void
+  children: React.ReactNode
+}) {
   return (
-    <div className="border border-gray-300 rounded-lg p-3 xl:h-full xl:min-h-0 md:min-h-0 flex flex-col text-black bg-white">
+    <div
+      className={`border rounded-lg p-3 xl:h-full xl:min-h-0 md:min-h-0 flex flex-col text-black bg-white ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
+      onDragOver={(e) => { e.preventDefault(); onContainerDragOver(status) }}
+      onDragEnter={() => onContainerDragOver(status)}
+      onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
+    >
       <div className="text-sm font-mono text-black mb-2">{title}</div>
       <div className="flex-1 space-y-2 overflow-auto pr-1">
         {children}
@@ -228,12 +400,16 @@ function Rect({ title, children }: { title: string; children: React.ReactNode })
   )
 }
 
-function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
+function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag }: {
   card: Card
-  onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status'>>) => Promise<void>
+  index: number
+  status: 'delegate' | 'decide' | 'do' | 'decline'
+  onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => Promise<void>
   onDelete: (id: string) => Promise<void>
   onArchive: (id: string) => Promise<void>
-  bubbleContext: { kind: 'delegate' | 'decide' | 'do'; minAge: number; maxAge: number; minRot: number; maxRot: number }
+  bubbleContext: { kind: 'delegate' | 'decide' | 'do' | 'decline'; minAge: number; maxAge: number; minRot: number; maxRot: number }
+  onHoverIndex: (t: { status: 'delegate'|'decide'|'do'|'decline', index: number | null }) => void
+  onDragFlag: (d: { id: string; from: 'delegate'|'decide'|'do'|'decline' } | null) => void
 }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(card.text)
@@ -268,7 +444,33 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
   const rotColor = useMemo(() => interpolateColor(rotStart, rotEnd, rotT), [rotStart, rotEnd, rotT])
 
   return (
-    <div className="border border-gray-300 rounded-md p-3 bg-white text-black">
+    <div
+      className={`border border-gray-300 rounded-md p-3 bg-white text-black`}
+      draggable={!editing}
+      onDragStart={(e) => {
+        if (editing) return
+        try {
+          e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index }))
+        } catch {}
+        e.dataTransfer.effectAllowed = 'move'
+        onDragFlag({ id: card.id, from: status })
+        const el = e.currentTarget as HTMLElement
+        el.classList.add('opacity-70', 'shadow')
+      }}
+      onDragEnd={(e) => {
+        onDragFlag(null)
+        const el = e.currentTarget as HTMLElement
+        el.classList.remove('opacity-70', 'shadow')
+      }}
+      onDragOver={(e) => {
+        // Compute insertion index before/after this item based on cursor position
+        e.preventDefault()
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+        const after = (e.clientY - rect.top) > rect.height / 2
+        const targetIndex = index + (after ? 1 : 0)
+        onHoverIndex({ status, index: targetIndex })
+      }}
+    >
       {editing ? (
         <textarea
           value={text}
@@ -317,6 +519,7 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
             <option value="delegate">delegate</option>
             <option value="decide">decide</option>
             <option value="do">do</option>
+            <option value="decline">decline</option>
           </select>
           <button
             onClick={async () => { await onArchive(card.id) }}

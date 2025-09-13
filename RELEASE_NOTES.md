@@ -1,4 +1,10 @@
 
+## [v2.2.0] — 2025-09-13T17:57:54.565Z
+- (update notes here)
+
+## [v2.2.0] — 2025-09-13T17:57:54.528Z
+- (update notes here)
+
 ## [v2.1.0] — 2025-09-13T17:12:28.362Z
 - UI: Remove all “(X hours)” suffixes from time labels — now display days only for old/rotten/archived badges
 

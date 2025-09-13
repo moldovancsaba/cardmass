@@ -4,11 +4,12 @@ import mongoose, { Schema, model, models } from 'mongoose'
 // Why mongoose timestamps: ensures consistent createdAt/updatedAt in UTC Dates,
 // which we later serialize as ISO 8601 with milliseconds for the UI and docs.
 
-export type CardStatus = 'delegate' | 'decide' | 'do'
+export type CardStatus = 'delegate' | 'decide' | 'do' | 'decline'
 
 export interface CardDoc extends mongoose.Document {
   text: string
   status: CardStatus
+  order: number // relative position within its status group; lower comes first
   archived?: boolean
   archivedAt?: Date
   createdAt: Date
@@ -18,7 +19,11 @@ export interface CardDoc extends mongoose.Document {
 const CardSchema = new Schema<CardDoc>(
   {
     text: { type: String, required: true, trim: true },
-    status: { type: String, enum: ['delegate', 'decide', 'do'], default: 'decide', index: true },
+    // Include 'decline' as a fourth status, used only in the Matrix view by design.
+    status: { type: String, enum: ['delegate', 'decide', 'do', 'decline'], default: 'decide', index: true },
+    // Numeric ordering supports stable drag-and-drop reordering without full reindex.
+    // We use fractional insertion (avg of neighbors) on the client; normalization can be added later.
+    order: { type: Number, required: true, default: 0, index: true },
     archived: { type: Boolean, default: false, index: true },
     archivedAt: { type: Date, default: null },
   },
@@ -28,6 +33,7 @@ const CardSchema = new Schema<CardDoc>(
 // Helpful indexes for common sort/filter
 CardSchema.index({ updatedAt: -1 })
 CardSchema.index({ archivedAt: -1 })
+CardSchema.index({ status: 1, order: 1 })
 
 // Transform Mongo fields to API-friendly JSON
 CardSchema.set('toJSON', {
