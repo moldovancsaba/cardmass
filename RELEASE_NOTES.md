@@ -1,4 +1,11 @@
 
+## [v1.14.0] — 2025-09-13T11:56:52.001Z
+- Archive: wrapped cards in a single rectangle with #archive title to match layout theme
+
+
+## [v1.14.0] — 2025-09-13T11:56:51.920Z
+- (update notes here)
+
 ## [v1.13.0] — 2025-09-13T11:53:22.596Z
 - UX: hide (0 hours) in time hashtags across board and archive
 
