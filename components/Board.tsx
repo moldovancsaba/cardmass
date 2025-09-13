@@ -5,6 +5,7 @@ import { Card } from '@/types/card'
 import { fetchJSON } from '@/lib/client'
 import { daysBetweenUtc, hoursBetweenUtc } from '@/lib/date'
 import { interpolateColor } from '@/lib/color'
+import { useSettings } from '@/lib/settings'
 
 export default function Board() {
   const [roadmap, setRoadmap] = useState<Card[]>([])
@@ -185,10 +186,15 @@ function CardItem({ card, onUpdate, onDelete, bubbleContext }: {
     return (rotMs - bubbleContext.minRot) / span
   }, [rotMs, bubbleContext.maxRot, bubbleContext.minRot])
 
+  const settings = useSettings()
+  const ageStart = settings?.colors?.age?.oldest || '#0a3d91'
+  const ageEnd = settings?.colors?.age?.newest || '#9ecbff'
+  const rotStart = settings?.colors?.rotten?.least || '#2ecc71'
+  const rotEnd = settings?.colors?.rotten?.most || '#8e5b3a'
   // Colors: oldest (dark blue) -> newest (light blue)
-  const ageColor = useMemo(() => interpolateColor('#0a3d91', '#9ecbff', ageT), [ageT])
+  const ageColor = useMemo(() => interpolateColor(ageStart, ageEnd, ageT), [ageStart, ageEnd, ageT])
   // Rotten: least (green) -> most (brown)
-  const rotColor = useMemo(() => interpolateColor('#2ecc71', '#8e5b3a', rotT), [rotT])
+  const rotColor = useMemo(() => interpolateColor(rotStart, rotEnd, rotT), [rotStart, rotEnd, rotT])
 
   return (
     <div className="border border-gray-300 rounded-md p-3 bg-white text-black">

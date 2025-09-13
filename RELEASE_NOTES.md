@@ -1,4 +1,13 @@
+
+## [v0.4.0] — 2025-09-13T10:34:09.061Z
+- Admin page: /admin to configure hashtag bubble colors (age/rotten)
+- Global Settings model and /api/settings (GET/PATCH)
+- Board reads colors from settings provider with defaults
+
 # RELEASE_NOTES
+
+## [v0.4.0] — 2025-09-13T10:33:58.937Z
+- (update notes here)
 
 ## [v{NEW}] — {ISO}
 - UI: Hashtag bubbles for age and rotten metrics
