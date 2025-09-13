@@ -159,14 +159,28 @@ export default function BusinessCanvas() {
     }
   }, [kp,ka,kr,vp,cr,ch,cs,cost,rev])
 
-  const handleDrop = useCallback(async (targetStatus: S) => {
-    const drag = dragging
+  const handleDrop = useCallback(async (e: React.DragEvent, targetStatus: S) => {
+    // Prefer payload from dataTransfer to avoid timing issues with dragend
+    let id: string | null = null
+    let from: S | null = null
+    try {
+      const raw = e.dataTransfer.getData('application/x-cardmass')
+      if (raw) {
+        const parsed = JSON.parse(raw) as { id?: string; fromStatus?: S }
+        id = parsed.id ?? null
+        from = (parsed.fromStatus as S) ?? null
+      }
+    } catch {}
+    // Fallback to current dragging state if needed
+    if (!id || !from) {
+      if (!dragging) return
+      id = dragging.id
+      from = dragging.from
+    }
     const target = dropTarget
     setDropTarget(null)
     setDragging(null)
-    if (!drag) return
-    const id = drag.id
-    const from = drag.from
+    if (!id || !from) return
     const currentList = getList(targetStatus)
     let dropIndex = typeof target?.index === 'number' && target.status === targetStatus ? target.index : currentList.length
     const filtered = currentList.filter((c) => c.id !== id)
@@ -175,38 +189,39 @@ export default function BusinessCanvas() {
     await updateCard(id, from === targetStatus ? { order: newOrder } : { status: targetStatus, order: newOrder })
   }, [dragging, dropTarget, getList, computeOrder, updateCard])
 
-  const onContainerDragOver = useCallback((status: S) => {
+  const onContainerDragOver = useCallback((status: S, e?: React.DragEvent) => {
+    if (e) { try { e.dataTransfer.dropEffect = 'move' } catch {} }
     setDropTarget((prev) => ({ status, index: prev?.status === status ? (prev.index ?? null) : null }))
   }, [])
 
   const TopGrid = () => (
     <div className="grid grid-cols-5 grid-rows-2 gap-4 h-full min-h-0">
       {/* Row 1, Col 1: Key Partners spans 2 rows (2/3 height) */}
-      <CanvasBlock title={titles.kp} status={'bmc:key_partners'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.kp} status={'bmc:key_partners'} rows={2} onDrop={(e) => handleDrop(e, 'bmc:key_partners')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {kp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Row 1, Col 2: Key Activities (1/3 height) */}
-      <CanvasBlock title={titles.ka} status={'bmc:key_activities'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.ka} status={'bmc:key_activities'} rows={1} onDrop={(e) => handleDrop(e, 'bmc:key_activities')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {ka.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Row 1, Col 3: Value Propositions spans 2 rows (2/3 height) */}
-      <CanvasBlock title={titles.vp} status={'bmc:value_propositions'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.vp} status={'bmc:value_propositions'} rows={2} onDrop={(e) => handleDrop(e, 'bmc:value_propositions')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {vp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Row 1, Col 4: Customer Relationships (1/3 height) */}
-      <CanvasBlock title={titles.cr} status={'bmc:customer_relationships'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.cr} status={'bmc:customer_relationships'} rows={1} onDrop={(e) => handleDrop(e, 'bmc:customer_relationships')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {cr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Row 1, Col 5: Customer Segments spans 2 rows (2/3 height) */}
-      <CanvasBlock title={titles.cs} status={'bmc:customer_segments'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.cs} status={'bmc:customer_segments'} rows={2} onDrop={(e) => handleDrop(e, 'bmc:customer_segments')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {cs.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Row 2, Col 2: Key Resources (1/3 height) */}
-      <CanvasBlock title={titles.kr} status={'bmc:key_resources'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.kr} status={'bmc:key_resources'} rows={1} onDrop={(e) => handleDrop(e, 'bmc:key_resources')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {kr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Row 2, Col 4: Channels (1/3 height) */}
-      <CanvasBlock title={titles.ch} status={'bmc:channels'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.ch} status={'bmc:channels'} rows={1} onDrop={(e) => handleDrop(e, 'bmc:channels')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {ch.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
     </div>
@@ -214,10 +229,10 @@ export default function BusinessCanvas() {
 
   const BottomGrid = () => (
     <div className="grid grid-cols-2 gap-4 h-full min-h-0">
-      <CanvasBlock title={titles.cost} status={'bmc:cost_structure'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.cost} status={'bmc:cost_structure'} rows={1} onDrop={(e) => handleDrop(e, 'bmc:cost_structure')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {cost.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
-      <CanvasBlock title={titles.rev} status={'bmc:revenue_streams'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+      <CanvasBlock title={titles.rev} status={'bmc:revenue_streams'} rows={1} onDrop={(e) => handleDrop(e, 'bmc:revenue_streams')} onDragOver={(s, e) => onContainerDragOver(s, e)}>
         {rev.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
     </div>
@@ -255,16 +270,16 @@ function CanvasBlock({ title, status, rows, onDrop, onDragOver, children }: {
   title: string
   status: Card['status']
   rows: 1 | 2
-  onDrop: (s: Card['status']) => void
-  onDragOver: (s: Card['status']) => void
+  onDrop: (e: React.DragEvent, s: Card['status']) => void
+  onDragOver: (s: Card['status'], e?: React.DragEvent) => void
   children: React.ReactNode
 }) {
   return (
     <div
       className={`border rounded-lg p-3 text-black bg-white ${rows===2 ? 'row-span-2' : ''} border-gray-300 h-full min-h-0 flex flex-col`}
-      onDragOver={(e) => { e.preventDefault(); onDragOver(status) }}
-      onDragEnter={() => onDragOver(status)}
-      onDrop={(e) => { e.preventDefault(); onDrop(status) }}
+      onDragOver={(e) => { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move' } catch {}; onDragOver(status, e) }}
+      onDragEnter={(e) => { onDragOver(status, e) }}
+      onDrop={(e) => { e.preventDefault(); onDrop(e, status) }}
     >
       <div className="text-sm font-mono text-black mb-2">#{title}</div>
       <div className="flex-1 min-h-0 overflow-auto space-y-2">
