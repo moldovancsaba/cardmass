@@ -128,7 +128,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
           </Column>
         </div>
       ) : (
-        <div className="mt-2 xl:pl-16 xl:pt-8 grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-full xl:min-h-0 gap-4 relative items-stretch">
+        <div className="xl:pl-16 xl:pt-8 grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-full xl:min-h-0 gap-4 relative items-stretch">
           <Rect title="#do">
             {todo.map((c) => (
               <CardItem

@@ -33,7 +33,7 @@ export default function BottomBar({ disabled = false, view = 'kanban', onCreate,
   const toggleLabel = view === 'kanban' ? 'matrix' : 'kanban'
 
   return (
-    <div className="mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2 shrink-0">
+    <div className="mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2 shrink-0 xl:mt-2">
       <div className="flex-1">
         <textarea
           value={value}
