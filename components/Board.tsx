@@ -404,7 +404,7 @@ function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, c
   )
 }
 
-export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag }: {
+export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag, statusOptions, hideBadges = false }: {
   card: Card
   index: number
   status: Card['status']
@@ -414,6 +414,8 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
   bubbleContext: { kind: Card['status']; minAge: number; maxAge: number; minRot: number; maxRot: number }
   onHoverIndex: (t: { status: Card['status'], index: number | null }) => void
   onDragFlag: (d: { id: string; from: Card['status'] } | null) => void
+  statusOptions?: Array<{ value: Card['status']; label: string }>
+  hideBadges?: boolean
 }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(card.text)
@@ -446,6 +448,14 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
   const ageColor = useMemo(() => interpolateColor(ageStart, ageEnd, ageT), [ageStart, ageEnd, ageT])
   // Rotten: least (green) -> most (brown)
   const rotColor = useMemo(() => interpolateColor(rotStart, rotEnd, rotT), [rotStart, rotEnd, rotT])
+
+  const defaultStatusOptions: Array<{ value: Card['status']; label: string }> = [
+    { value: 'delegate', label: 'delegate' },
+    { value: 'decide', label: 'decide' },
+    { value: 'do', label: 'do' },
+    { value: 'decline', label: 'decline' },
+  ]
+  const options = statusOptions ?? defaultStatusOptions
 
   return (
     <div
@@ -499,18 +509,16 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
       )}
       <div className="mt-2 flex items-center justify-between text-xs text-gray-700">
         <div className="flex items-center gap-2">
-          <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-mono"
-            style={{ backgroundColor: ageColor }}
-          >
-            #{daysOld} days old
-          </span>
-          <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-mono"
-            style={{ backgroundColor: rotColor }}
-          >
-            #rotten for {rottenDays} days
-          </span>
+          {!hideBadges && (
+            <>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor }}>
+                #{daysOld} days old
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotColor }}>
+                #rotten for {rottenDays} days
+              </span>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <select
@@ -520,10 +528,9 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
             }}
             className="border border-gray-300 rounded px-1 py-0.5 text-xs bg-white text-black"
           >
-            <option value="delegate">delegate</option>
-            <option value="decide">decide</option>
-            <option value="do">do</option>
-            <option value="decline">decline</option>
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
           </select>
           <button
             onClick={async () => { await onArchive(card.id) }}
