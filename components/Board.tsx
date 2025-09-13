@@ -127,7 +127,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
           </Column>
         </div>
       ) : (
-        <div className="mt-2 md:ml-10 grid grid-cols-1 md:grid-cols-2 gap-4 relative">
+        <div className="mt-2 md:pl-16 md:pt-8 grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 md:h-full gap-4 relative">
           <Rect title="#do">
             {todo.map((c) => (
               <CardItem
@@ -168,17 +168,17 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             <div className="text-xs text-gray-600">Use the delete action on any card to remove it.</div>
           </Rect>
           {/* Axis labels */}
-          <div className="hidden md:block absolute left-0 top-1/4 -translate-y-1/2 -translate-x-full z-10 pointer-events-none">
+          <div className="hidden md:block absolute left-2 top-1/4 -translate-y-1/2 z-10 pointer-events-none">
             <div className="-rotate-90 origin-left text-sm font-mono text-black">Important</div>
           </div>
-          <div className="hidden md:block absolute left-0 top-3/4 -translate-y-1/2 -translate-x-full z-10 pointer-events-none">
+          <div className="hidden md:block absolute left-2 top-3/4 -translate-y-1/2 z-10 pointer-events-none">
             <div className="-rotate-90 origin-left text-sm font-mono text-black">Not Important</div>
           </div>
-          <div className="hidden md:block absolute left-1/4 top-0 -translate-x-1/2 -translate-y-full">
-            <div className="text-sm font-mono">Urgent</div>
+          <div className="hidden md:block absolute left-1/4 top-2 -translate-x-1/2 z-10 pointer-events-none">
+            <div className="text-sm font-mono text-black">Urgent</div>
           </div>
-          <div className="hidden md:block absolute left-3/4 top-0 -translate-x-1/2 -translate-y-full">
-            <div className="text-sm font-mono">Not-Urgent</div>
+          <div className="hidden md:block absolute left-3/4 top-2 -translate-x-1/2 z-10 pointer-events-none">
+            <div className="text-sm font-mono text-black">Not-Urgent</div>
           </div>
         </div>
       )}
