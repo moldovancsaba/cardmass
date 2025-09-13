@@ -13,7 +13,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
   const [todo, setTodo] = useState<Card[]>([])
-  const [view, setView] = useState<'kanban' | 'matrix'>(initialView)
+  const [view] = useState<'kanban' | 'matrix'>(initialView)
 
   const load = useCallback(async () => {
     const [r, b, t] = await Promise.all([

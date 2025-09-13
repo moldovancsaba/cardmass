@@ -29,7 +29,6 @@ function ArchiveGrid() {
   const [items, setItems] = useState<ACard[]>([])
   const settings = useSettings()
   const rotStart = settings?.colors?.rotten?.least || '#2ecc71'
-  const rotEnd = settings?.colors?.rotten?.most || '#8e5b3a'
 
   useEffect(() => {
     let cancelled = false
@@ -48,13 +47,13 @@ function ArchiveGrid() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {items.map((c) => (
-        <ArchivedCard key={c.id} card={c} rotStart={rotStart} rotEnd={rotEnd} />
+        <ArchivedCard key={c.id} card={c} rotStart={rotStart} />
       ))}
     </div>
   )
 }
 
-function ArchivedCard({ card, rotStart, rotEnd }: { card: ACard, rotStart: string, rotEnd: string }) {
+function ArchivedCard({ card, rotStart }: { card: ACard, rotStart: string }) {
   const hoursAgo = useMemo(() => hoursBetweenUtc(card.archivedAt || card.updatedAt), [card.archivedAt, card.updatedAt])
   const daysAgo = Math.floor(hoursAgo / 24)
   // For simplicity, use rotten color scale to theme the archived badge

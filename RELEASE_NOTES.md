@@ -1,4 +1,11 @@
 
+## [v1.10.0] — 2025-09-13T11:43:47.371Z
+- Chore: remove admin useEffect dependency warnings by inlining defaults
+
+
+## [v1.10.0] — 2025-09-13T11:43:47.305Z
+- (update notes here)
+
 ## [v1.9.0] — 2025-09-13T11:40:43.953Z
 - Fix: archive button wired to PATCH; bottom archive nav button added
 - API: /api/cards supports archived filter

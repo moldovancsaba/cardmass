@@ -28,10 +28,10 @@ function SettingsForm() {
     fetchJSON<S>('/api/settings').then((s) => {
       if (cancelled) return
       setForm({
-        age_oldest: s.colors?.age?.oldest || form.age_oldest,
-        age_newest: s.colors?.age?.newest || form.age_newest,
-        rotten_least: s.colors?.rotten?.least || form.rotten_least,
-        rotten_most: s.colors?.rotten?.most || form.rotten_most,
+        age_oldest: s.colors?.age?.oldest ?? '#0a3d91',
+        age_newest: s.colors?.age?.newest ?? '#9ecbff',
+        rotten_least: s.colors?.rotten?.least ?? '#2ecc71',
+        rotten_most: s.colors?.rotten?.most ?? '#8e5b3a',
       })
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -51,7 +51,7 @@ function SettingsForm() {
         }),
       })
       alert('Saved. Reload the board to see new colors applied.')
-    } catch (_e) {
+    } catch {
       alert('Error saving settings')
     } finally {
       setSaving(false)
