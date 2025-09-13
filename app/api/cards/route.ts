@@ -7,17 +7,24 @@ export const runtime = 'nodejs'
 const allowedStatuses = ['roadmap', 'backlog', 'todo'] as const
 export type Status = typeof allowedStatuses[number]
 
-// GET /api/cards?status=roadmap|backlog|todo
+// GET /api/cards?status=roadmap|backlog|todo&archived=true|false
 export async function GET(req: Request) {
   await connectToDatabase()
   const url = new URL(req.url)
   const status = url.searchParams.get('status')
-  const filter: { status?: Status } = {}
+  const archivedParam = url.searchParams.get('archived')
+  const filter: { status?: Status; archived?: boolean | { $ne: boolean } } = {}
   if (status) {
     if (!(allowedStatuses as readonly string[]).includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
     filter.status = status as Status
+  }
+  // Default: exclude archived unless explicitly requested
+  if (archivedParam === 'true' || archivedParam === '1') {
+    filter.archived = true
+  } else if (archivedParam === 'false' || archivedParam === '0' || archivedParam === null) {
+    filter.archived = { $ne: true }
   }
   const docs = await Card.find(filter).sort({ updatedAt: -1 })
   const payload = docs.map((d) => d.toJSON())

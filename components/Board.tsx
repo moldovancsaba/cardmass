@@ -59,6 +59,13 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
     setTodo((prev) => prev.filter((c) => c.id !== id))
   }, [])
 
+  const archiveCard = useCallback(async (id: string) => {
+    await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) })
+    setRoadmap((prev) => prev.filter((c) => c.id !== id))
+    setBacklog((prev) => prev.filter((c) => c.id !== id))
+    setTodo((prev) => prev.filter((c) => c.id !== id))
+  }, [])
+
   // For bubble gradients, compute min/max ages and rottenness per column
   const stats = useMemo(() => {
     const columns = { roadmap, backlog, todo } as const
@@ -83,35 +90,38 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Column title="#delegate">
             {roadmap.map((c) => (
-              <CardItem
-                key={c.id}
-                card={c}
-                onUpdate={updateCard}
-                onDelete={deleteCard}
-                bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
-              />
+          <CardItem
+            key={c.id}
+            card={c}
+            onUpdate={updateCard}
+            onDelete={deleteCard}
+            onArchive={archiveCard}
+            bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
+          />
             ))}
           </Column>
           <Column title="#decide">
             {backlog.map((c) => (
-              <CardItem
-                key={c.id}
-                card={c}
-                onUpdate={updateCard}
-                onDelete={deleteCard}
-                bubbleContext={{ kind: 'backlog', ...stats.backlog }}
-              />
+          <CardItem
+            key={c.id}
+            card={c}
+            onUpdate={updateCard}
+            onDelete={deleteCard}
+            onArchive={archiveCard}
+            bubbleContext={{ kind: 'backlog', ...stats.backlog }}
+          />
             ))}
           </Column>
           <Column title="#do">
             {todo.map((c) => (
-              <CardItem
-                key={c.id}
-                card={c}
-                onUpdate={updateCard}
-                onDelete={deleteCard}
-                bubbleContext={{ kind: 'todo', ...stats.todo }}
-              />
+          <CardItem
+            key={c.id}
+            card={c}
+            onUpdate={updateCard}
+            onDelete={deleteCard}
+            onArchive={archiveCard}
+            bubbleContext={{ kind: 'todo', ...stats.todo }}
+          />
             ))}
           </Column>
         </div>
@@ -124,6 +134,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 card={c}
                 onUpdate={updateCard}
                 onDelete={deleteCard}
+                onArchive={archiveCard}
                 bubbleContext={{ kind: 'todo', ...stats.todo }}
               />
             ))}
@@ -135,6 +146,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 card={c}
                 onUpdate={updateCard}
                 onDelete={deleteCard}
+                onArchive={archiveCard}
                 bubbleContext={{ kind: 'backlog', ...stats.backlog }}
               />
             ))}
@@ -146,6 +158,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 card={c}
                 onUpdate={updateCard}
                 onDelete={deleteCard}
+                onArchive={archiveCard}
                 bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
               />
             ))}
@@ -172,15 +185,23 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
       {/* Bottom sticky composer and layout toggle */}
       <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2">
         <Composer onCreate={createCard} />
-        <button
-          onClick={() => {
-            const target = view === 'kanban' ? '/matrix' : '/kanban'
-            router.push(target)
-          }}
-          className="ml-auto border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
-        >
-          {view === 'kanban' ? 'matrix' : 'kanban'}
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => router.push('/archive')}
+            className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
+          >
+            archive
+          </button>
+          <button
+            onClick={() => {
+              const target = view === 'kanban' ? '/matrix' : '/kanban'
+              router.push(target)
+            }}
+            className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
+          >
+            {view === 'kanban' ? 'matrix' : 'kanban'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -235,10 +256,11 @@ function Rect({ title, children }: { title: string; children: React.ReactNode })
   )
 }
 
-function CardItem({ card, onUpdate, onDelete, bubbleContext }: {
+function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
   card: Card
   onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status'>>) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onArchive: (id: string) => Promise<void>
   bubbleContext: { kind: 'roadmap' | 'backlog' | 'todo'; minAge: number; maxAge: number; minRot: number; maxRot: number }
 }) {
   const [editing, setEditing] = useState(false)
@@ -327,7 +349,7 @@ function CardItem({ card, onUpdate, onDelete, bubbleContext }: {
             <option value="todo">todo</option>
           </select>
           <button
-            onClick={async () => { await onUpdate(card.id, { status: card.status }); await fetchJSON(`/api/cards/${card.id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); }}
+            onClick={async () => { await onArchive(card.id) }}
             className="text-gray-700 hover:underline"
             aria-label="Archive card"
           >
