@@ -1,4 +1,11 @@
 
+## [v1.26.0] — 2025-09-13T16:10:34.215Z
+- Admin: wrapped in themed rectangle like archive; BottomBar active nav + disabled input
+
+
+## [v1.26.0] — 2025-09-13T16:10:34.147Z
+- (update notes here)
+
 ## [v1.25.0] — 2025-09-13T13:02:00.644Z
 - Landscape: page scroll disabled; only internal rectangles/columns scroll (matrix)
 

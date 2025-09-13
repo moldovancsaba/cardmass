@@ -7,9 +7,13 @@ import BottomBar from "@/components/BottomBar"
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen p-4 bg-white text-black">
-      <h1 className="text-xl font-mono mb-4">#admin — hashtag color settings</h1>
-      <SettingsForm />
+    <main className="min-h-screen p-4 bg-white text-black flex flex-col">
+      <div className="border border-gray-300 rounded-lg p-3 md:h-[calc(100vh-10rem)] flex flex-col text-black bg-white">
+        <div className="text-sm font-mono text-black mb-2">#admin</div>
+        <div className="flex-1 overflow-auto pr-1">
+          <SettingsForm />
+        </div>
+      </div>
       <BottomBar
         disabled
         view="kanban"
