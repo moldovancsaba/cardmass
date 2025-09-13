@@ -4,14 +4,18 @@ import { useEffect, useState } from 'react'
 import { fetchJSON } from '@/lib/client'
 
 import BottomBar from "@/components/BottomBar"
+import { useRouter } from 'next/navigation'
 
 export default function AdminPage() {
+  const router = useRouter()
   return (
-    <main className="min-h-screen p-4 bg-white text-black flex flex-col">
-      <div className="border border-gray-300 rounded-lg p-3 md:h-[calc(100vh-10rem)] flex flex-col text-black bg-white">
-        <div className="text-sm font-mono text-black mb-2">#admin</div>
-        <div className="flex-1 overflow-auto pr-1">
-          <SettingsForm />
+    <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
+      <div className="flex-1 xl:overflow-hidden">
+        <div className="border border-gray-300 rounded-lg p-3 h-full md:min-h-0 flex flex-col text-black bg-white">
+          <div className="text-sm font-mono text-black mb-2">#admin</div>
+          <div className="flex-1 overflow-auto pr-1">
+            <SettingsForm />
+          </div>
         </div>
       </div>
       <BottomBar
@@ -21,9 +25,9 @@ export default function AdminPage() {
         showArchive={true}
         showKanban={true}
         showMatrix={true}
-        onArchiveNav={() => (window.location.href = '/archive')}
-        onKanbanNav={() => (window.location.href = '/kanban')}
-        onMatrixNav={() => (window.location.href = '/matrix')}
+        onArchiveNav={() => router.push('/archive')}
+        onKanbanNav={() => router.push('/kanban')}
+        onMatrixNav={() => router.push('/matrix')}
       />
     </main>
   )

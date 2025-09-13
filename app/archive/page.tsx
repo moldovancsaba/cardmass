@@ -7,11 +7,15 @@ import { useSettings } from '@/lib/settings'
 import { hoursBetweenUtc } from '@/lib/date'
 import BottomBar from '@/components/BottomBar'
 import { interpolateColor } from '@/lib/color'
+import { useRouter } from 'next/navigation'
 
 export default function ArchivePage() {
+  const router = useRouter()
   return (
-    <main className="min-h-screen p-4 bg-white text-black">
-      <ArchiveGrid />
+    <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
+      <div className="flex-1 xl:overflow-hidden">
+        <ArchiveGrid />
+      </div>
       <BottomBar
         disabled
         view="kanban"
@@ -19,8 +23,8 @@ export default function ArchivePage() {
         showArchive={false}
         showKanban={true}
         showMatrix={true}
-        onKanbanNav={() => (window.location.href = '/kanban')}
-        onMatrixNav={() => (window.location.href = '/matrix')}
+        onKanbanNav={() => router.push('/kanban')}
+        onMatrixNav={() => router.push('/matrix')}
       />
     </main>
   )
@@ -57,7 +61,7 @@ function ArchiveGrid() {
   }, [])
 
   return (
-    <div className="border border-gray-300 rounded-lg p-3 md:h-[calc(100vh-10rem)] flex flex-col text-black bg-white">
+    <div className="border border-gray-300 rounded-lg p-3 h-full md:min-h-0 flex flex-col text-black bg-white">
       <div className="text-sm font-mono text-black mb-2">#archive</div>
       <div className="flex-1 overflow-auto pr-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
