@@ -1,4 +1,12 @@
 
+## [v1.15.0] — 2025-09-13T12:00:58.536Z
+- Layout: on md+ screens, outer layout is fixed to viewport; inner columns/rectangles scroll
+- Mobile remains unchanged
+
+
+## [v1.15.0] — 2025-09-13T12:00:58.471Z
+- (update notes here)
+
 ## [v1.14.0] — 2025-09-13T11:56:52.001Z
 - Archive: wrapped cards in a single rectangle with #archive title to match layout theme
 
