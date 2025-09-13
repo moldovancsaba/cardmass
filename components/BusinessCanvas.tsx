@@ -170,9 +170,13 @@ export default function BusinessCanvas() {
         id = parsed.id ?? null
         from = (parsed.fromStatus as S) ?? null
       }
+      if (!id) {
+        const plain = e.dataTransfer.getData('text/plain')
+        if (plain) id = plain
+      }
     } catch {}
     // Fallback to current dragging state if needed
-    if (!id || !from) {
+    if (!id) {
       if (!dragging) return
       id = dragging.id
       from = dragging.from
@@ -180,7 +184,6 @@ export default function BusinessCanvas() {
     const target = dropTarget
     setDropTarget(null)
     setDragging(null)
-    if (!id || !from) return
     const currentList = getList(targetStatus)
     let dropIndex = typeof target?.index === 'number' && target.status === targetStatus ? target.index : currentList.length
     const filtered = currentList.filter((c) => c.id !== id)
@@ -303,13 +306,7 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
   const [text, setText] = useState(card.text)
   useEffect(() => setText(card.text), [card.text])
 
-  const daysOld = useMemo(() => daysBetweenUtc(card.createdAt), [card.createdAt])
-  const rottenDays = useMemo(() => daysBetweenUtc(card.updatedAt), [card.updatedAt])
-
-  const ageMs = useMemo(() => Date.now() - new Date(card.createdAt).getTime(), [card.createdAt])
-  const rotMs = useMemo(() => Date.now() - new Date(card.updatedAt).getTime(), [card.updatedAt])
-  const ageColor = useMemo(() => interpolateColor('#0a3d91', '#9ecbff', 1), [])
-  const rotColor = useMemo(() => interpolateColor('#2ecc71', '#8e5b3a', 0), [])
+  // Business Canvas cards hide time badges (age/rotten) as not relevant here.
 
   return (
     <div
@@ -317,7 +314,10 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
       draggable={!editing}
       onDragStart={(e) => {
         if (editing) return
-        try { e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index })) } catch {}
+        try {
+          e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index }))
+        } catch {}
+        try { e.dataTransfer.setData('text/plain', card.id) } catch {}
         e.dataTransfer.effectAllowed = 'move'
         onDragFlag({ id: card.id, from: status })
       }}
@@ -352,15 +352,7 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
       ) : (
         <div className="whitespace-pre-wrap text-sm text-black">{card.text}</div>
       )}
-      <div className="mt-2 flex items-center justify-between text-xs text-gray-700">
-        <div className="flex items-center gap-2">
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor }}>
-            #{daysOld} days old
-          </span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotColor }}>
-            #rotten for {rottenDays} days
-          </span>
-        </div>
+      <div className="mt-2 flex items-center justify-end text-xs text-gray-700">
         <div className="flex items-center gap-2">
           <button onClick={async () => { await onArchive(card.id) }} className="text-gray-700 hover:underline" aria-label="Archive card">archive</button>
           <button onClick={() => setEditing((v) => !v)} className="text-blue-600 hover:underline" aria-label="Edit text">{editing ? 'cancel' : 'edit'}</button>
