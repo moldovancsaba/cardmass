@@ -191,9 +191,11 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
         onCreate={createCard}
         onToggle={() => router.push(view === 'kanban' ? '/matrix' : '/kanban')}
         onArchiveNav={() => router.push('/archive')}
+        onAdminNav={() => router.push('/admin')}
         showKanban={false}
         showMatrix={false}
         showArchive={true}
+        showAdmin={true}
         showToggle={true}
       />
     </div>

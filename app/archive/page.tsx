@@ -24,8 +24,10 @@ export default function ArchivePage() {
           showArchive={false}
           showKanban={true}
           showMatrix={true}
+          showAdmin={true}
           onKanbanNav={() => router.push('/kanban')}
           onMatrixNav={() => router.push('/matrix')}
+          onAdminNav={() => router.push('/admin')}
         />
       </div>
     </main>
