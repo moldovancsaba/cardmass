@@ -1,4 +1,11 @@
 
+## [v1.24.0] — 2025-09-13T12:52:02.358Z
+- Desktop: page scroll enabled; internal columns/rectangles scroll; matrix rectangles constrained (min-h-0)
+
+
+## [v1.24.0] — 2025-09-13T12:52:02.289Z
+- (update notes here)
+
 ## [v1.23.0] — 2025-09-13T12:48:50.600Z
 - Matrix: 2x2 grid now fills remaining height above BottomBar; no overlap
 - Layout: page uses flex column; BottomBar is non-sticky and shrink-0
