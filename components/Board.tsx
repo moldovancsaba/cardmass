@@ -327,13 +327,13 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
             className="px-2 py-0.5 rounded-full text-[10px] font-mono"
             style={{ backgroundColor: ageColor }}
           >
-            #{daysOld} days ({hoursOld} hours) old
+            #{daysOld} days{hoursOld > 0 ? ` (${hoursOld} hours)` : ''} old
           </span>
           <span
             className="px-2 py-0.5 rounded-full text-[10px] font-mono"
             style={{ backgroundColor: rotColor }}
           >
-            #rotten for {rottenDays} days ({rottenHours} hours)
+            #rotten for {rottenDays} days{rottenHours > 0 ? ` (${rottenHours} hours)` : ''}
           </span>
         </div>
         <div className="flex items-center gap-2">
