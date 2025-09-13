@@ -9,6 +9,8 @@ export type CardStatus = 'roadmap' | 'backlog' | 'todo'
 export interface CardDoc extends mongoose.Document {
   text: string
   status: CardStatus
+  archived?: boolean
+  archivedAt?: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -17,12 +19,15 @@ const CardSchema = new Schema<CardDoc>(
   {
     text: { type: String, required: true, trim: true },
     status: { type: String, enum: ['roadmap', 'backlog', 'todo'], default: 'backlog', index: true },
+    archived: { type: Boolean, default: false, index: true },
+    archivedAt: { type: Date, default: null },
   },
   { timestamps: true }
 )
 
 // Helpful indexes for common sort/filter
 CardSchema.index({ updatedAt: -1 })
+CardSchema.index({ archivedAt: -1 })
 
 // Transform Mongo fields to API-friendly JSON
 CardSchema.set('toJSON', {
@@ -36,6 +41,7 @@ CardSchema.set('toJSON', {
     // Ensure ISO 8601 with milliseconds
     if (ret.createdAt instanceof Date) ret.createdAt = ret.createdAt.toISOString()
     if (ret.updatedAt instanceof Date) ret.updatedAt = ret.updatedAt.toISOString()
+    if (ret.archivedAt instanceof Date) ret.archivedAt = ret.archivedAt.toISOString()
     return ret
   },
 })

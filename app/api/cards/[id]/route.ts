@@ -13,9 +13,9 @@ export async function PATCH(req: Request, context: unknown) {
   await connectToDatabase()
   let bodyUnknown: unknown
   try { bodyUnknown = await req.json() } catch { bodyUnknown = {} }
-  const body = (bodyUnknown ?? {}) as { text?: string; status?: string }
+  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; archived?: boolean }
 
-  const update: Partial<{ text: string; status: Status }> = {}
+  const update: Partial<{ text: string; status: Status; archived: boolean; archivedAt: Date | null }> = {}
   if (typeof body.text === 'string') {
     const t = body.text.trim()
     if (!t) return NextResponse.json({ error: 'Text cannot be empty' }, { status: 400 })
@@ -35,7 +35,17 @@ export async function PATCH(req: Request, context: unknown) {
   const id = params?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  const updated = await Card.findByIdAndUpdate(id, update, {
+  // Archiving sets archived=true and archivedAt now
+  if (body.archived === true) {
+    update.archived = true
+    update.archivedAt = new Date()
+  }
+  if (body.archived === false) {
+    update.archived = false
+    update.archivedAt = null
+  }
+
+  const updated = await Card.findByIdAndUpdate(params.id, update, {
     new: true,
     runValidators: true,
   })
