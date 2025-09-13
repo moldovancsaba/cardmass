@@ -5,7 +5,7 @@ import type { Status } from '@/app/api/cards/route'
 
 export const runtime = 'nodejs'
 
-const allowedStatuses = ['roadmap', 'backlog', 'todo'] as const
+const allowedStatuses = ['delegate', 'decide', 'do'] as const
 
 // PATCH /api/cards/[id]
 // DELETE /api/cards/[id]
