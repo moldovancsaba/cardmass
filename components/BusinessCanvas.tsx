@@ -1,13 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import BottomBar from '@/components/BottomBar'
 import { useRouter } from 'next/navigation'
 import { useSettings } from '@/lib/settings'
 import { fetchJSON } from '@/lib/client'
 import type { Card } from '@/types/card'
-import { daysBetweenUtc } from '@/lib/date'
-import { interpolateColor } from '@/lib/color'
 
 // BusinessCanvas implements the Business Model Canvas layout (9 regions)
 // Defaults come from settings.business; new cards always start in Value Propositions
@@ -315,7 +313,7 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
 
   return (
     <div
-      className="border border-gray-300 rounded-md p-3 bg-white text-black"
+      className="border border-gray-300 rounded-md p-3 bg-white text-black cursor-move select-none"
       draggable={!editing}
       onDragStart={(e) => {
         if (editing) return
@@ -323,12 +321,14 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
           e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index }))
         } catch {}
         try { e.dataTransfer.setData('text/plain', card.id) } catch {}
+        try { e.dataTransfer.setDragImage(e.currentTarget as Element, 10, 10) } catch {}
         e.dataTransfer.effectAllowed = 'move'
         onDragFlag({ id: card.id, from: status })
       }}
       onDragEnd={() => onDragFlag(null)}
       onDragOver={(e) => {
         e.preventDefault()
+        try { e.dataTransfer.dropEffect = 'move' } catch {}
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
         const after = (e.clientY - rect.top) > rect.height / 2
         const targetIndex = index + (after ? 1 : 0)
