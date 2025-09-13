@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useSettings } from '@/lib/settings'
 import { fetchJSON } from '@/lib/client'
 import type { Card } from '@/types/card'
+import { Column as BoardColumn, CardItem as BoardCardItem } from '@/components/Board'
 
 // BusinessCanvas implements the Business Model Canvas layout (9 regions)
 // Defaults come from settings.business; new cards always start in Value Propositions
@@ -178,47 +179,73 @@ export default function BusinessCanvas() {
     setDropTarget((prev) => ({ status, index: prev?.status === status ? (prev.index ?? null) : null }))
   }, [])
 
+  const commonBubbles = { minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }
   const TopGrid = () => (
     <div className="grid grid-cols-5 grid-rows-2 gap-4 h-full min-h-0">
-      {/* Row 1, Col 1: Key Partners spans 2 rows (2/3 height) */}
-      <CanvasBlock title={titles.kp} status={'bmc:key_partners'} rows={2} onDrop={() => handleDrop('bmc:key_partners')} onDragOver={(s) => onContainerDragOver(s)}>
-        {kp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      {/* Row 1, Col 2: Key Activities (1/3 height) */}
-      <CanvasBlock title={titles.ka} status={'bmc:key_activities'} rows={1} onDrop={() => handleDrop('bmc:key_activities')} onDragOver={(s) => onContainerDragOver(s)}>
-        {ka.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      {/* Row 1, Col 3: Value Propositions spans 2 rows (2/3 height) */}
-      <CanvasBlock title={titles.vp} status={'bmc:value_propositions'} rows={2} onDrop={() => handleDrop('bmc:value_propositions')} onDragOver={(s) => onContainerDragOver(s)}>
-        {vp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      {/* Row 1, Col 4: Customer Relationships (1/3 height) */}
-      <CanvasBlock title={titles.cr} status={'bmc:customer_relationships'} rows={1} onDrop={() => handleDrop('bmc:customer_relationships')} onDragOver={(s) => onContainerDragOver(s)}>
-        {cr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      {/* Row 1, Col 5: Customer Segments spans 2 rows (2/3 height) */}
-      <CanvasBlock title={titles.cs} status={'bmc:customer_segments'} rows={2} onDrop={() => handleDrop('bmc:customer_segments')} onDragOver={(s) => onContainerDragOver(s)}>
-        {cs.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      {/* Row 2, Col 2: Key Resources (1/3 height) */}
-      <CanvasBlock title={titles.kr} status={'bmc:key_resources'} rows={1} onDrop={() => handleDrop('bmc:key_resources')} onDragOver={(s) => onContainerDragOver(s)}>
-        {kr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      {/* Row 2, Col 4: Channels (1/3 height) */}
-      <CanvasBlock title={titles.ch} status={'bmc:channels'} rows={1} onDrop={() => handleDrop('bmc:channels')} onDragOver={(s) => onContainerDragOver(s)}>
-        {ch.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
+      <div className="row-span-2">
+        <BoardColumn title={titles.kp} status={'bmc:key_partners'} isActive={dropTarget?.status==='bmc:key_partners'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {kp.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_partners', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
+      <div className="row-span-1">
+        <BoardColumn title={titles.ka} status={'bmc:key_activities'} isActive={dropTarget?.status==='bmc:key_activities'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {ka.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_activities', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
+      <div className="row-span-2">
+        <BoardColumn title={titles.vp} status={'bmc:value_propositions'} isActive={dropTarget?.status==='bmc:value_propositions'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {vp.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:value_propositions', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
+      <div className="row-span-1">
+        <BoardColumn title={titles.cr} status={'bmc:customer_relationships'} isActive={dropTarget?.status==='bmc:customer_relationships'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {cr.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_relationships', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
+      <div className="row-span-2">
+        <BoardColumn title={titles.cs} status={'bmc:customer_segments'} isActive={dropTarget?.status==='bmc:customer_segments'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {cs.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_segments', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
+      <div className="row-span-1 col-start-2">
+        <BoardColumn title={titles.kr} status={'bmc:key_resources'} isActive={dropTarget?.status==='bmc:key_resources'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {kr.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_resources', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
+      <div className="row-span-1 col-start-4">
+        <BoardColumn title={titles.ch} status={'bmc:channels'} isActive={dropTarget?.status==='bmc:channels'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+          {ch.map((c, idx) => (
+            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:channels', ...commonBubbles }} />
+          ))}
+        </BoardColumn>
+      </div>
     </div>
   )
 
   const BottomGrid = () => (
     <div className="grid grid-cols-2 gap-4 h-full min-h-0">
-      <CanvasBlock title={titles.cost} status={'bmc:cost_structure'} rows={1} onDrop={() => handleDrop('bmc:cost_structure')} onDragOver={(s) => onContainerDragOver(s)}>
-        {cost.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
-      <CanvasBlock title={titles.rev} status={'bmc:revenue_streams'} rows={1} onDrop={() => handleDrop('bmc:revenue_streams')} onDragOver={(s) => onContainerDragOver(s)}>
-        {rev.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-      </CanvasBlock>
+      <BoardColumn title={titles.cost} status={'bmc:cost_structure'} isActive={dropTarget?.status==='bmc:cost_structure'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+        {cost.map((c, idx) => (
+          <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:cost_structure', ...commonBubbles }} />
+        ))}
+      </BoardColumn>
+      <BoardColumn title={titles.rev} status={'bmc:revenue_streams'} isActive={dropTarget?.status==='bmc:revenue_streams'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+        {rev.map((c, idx) => (
+          <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:revenue_streams', ...commonBubbles }} />
+        ))}
+      </BoardColumn>
     </div>
   )
 
@@ -273,6 +300,7 @@ function CanvasBlock({ title, status, rows, onDrop, onDragOver, children }: {
   )
 }
 
+/* Replaced by BoardCardItem reuse */
 function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onArchive, onDelete }: {
   card: Card
   index: number

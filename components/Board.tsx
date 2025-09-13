@@ -357,12 +357,12 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   )
 }
 
-function Column({ title, status, isActive, onContainerDragOver, onContainerDrop, children }: {
+export function Column({ title, status, isActive, onContainerDragOver, onContainerDrop, children }: {
   title: string
-  status: 'delegate' | 'decide' | 'do' | 'decline'
+  status: 'delegate' | 'decide' | 'do' | 'decline' | 'bmc:key_partners' | 'bmc:key_activities' | 'bmc:key_resources' | 'bmc:value_propositions' | 'bmc:customer_relationships' | 'bmc:channels' | 'bmc:customer_segments' | 'bmc:cost_structure' | 'bmc:revenue_streams'
   isActive: boolean
-  onContainerDragOver: (s: 'delegate'|'decide'|'do'|'decline') => void
-  onContainerDrop: (s: 'delegate'|'decide'|'do'|'decline') => void
+  onContainerDragOver: (s: Card['status']) => void
+  onContainerDrop: (s: Card['status']) => void
   children: React.ReactNode
 }) {
   return (
