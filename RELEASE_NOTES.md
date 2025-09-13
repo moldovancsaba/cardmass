@@ -1,4 +1,11 @@
 
+## [v1.12.0] — 2025-09-13T11:50:39.145Z
+- Admin: added sticky layout nav buttons (kanban/matrix/archive)
+
+
+## [v1.12.0] — 2025-09-13T11:50:39.076Z
+- (update notes here)
+
 ## [v1.11.0] — 2025-09-13T11:47:53.328Z
 - Fix: archive button now PATCHes with correct id param; nav buttons added to /archive
 
