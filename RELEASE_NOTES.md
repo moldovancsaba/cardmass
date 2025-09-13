@@ -1,4 +1,12 @@
 
+## [v1.0.0] — 2025-09-13T10:36:31.018Z
+- Major: Introduced configurable hashtag color system with /admin and persistent settings
+- Backward-incompatible UI styling behavior due to settings-driven colors
+
+
+## [v1.0.0] — 2025-09-13T10:36:30.950Z
+- (update notes here)
+
 ## [v0.4.0] — 2025-09-13T10:34:09.061Z
 - Admin page: /admin to configure hashtag bubble colors (age/rotten)
 - Global Settings model and /api/settings (GET/PATCH)
