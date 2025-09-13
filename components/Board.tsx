@@ -152,10 +152,10 @@ export default function Board() {
             <div className="text-xs text-gray-600">Use the delete action on any card to remove it.</div>
           </Rect>
           {/* Axis labels */}
-          <div className="hidden md:block absolute left-0 top-1/4 -translate-y-1/2 -translate-x-full z-10 pointer-events-none">
+          <div className="hidden md:block absolute left-4 top-1/4 -translate-y-1/2 z-10 pointer-events-none">
             <div className="-rotate-90 origin-left text-sm font-mono text-black">Important</div>
           </div>
-          <div className="hidden md:block absolute left-0 top-3/4 -translate-y-1/2 -translate-x-full z-10 pointer-events-none">
+          <div className="hidden md:block absolute left-4 top-3/4 -translate-y-1/2 z-10 pointer-events-none">
             <div className="-rotate-90 origin-left text-sm font-mono text-black">Not Important</div>
           </div>
           <div className="hidden md:block absolute left-1/4 top-0 -translate-x-1/2 -translate-y-full">
