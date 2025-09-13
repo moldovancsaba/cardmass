@@ -183,33 +183,33 @@ export default function BusinessCanvas() {
     <div className="grid grid-cols-5 gap-4">
       {/* Col 1 merged rows */}
       <CanvasBlock title={titles.kp} status={'bmc:key_partners'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-        {kp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+        {kp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Col 2 split rows */}
       <div className="flex flex-col gap-4">
         <CanvasBlock title={titles.ka} status={'bmc:key_activities'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {ka.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+          {ka.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
         </CanvasBlock>
         <CanvasBlock title={titles.kr} status={'bmc:key_resources'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {kr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+          {kr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
         </CanvasBlock>
       </div>
       {/* Col 3 merged */}
       <CanvasBlock title={titles.vp} status={'bmc:value_propositions'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-        {vp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+        {vp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       {/* Col 4 split */}
       <div className="flex flex-col gap-4">
         <CanvasBlock title={titles.cr} status={'bmc:customer_relationships'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {cr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+          {cr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
         </CanvasBlock>
         <CanvasBlock title={titles.ch} status={'bmc:channels'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {ch.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+          {ch.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
         </CanvasBlock>
       </div>
       {/* Col 5 merged */}
       <CanvasBlock title={titles.cs} status={'bmc:customer_segments'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-        {cs.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+        {cs.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
     </div>
   )
@@ -217,10 +217,10 @@ export default function BusinessCanvas() {
   const BottomGrid = () => (
     <div className="grid grid-cols-2 gap-4 mt-4">
       <CanvasBlock title={titles.cost} status={'bmc:cost_structure'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-        {cost.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+        {cost.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
       <CanvasBlock title={titles.rev} status={'bmc:revenue_streams'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-        {rev.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+        {rev.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
     </div>
   )
@@ -276,11 +276,12 @@ className={`border rounded-lg p-3 text-black bg-white ${rows===2 ? 'row-span-2' 
   )
 }
 
-function CardItem({ card, index, status, onHoverIndex, onUpdate, onArchive, onDelete }: {
+function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onArchive, onDelete }: {
   card: Card
   index: number
   status: Card['status']
   onHoverIndex: (t: { status: Card['status'], index: number | null }) => void
+  onDragFlag: (d: { id: string; from: Card['status'] } | null) => void
   onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => Promise<void>
   onArchive: (id: string) => Promise<void>
   onDelete: (id: string) => Promise<void>
@@ -305,7 +306,9 @@ function CardItem({ card, index, status, onHoverIndex, onUpdate, onArchive, onDe
         if (editing) return
         try { e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index })) } catch {}
         e.dataTransfer.effectAllowed = 'move'
+        onDragFlag({ id: card.id, from: status })
       }}
+      onDragEnd={() => onDragFlag(null)}
       onDragOver={(e) => {
         e.preventDefault()
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
