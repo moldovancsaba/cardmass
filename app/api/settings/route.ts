@@ -23,6 +23,7 @@ export async function PATCH(req: Request) {
     colors: {
       age?: { oldest?: string; newest?: string }
       rotten?: { least?: string; most?: string }
+      archive?: { oldest?: string; newest?: string }
     }
   }>
 
@@ -32,6 +33,8 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.age?.newest === 'string') setDoc['colors.age.newest'] = b.colors!.age!.newest!
   if (typeof b.colors?.rotten?.least === 'string') setDoc['colors.rotten.least'] = b.colors!.rotten!.least!
   if (typeof b.colors?.rotten?.most === 'string') setDoc['colors.rotten.most'] = b.colors!.rotten!.most!
+  if (typeof b.colors?.archive?.oldest === 'string') setDoc['colors.archive.oldest'] = b.colors!.archive!.oldest!
+  if (typeof b.colors?.archive?.newest === 'string') setDoc['colors.archive.newest'] = b.colors!.archive!.newest!
 
   try {
     const updated = await Settings.findOneAndUpdate(

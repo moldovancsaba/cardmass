@@ -33,11 +33,13 @@ function SettingsForm() {
     age_newest: '#9ecbff',
     rotten_least: '#2ecc71',
     rotten_most: '#8e5b3a',
+    archive_oldest: '#6b7280',
+    archive_newest: '#d1d5db',
   })
 
   useEffect(() => {
     let cancelled = false
-    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string } } }
+    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string } } }
     fetchJSON<S>('/api/settings').then((s) => {
       if (cancelled) return
       setForm({
@@ -45,6 +47,8 @@ function SettingsForm() {
         age_newest: s.colors?.age?.newest ?? '#9ecbff',
         rotten_least: s.colors?.rotten?.least ?? '#2ecc71',
         rotten_most: s.colors?.rotten?.most ?? '#8e5b3a',
+        archive_oldest: s.colors?.archive?.oldest ?? '#6b7280',
+        archive_newest: s.colors?.archive?.newest ?? '#d1d5db',
       })
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -60,6 +64,7 @@ function SettingsForm() {
           colors: {
             age: { oldest: form.age_oldest, newest: form.age_newest },
             rotten: { least: form.rotten_least, most: form.rotten_most },
+            archive: { oldest: form.archive_oldest, newest: form.archive_newest },
           },
         }),
       })
@@ -94,6 +99,17 @@ function SettingsForm() {
           </label>
           <label className="flex items-center gap-2">Most rotten
             <input type="color" value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
+          </label>
+        </div>
+      </fieldset>
+      <fieldset className="border border-gray-300 rounded p-3">
+        <legend className="text-sm font-mono">Archive badge colors (oldest → newest)</legend>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+          <label className="flex items-center gap-2">Oldest
+            <input type="color" value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
+          </label>
+          <label className="flex items-center gap-2">Newest
+            <input type="color" value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
           </label>
         </div>
       </fieldset>

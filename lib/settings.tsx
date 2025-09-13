@@ -8,6 +8,7 @@ type Settings = {
   colors: {
     age: { oldest: string; newest: string }
     rotten: { least: string; most: string }
+    archive?: { oldest?: string; newest?: string }
   }
 }
 

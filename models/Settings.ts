@@ -26,6 +26,10 @@ const SettingsSchema = new Schema<SettingsDoc>(
         least: { type: String, required: true, default: '#2ecc71' },
         most: { type: String, required: true, default: '#8e5b3a' },
       },
+      archive: {
+        oldest: { type: String, required: true, default: '#6b7280' }, // gray-600
+        newest: { type: String, required: true, default: '#d1d5db' }, // gray-300
+      },
     },
   },
   { timestamps: true }
