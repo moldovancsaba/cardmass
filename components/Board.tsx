@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Card } from '@/types/card'
 import { fetchJSON } from '@/lib/client'
 import { daysBetweenUtc, hoursBetweenUtc } from '@/lib/date'
+import { interpolateColor } from '@/lib/color'
 
 export default function Board() {
   const [roadmap, setRoadmap] = useState<Card[]>([])
@@ -54,21 +55,57 @@ export default function Board() {
     setTodo((prev) => prev.filter((c) => c.id !== id))
   }, [])
 
+  // For bubble gradients, compute min/max ages and rottenness per column
+  const stats = useMemo(() => {
+    const columns = { roadmap, backlog, todo } as const
+    const result: Record<string, { minAge: number; maxAge: number; minRot: number; maxRot: number }> = {}
+    for (const [name, arr] of Object.entries(columns)) {
+      if (!arr.length) { result[name] = { minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }; continue }
+      const ages = arr.map((c) => Date.now() - new Date(c.createdAt).getTime())
+      const rots = arr.map((c) => Date.now() - new Date(c.updatedAt).getTime())
+      result[name] = {
+        minAge: Math.min(...ages),
+        maxAge: Math.max(...ages),
+        minRot: Math.min(...rots),
+        maxRot: Math.max(...rots),
+      }
+    }
+    return result
+  }, [roadmap, backlog, todo])
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Column title="#roadmap">
         {roadmap.map((c) => (
-          <CardItem key={c.id} card={c} onUpdate={updateCard} onDelete={deleteCard} />
+          <CardItem
+            key={c.id}
+            card={c}
+            onUpdate={updateCard}
+            onDelete={deleteCard}
+            bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
+          />
         ))}
       </Column>
       <Column title="#backlog" composer onCreate={createCard}>
         {backlog.map((c) => (
-          <CardItem key={c.id} card={c} onUpdate={updateCard} onDelete={deleteCard} />
+          <CardItem
+            key={c.id}
+            card={c}
+            onUpdate={updateCard}
+            onDelete={deleteCard}
+            bubbleContext={{ kind: 'backlog', ...stats.backlog }}
+          />
         ))}
       </Column>
       <Column title="#todo">
         {todo.map((c) => (
-          <CardItem key={c.id} card={c} onUpdate={updateCard} onDelete={deleteCard} />
+          <CardItem
+            key={c.id}
+            card={c}
+            onUpdate={updateCard}
+            onDelete={deleteCard}
+            bubbleContext={{ kind: 'todo', ...stats.todo }}
+          />
         ))}
       </Column>
     </div>
@@ -118,10 +155,11 @@ function Composer({ onCreate }: { onCreate: (text: string) => Promise<void> }) {
   )
 }
 
-function CardItem({ card, onUpdate, onDelete }: {
+function CardItem({ card, onUpdate, onDelete, bubbleContext }: {
   card: Card
   onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status'>>) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  bubbleContext: { kind: 'roadmap' | 'backlog' | 'todo'; minAge: number; maxAge: number; minRot: number; maxRot: number }
 }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(card.text)
@@ -132,6 +170,25 @@ function CardItem({ card, onUpdate, onDelete }: {
   const hoursOld = useMemo(() => hoursBetweenUtc(card.createdAt), [card.createdAt])
   const rottenDays = useMemo(() => daysBetweenUtc(card.updatedAt), [card.updatedAt])
   const rottenHours = useMemo(() => hoursBetweenUtc(card.updatedAt), [card.updatedAt])
+
+  // Compute normalized positions for coloring
+  const ageMs = useMemo(() => Date.now() - new Date(card.createdAt).getTime(), [card.createdAt])
+  const rotMs = useMemo(() => Date.now() - new Date(card.updatedAt).getTime(), [card.updatedAt])
+  const ageT = useMemo(() => {
+    const span = bubbleContext.maxAge - bubbleContext.minAge
+    if (span <= 0) return 1 // if all equal, treat as newest (lighter blue)
+    return (ageMs - bubbleContext.minAge) / span
+  }, [ageMs, bubbleContext.maxAge, bubbleContext.minAge])
+  const rotT = useMemo(() => {
+    const span = bubbleContext.maxRot - bubbleContext.minRot
+    if (span <= 0) return 0 // if all equal, treat as least rotten (green)
+    return (rotMs - bubbleContext.minRot) / span
+  }, [rotMs, bubbleContext.maxRot, bubbleContext.minRot])
+
+  // Colors: oldest (dark blue) -> newest (light blue)
+  const ageColor = useMemo(() => interpolateColor('#0a3d91', '#9ecbff', ageT), [ageT])
+  // Rotten: least (green) -> most (brown)
+  const rotColor = useMemo(() => interpolateColor('#2ecc71', '#8e5b3a', rotT), [rotT])
 
   return (
     <div className="border border-gray-300 rounded-md p-3 bg-white text-black">
@@ -158,10 +215,19 @@ function CardItem({ card, onUpdate, onDelete }: {
         <div className="whitespace-pre-wrap text-sm text-black">{card.text}</div>
       )}
       <div className="mt-2 flex items-center justify-between text-xs text-gray-700">
-        <div>
-          <span>{daysOld} days ({hoursOld} hours) old</span>
-          <span className="mx-2">•</span>
-          <span>rotten for {rottenDays} days ({rottenHours} hours)</span>
+        <div className="flex items-center gap-2">
+          <span
+            className="px-2 py-0.5 rounded-full text-[10px] font-mono"
+            style={{ backgroundColor: ageColor }}
+          >
+            #{daysOld} days ({hoursOld} hours) old
+          </span>
+          <span
+            className="px-2 py-0.5 rounded-full text-[10px] font-mono"
+            style={{ backgroundColor: rotColor }}
+          >
+            #rotten for {rottenDays} days ({rottenHours} hours)
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <select

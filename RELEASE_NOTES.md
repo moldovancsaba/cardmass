@@ -1,5 +1,15 @@
 # RELEASE_NOTES
 
+## [v{NEW}] — {ISO}
+- UI: Hashtag bubbles for age and rotten metrics
+- Color gradients: oldest→newest (dark→light blue), least→most rotten (green→brown)
+- Per-column normalization for proportional coloring
+- Light mode preserved (black text everywhere)
+
+
+## [v0.3.0] — 2025-09-13T10:19:26.204Z
+- (update notes here)
+
 ## [v{CURRENT}] — {ISO}
 - 3-column board with backlog composer (Enter submit, Shift+Enter newline)
 - MongoDB persistence with createdAt/updatedAt (ISO 8601 UTC)
