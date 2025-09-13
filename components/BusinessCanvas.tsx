@@ -285,7 +285,12 @@ function CanvasBlock({ title, status, rows, onDrop, onDragOver, children }: {
       onDrop={(e) => { e.preventDefault(); onDrop(e, status) }}
     >
       <div className="text-sm font-mono text-black mb-2">#{title}</div>
-      <div className="flex-1 min-h-0 overflow-auto space-y-2">
+      <div
+        className="flex-1 min-h-0 overflow-auto space-y-2"
+        onDragOver={(e) => { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move' } catch {}; onDragOver(status, e) }}
+        onDragEnter={(e) => { onDragOver(status, e) }}
+        onDrop={(e) => { e.preventDefault(); onDrop(e, status) }}
+      >
         {children}
       </div>
     </div>
