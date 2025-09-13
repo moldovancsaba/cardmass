@@ -18,9 +18,9 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
 
   const load = useCallback(async () => {
     const [r, b, t] = await Promise.all([
-      fetchJSON<Card[]>(`/api/cards?status=roadmap`),
-      fetchJSON<Card[]>(`/api/cards?status=backlog`),
-      fetchJSON<Card[]>(`/api/cards?status=todo`),
+      fetchJSON<Card[]>(`/api/cards?status=delegate`),
+      fetchJSON<Card[]>(`/api/cards?status=decide`),
+      fetchJSON<Card[]>(`/api/cards?status=do`),
     ])
     setRoadmap(r)
     setBacklog(b)
@@ -34,7 +34,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   const createCard = useCallback(async (text: string) => {
     const created = await fetchJSON<Card>(`/api/cards`, {
       method: 'POST',
-      body: JSON.stringify({ text, status: 'backlog' }),
+      body: JSON.stringify({ text, status: 'decide' }),
     })
     setBacklog((prev) => [created, ...prev])
   }, [])
@@ -48,9 +48,9 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
     setRoadmap((prev) => prev.filter((c) => c.id !== id))
     setBacklog((prev) => prev.filter((c) => c.id !== id))
     setTodo((prev) => prev.filter((c) => c.id !== id))
-    if (updated.status === 'roadmap') setRoadmap((prev) => [updated, ...prev])
-    if (updated.status === 'backlog') setBacklog((prev) => [updated, ...prev])
-    if (updated.status === 'todo') setTodo((prev) => [updated, ...prev])
+    if (updated.status === 'delegate') setRoadmap((prev) => [updated, ...prev])
+    if (updated.status === 'decide') setBacklog((prev) => [updated, ...prev])
+    if (updated.status === 'do') setTodo((prev) => [updated, ...prev])
   }, [])
 
   const deleteCard = useCallback(async (id: string) => {
@@ -98,7 +98,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onUpdate={updateCard}
             onDelete={deleteCard}
             onArchive={archiveCard}
-            bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
+            bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
           />
             ))}
           </Column>
@@ -110,7 +110,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onUpdate={updateCard}
             onDelete={deleteCard}
             onArchive={archiveCard}
-            bubbleContext={{ kind: 'backlog', ...stats.backlog }}
+            bubbleContext={{ kind: 'decide', ...stats.backlog }}
           />
             ))}
           </Column>
@@ -122,7 +122,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onUpdate={updateCard}
             onDelete={deleteCard}
             onArchive={archiveCard}
-            bubbleContext={{ kind: 'todo', ...stats.todo }}
+            bubbleContext={{ kind: 'do', ...stats.todo }}
           />
             ))}
           </Column>
@@ -137,7 +137,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onUpdate={updateCard}
                 onDelete={deleteCard}
                 onArchive={archiveCard}
-                bubbleContext={{ kind: 'todo', ...stats.todo }}
+                bubbleContext={{ kind: 'do', ...stats.todo }}
               />
             ))}
           </Rect>
@@ -149,7 +149,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onUpdate={updateCard}
                 onDelete={deleteCard}
                 onArchive={archiveCard}
-                bubbleContext={{ kind: 'backlog', ...stats.backlog }}
+                bubbleContext={{ kind: 'decide', ...stats.backlog }}
               />
             ))}
           </Rect>
@@ -161,7 +161,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onUpdate={updateCard}
                 onDelete={deleteCard}
                 onArchive={archiveCard}
-                bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
+                bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
               />
             ))}
           </Rect>
@@ -231,7 +231,7 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
   onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status'>>) => Promise<void>
   onDelete: (id: string) => Promise<void>
   onArchive: (id: string) => Promise<void>
-  bubbleContext: { kind: 'roadmap' | 'backlog' | 'todo'; minAge: number; maxAge: number; minRot: number; maxRot: number }
+  bubbleContext: { kind: 'delegate' | 'decide' | 'do'; minAge: number; maxAge: number; minRot: number; maxRot: number }
 }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(card.text)
@@ -314,9 +314,9 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
             }}
             className="border border-gray-300 rounded px-1 py-0.5 text-xs bg-white text-black"
           >
-            <option value="roadmap">roadmap</option>
-            <option value="backlog">backlog</option>
-            <option value="todo">todo</option>
+            <option value="delegate">delegate</option>
+            <option value="decide">decide</option>
+            <option value="do">do</option>
           </select>
           <button
             onClick={async () => { await onArchive(card.id) }}

@@ -1,4 +1,12 @@
 
+## [v1.22.0] — 2025-09-13T12:39:29.734Z
+- Status rename: roadmap/backlog/todo → delegate/decide/do across UI/API/DB
+- Default new cards: decide
+
+
+## [v1.22.0] — 2025-09-13T12:39:29.667Z
+- (update notes here)
+
 ## [v1.21.0] — 2025-09-13T12:32:20.819Z
 - Settings: added archive color scale (oldest→newest) configurable in /admin
 - Archive: badges use interpolated archive colors

@@ -4,10 +4,10 @@ import { Card } from '@/models/Card'
 
 export const runtime = 'nodejs'
 
-const allowedStatuses = ['roadmap', 'backlog', 'todo'] as const
+const allowedStatuses = ['delegate', 'decide', 'do'] as const
 export type Status = typeof allowedStatuses[number]
 
-// GET /api/cards?status=roadmap|backlog|todo&archived=true|false
+// GET /api/cards?status=delegate|decide|do&archived=true|false
 export async function GET(req: Request) {
   await connectToDatabase()
   const url = new URL(req.url)
@@ -32,7 +32,7 @@ export async function GET(req: Request) {
 }
 
 // POST /api/cards
-// Body: { text: string, status?: 'roadmap'|'backlog'|'todo' }
+// Body: { text: string, status?: 'delegate'|'decide'|'do' }
 export async function POST(req: Request) {
   await connectToDatabase()
   let body: unknown
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   if (!text) {
     return NextResponse.json({ error: 'Text is required' }, { status: 400 })
   }
-  let status: Status = 'backlog'
+  let status: Status = 'decide'
   if (typeof b.status === 'string' && (allowedStatuses as readonly string[]).includes(b.status)) {
     status = b.status as Status
   }

@@ -4,7 +4,7 @@ import mongoose, { Schema, model, models } from 'mongoose'
 // Why mongoose timestamps: ensures consistent createdAt/updatedAt in UTC Dates,
 // which we later serialize as ISO 8601 with milliseconds for the UI and docs.
 
-export type CardStatus = 'roadmap' | 'backlog' | 'todo'
+export type CardStatus = 'delegate' | 'decide' | 'do'
 
 export interface CardDoc extends mongoose.Document {
   text: string
@@ -18,7 +18,7 @@ export interface CardDoc extends mongoose.Document {
 const CardSchema = new Schema<CardDoc>(
   {
     text: { type: String, required: true, trim: true },
-    status: { type: String, enum: ['roadmap', 'backlog', 'todo'], default: 'backlog', index: true },
+    status: { type: String, enum: ['delegate', 'decide', 'do'], default: 'decide', index: true },
     archived: { type: Boolean, default: false, index: true },
     archivedAt: { type: Date, default: null },
   },
