@@ -1,4 +1,12 @@
 
+## [v1.23.0] — 2025-09-13T12:48:50.600Z
+- Matrix: 2x2 grid now fills remaining height above BottomBar; no overlap
+- Layout: page uses flex column; BottomBar is non-sticky and shrink-0
+
+
+## [v1.23.0] — 2025-09-13T12:48:50.531Z
+- (update notes here)
+
 ## [v1.22.0] — 2025-09-13T12:39:29.734Z
 - Status rename: roadmap/backlog/todo → delegate/decide/do across UI/API/DB
 - Default new cards: decide

@@ -86,10 +86,10 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   }, [roadmap, backlog, todo])
 
   return (
-    <div className="relative">
-      <div className="md:overflow-hidden md:h-[calc(100vh-10rem)]">
+    <div className="relative flex flex-col md:h-screen">
+      <div className="flex-1 md:overflow-hidden">
       {view === 'kanban' ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:h-full relative">
           <Column title="#delegate">
             {roadmap.map((c) => (
           <CardItem
