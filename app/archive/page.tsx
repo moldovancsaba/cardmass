@@ -11,6 +11,10 @@ export default function ArchivePage() {
     <main className="min-h-screen p-4 bg-white text-black">
       <h1 className="text-xl font-mono mb-4">#archive</h1>
       <ArchiveGrid />
+      <div className="sticky bottom-0 mt-4 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2 justify-end">
+        <a href="/kanban" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">kanban</a>
+        <a href="/matrix" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">matrix</a>
+      </div>
     </main>
   )
 }
