@@ -3,14 +3,20 @@
 import { useState } from 'react'
 
 type Props = {
-  disabled?: boolean
+  disabled?: boolean // disables the input only; nav remains active
   view?: 'kanban' | 'matrix'
   onCreate?: (text: string) => Promise<void>
   onToggle?: () => void
   onArchiveNav?: () => void
+  onKanbanNav?: () => void
+  onMatrixNav?: () => void
+  showToggle?: boolean
+  showArchive?: boolean
+  showKanban?: boolean
+  showMatrix?: boolean
 }
 
-export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav }: Props) {
+export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false }: Props) {
   const [value, setValue] = useState('')
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -40,20 +46,26 @@ export default function BottomBar({ disabled = false, view = 'kanban', onCreate,
         <div className="text-[10px] text-gray-500 mt-1">Enter to create • Shift+Enter for newline</div>
       </div>
       <div className="flex items-center gap-2">
-        <button
-          onClick={() => { if (!disabled && onArchiveNav) onArchiveNav() }}
-          className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black disabled:opacity-50"
-          disabled={disabled}
-        >
-          archive
-        </button>
-        <button
-          onClick={() => { if (!disabled && onToggle) onToggle() }}
-          className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black disabled:opacity-50"
-          disabled={disabled}
-        >
-          {toggleLabel}
-        </button>
+        {showKanban && (
+          <button onClick={() => onKanbanNav && onKanbanNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
+            kanban
+          </button>
+        )}
+        {showMatrix && (
+          <button onClick={() => onMatrixNav && onMatrixNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
+            matrix
+          </button>
+        )}
+        {showArchive && (
+          <button onClick={() => onArchiveNav && onArchiveNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
+            archive
+          </button>
+        )}
+        {showToggle && (
+          <button onClick={() => onToggle && onToggle()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
+            {toggleLabel}
+          </button>
+        )}
       </div>
     </div>
   )

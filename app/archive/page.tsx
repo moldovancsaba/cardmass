@@ -11,7 +11,16 @@ export default function ArchivePage() {
   return (
     <main className="min-h-screen p-4 bg-white text-black">
       <ArchiveGrid />
-      <BottomBar disabled view="kanban" />
+      <BottomBar
+        disabled
+        view="kanban"
+        showToggle={false}
+        showArchive={false}
+        showKanban={true}
+        showMatrix={true}
+        onKanbanNav={() => (window.location.href = '/kanban')}
+        onMatrixNav={() => (window.location.href = '/matrix')}
+      />
     </main>
   )
 }
