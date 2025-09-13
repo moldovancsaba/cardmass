@@ -11,6 +11,7 @@ export default function Board() {
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
   const [todo, setTodo] = useState<Card[]>([])
+  const [view, setView] = useState<'kanban' | 'matrix'>('kanban')
 
   const load = useCallback(async () => {
     const [r, b, t] = await Promise.all([
@@ -75,49 +76,114 @@ export default function Board() {
   }, [roadmap, backlog, todo])
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Column title="#roadmap">
-        {roadmap.map((c) => (
-          <CardItem
-            key={c.id}
-            card={c}
-            onUpdate={updateCard}
-            onDelete={deleteCard}
-            bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
-          />
-        ))}
-      </Column>
-      <Column title="#backlog" composer onCreate={createCard}>
-        {backlog.map((c) => (
-          <CardItem
-            key={c.id}
-            card={c}
-            onUpdate={updateCard}
-            onDelete={deleteCard}
-            bubbleContext={{ kind: 'backlog', ...stats.backlog }}
-          />
-        ))}
-      </Column>
-      <Column title="#todo">
-        {todo.map((c) => (
-          <CardItem
-            key={c.id}
-            card={c}
-            onUpdate={updateCard}
-            onDelete={deleteCard}
-            bubbleContext={{ kind: 'todo', ...stats.todo }}
-          />
-        ))}
-      </Column>
+    <div className="relative">
+      {view === 'kanban' ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Column title="#delegate">
+            {roadmap.map((c) => (
+              <CardItem
+                key={c.id}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
+              />
+            ))}
+          </Column>
+          <Column title="#decide">
+            {backlog.map((c) => (
+              <CardItem
+                key={c.id}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                bubbleContext={{ kind: 'backlog', ...stats.backlog }}
+              />
+            ))}
+          </Column>
+          <Column title="#do">
+            {todo.map((c) => (
+              <CardItem
+                key={c.id}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                bubbleContext={{ kind: 'todo', ...stats.todo }}
+              />
+            ))}
+          </Column>
+        </div>
+      ) : (
+        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Rect title="#do">
+            {todo.map((c) => (
+              <CardItem
+                key={c.id}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                bubbleContext={{ kind: 'todo', ...stats.todo }}
+              />
+            ))}
+          </Rect>
+          <Rect title="#decide">
+            {backlog.map((c) => (
+              <CardItem
+                key={c.id}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                bubbleContext={{ kind: 'backlog', ...stats.backlog }}
+              />
+            ))}
+          </Rect>
+          <Rect title="#delegate">
+            {roadmap.map((c) => (
+              <CardItem
+                key={c.id}
+                card={c}
+                onUpdate={updateCard}
+                onDelete={deleteCard}
+                bubbleContext={{ kind: 'roadmap', ...stats.roadmap }}
+              />
+            ))}
+          </Rect>
+          <Rect title="#delete">
+            <div className="text-xs text-gray-600">Use the delete action on any card to remove it.</div>
+          </Rect>
+          {/* Axis labels */}
+          <div className="hidden md:block absolute left-0 top-1/4 -translate-y-1/2 -translate-x-full">
+            <div className="-rotate-90 origin-left text-sm font-mono">Important</div>
+          </div>
+          <div className="hidden md:block absolute left-0 top-3/4 -translate-y-1/2 -translate-x-full">
+            <div className="-rotate-90 origin-left text-sm font-mono">Not Important</div>
+          </div>
+          <div className="hidden md:block absolute left-1/4 top-0 -translate-x-1/2 -translate-y-full">
+            <div className="text-sm font-mono">Urgent</div>
+          </div>
+          <div className="hidden md:block absolute left-3/4 top-0 -translate-x-1/2 -translate-y-full">
+            <div className="text-sm font-mono">Not-Urgent</div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom sticky composer and layout toggle */}
+      <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2">
+        <Composer onCreate={createCard} />
+        <button
+          onClick={() => setView((v) => (v === 'kanban' ? 'matrix' : 'kanban'))}
+          className="ml-auto border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black"
+        >
+          {view === 'kanban' ? 'matrix' : 'kanban'}
+        </button>
+      </div>
     </div>
   )
 }
 
-function Column({ title, children, composer, onCreate }: {
+function Column({ title, children }: {
   title: string
   children: React.ReactNode
-  composer?: boolean
-  onCreate?: (text: string) => Promise<void>
 }) {
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] border border-gray-300 rounded-lg p-3 text-black bg-white">
@@ -125,9 +191,6 @@ function Column({ title, children, composer, onCreate }: {
       <div className="flex-1 space-y-2 overflow-auto pr-1">
         {children}
       </div>
-      {composer && onCreate ? (
-        <Composer onCreate={onCreate} />
-      ) : null}
     </div>
   )
 }
@@ -135,7 +198,7 @@ function Column({ title, children, composer, onCreate }: {
 function Composer({ onCreate }: { onCreate: (text: string) => Promise<void> }) {
   const [value, setValue] = useState('')
   return (
-    <div className="sticky bottom-0 mt-2 bg-white rounded-md border border-gray-300 p-2">
+    <div className="flex-1">
       <textarea
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -152,6 +215,17 @@ function Composer({ onCreate }: { onCreate: (text: string) => Promise<void> }) {
         }}
       />
       <div className="text-[10px] text-gray-500 mt-1">Enter to create • Shift+Enter for newline</div>
+    </div>
+  )
+}
+
+function Rect({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="border border-gray-300 rounded-lg p-3 min-h-[300px] text-black bg-white">
+      <div className="text-sm font-mono text-black mb-2">{title}</div>
+      <div className="space-y-2">
+        {children}
+      </div>
     </div>
   )
 }
