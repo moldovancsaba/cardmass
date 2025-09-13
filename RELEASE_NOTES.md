@@ -1,4 +1,12 @@
 
+## [v1.6.0] — 2025-09-13T11:23:52.467Z
+- Routing: Added /kanban and /matrix; / redirects to /kanban
+- Board: accepts initialView prop (kanban/matrix)
+
+
+## [v1.6.0] — 2025-09-13T11:23:52.399Z
+- (update notes here)
+
 ## [v1.5.0] — 2025-09-13T11:16:30.177Z
 - UX: Reduced left gutter for Important/Not Important to match top labels
 

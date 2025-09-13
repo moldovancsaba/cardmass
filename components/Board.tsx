@@ -7,11 +7,11 @@ import { daysBetweenUtc, hoursBetweenUtc } from '@/lib/date'
 import { interpolateColor } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
 
-export default function Board() {
+export default function Board({ initialView = 'kanban' }: { initialView?: 'kanban' | 'matrix' }) {
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
   const [todo, setTodo] = useState<Card[]>([])
-  const [view, setView] = useState<'kanban' | 'matrix'>('kanban')
+  const [view, setView] = useState<'kanban' | 'matrix'>(initialView)
 
   const load = useCallback(async () => {
     const [r, b, t] = await Promise.all([
