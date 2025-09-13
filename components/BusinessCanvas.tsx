@@ -180,42 +180,40 @@ export default function BusinessCanvas() {
   }, [])
 
   const TopGrid = () => (
-    <div className="grid grid-cols-5 gap-4">
-      {/* Col 1 merged rows */}
+    <div className="grid grid-cols-5 grid-rows-2 gap-4 h-full min-h-0">
+      {/* Row 1, Col 1: Key Partners spans 2 rows (2/3 height) */}
       <CanvasBlock title={titles.kp} status={'bmc:key_partners'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
         {kp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
-      {/* Col 2 split rows */}
-      <div className="flex flex-col gap-4">
-        <CanvasBlock title={titles.ka} status={'bmc:key_activities'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {ka.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-        </CanvasBlock>
-        <CanvasBlock title={titles.kr} status={'bmc:key_resources'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {kr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-        </CanvasBlock>
-      </div>
-      {/* Col 3 merged */}
+      {/* Row 1, Col 2: Key Activities (1/3 height) */}
+      <CanvasBlock title={titles.ka} status={'bmc:key_activities'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+        {ka.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+      </CanvasBlock>
+      {/* Row 1, Col 3: Value Propositions spans 2 rows (2/3 height) */}
       <CanvasBlock title={titles.vp} status={'bmc:value_propositions'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
         {vp.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
-      {/* Col 4 split */}
-      <div className="flex flex-col gap-4">
-        <CanvasBlock title={titles.cr} status={'bmc:customer_relationships'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {cr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-        </CanvasBlock>
-        <CanvasBlock title={titles.ch} status={'bmc:channels'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
-          {ch.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
-        </CanvasBlock>
-      </div>
-      {/* Col 5 merged */}
+      {/* Row 1, Col 4: Customer Relationships (1/3 height) */}
+      <CanvasBlock title={titles.cr} status={'bmc:customer_relationships'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+        {cr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+      </CanvasBlock>
+      {/* Row 1, Col 5: Customer Segments spans 2 rows (2/3 height) */}
       <CanvasBlock title={titles.cs} status={'bmc:customer_segments'} rows={2} onDrop={handleDrop} onDragOver={onContainerDragOver}>
         {cs.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+      </CanvasBlock>
+      {/* Row 2, Col 2: Key Resources (1/3 height) */}
+      <CanvasBlock title={titles.kr} status={'bmc:key_resources'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+        {kr.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
+      </CanvasBlock>
+      {/* Row 2, Col 4: Channels (1/3 height) */}
+      <CanvasBlock title={titles.ch} status={'bmc:channels'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
+        {ch.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
     </div>
   )
 
   const BottomGrid = () => (
-    <div className="grid grid-cols-2 gap-4 mt-4">
+    <div className="grid grid-cols-2 gap-4 h-full min-h-0">
       <CanvasBlock title={titles.cost} status={'bmc:cost_structure'} rows={1} onDrop={handleDrop} onDragOver={onContainerDragOver}>
         {cost.map((c, idx) => <CardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} />)}
       </CanvasBlock>
@@ -227,9 +225,9 @@ export default function BusinessCanvas() {
 
   return (
     <div className="flex flex-col xl:h-full xl:min-h-0">
-      <div className="flex-1 xl:overflow-auto xl:min-h-0 space-y-4">
-        <TopGrid />
-        <BottomGrid />
+      <div className="flex-1 xl:min-h-0 grid gap-4" style={{ gridTemplateRows: '2fr 1fr' }}>
+        <div className="min-h-0"><TopGrid /></div>
+        <div className="min-h-0"><BottomGrid /></div>
       </div>
       <div className="pt-2 xl:pt-2">
         <BottomBar
@@ -263,13 +261,13 @@ function CanvasBlock({ title, status, rows, onDrop, onDragOver, children }: {
 }) {
   return (
     <div
-className={`border rounded-lg p-3 text-black bg-white ${rows===2 ? 'row-span-2' : ''} border-gray-300`}
+      className={`border rounded-lg p-3 text-black bg-white ${rows===2 ? 'row-span-2' : ''} border-gray-300 h-full min-h-0 flex flex-col`}
       onDragOver={(e) => { e.preventDefault(); onDragOver(status) }}
       onDragEnter={() => onDragOver(status)}
       onDrop={(e) => { e.preventDefault(); onDrop(status) }}
     >
       <div className="text-sm font-mono text-black mb-2">#{title}</div>
-      <div className="space-y-2">
+      <div className="flex-1 min-h-0 overflow-auto space-y-2">
         {children}
       </div>
     </div>
