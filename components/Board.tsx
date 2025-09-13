@@ -404,16 +404,16 @@ function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, c
   )
 }
 
-function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag }: {
+export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag }: {
   card: Card
   index: number
-  status: 'delegate' | 'decide' | 'do' | 'decline'
+  status: Card['status']
   onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => Promise<void>
   onDelete: (id: string) => Promise<void>
   onArchive: (id: string) => Promise<void>
-  bubbleContext: { kind: 'delegate' | 'decide' | 'do' | 'decline'; minAge: number; maxAge: number; minRot: number; maxRot: number }
-  onHoverIndex: (t: { status: 'delegate'|'decide'|'do'|'decline', index: number | null }) => void
-  onDragFlag: (d: { id: string; from: 'delegate'|'decide'|'do'|'decline' } | null) => void
+  bubbleContext: { kind: Card['status']; minAge: number; maxAge: number; minRot: number; maxRot: number }
+  onHoverIndex: (t: { status: Card['status'], index: number | null }) => void
+  onDragFlag: (d: { id: string; from: Card['status'] } | null) => void
 }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(card.text)
