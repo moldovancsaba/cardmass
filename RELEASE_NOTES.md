@@ -1,4 +1,8 @@
 
+## [v1.28.0] — 2025-09-13T16:37:11.433Z
+- Layout: Constrain kanban/matrix no-scroll wrappers to xl (>=1280px) to align with global >=1200px rule
+- Fix: Normalize Board/page wrappers to keep BottomBar aligned across all pages without overflow
+
 ## [v1.27.0] — 2025-09-13T16:13:24.166Z
 - Desktop (>=1200px): hard disable page scroll (overflow hidden) at page level
 - Internal panes (matrix rectangles) remain scrollable

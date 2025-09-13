@@ -86,7 +86,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   }, [roadmap, backlog, todo])
 
   return (
-    <div className="relative flex flex-col md:h-screen">
+    <div className="relative flex flex-col xl:h-full">
       <div className="flex-1 md:overflow-hidden md:min-h-0">
       {view === 'kanban' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:h-full md:min-h-0 relative">
