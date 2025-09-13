@@ -4,7 +4,7 @@
 import { fetchJSON } from '@/lib/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
-import { hoursBetweenUtc } from '@/lib/date'
+import { daysBetweenUtc } from '@/lib/date'
 import BottomBar from '@/components/BottomBar'
 import { interpolateColor } from '@/lib/color'
 import { useRouter } from 'next/navigation'
@@ -79,8 +79,7 @@ function ArchiveGrid() {
 }
 
 function ArchivedCard({ card, archOldest, archNewest, index, total }: { card: ACard, archOldest: string, archNewest: string, index: number, total: number }) {
-  const hoursAgo = useMemo(() => hoursBetweenUtc(card.archivedAt || card.updatedAt), [card.archivedAt, card.updatedAt])
-  const daysAgo = Math.floor(hoursAgo / 24)
+  const daysAgo = useMemo(() => daysBetweenUtc(card.archivedAt || card.updatedAt), [card.archivedAt, card.updatedAt])
   // Interpolate color based on relative position (newest -> oldest)
   const t = total > 1 ? index / (total - 1) : 1
   const bg = interpolateColor(archOldest, archNewest, t)
@@ -88,7 +87,7 @@ function ArchivedCard({ card, archOldest, archNewest, index, total }: { card: AC
     <div className="border border-gray-300 rounded-md p-3 bg-white text-black">
       <div className="whitespace-pre-wrap text-sm mb-2">{card.text}</div>
       <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg }}>
-        #archived {daysAgo} days{hoursAgo > 0 ? ` (${hoursAgo} hours)` : ''} ago
+        #archived {daysAgo} days ago
       </span>
     </div>
   )

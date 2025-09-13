@@ -1,4 +1,7 @@
 
+## [v2.1.0] — 2025-09-13T17:12:28.362Z
+- UI: Remove all “(X hours)” suffixes from time labels — now display days only for old/rotten/archived badges
+
 ## [v2.0.0] — 2025-09-13T17:03:56.586Z
 - Major: Centralized BottomBar as a shared communication/navigation bar across all pages (kanban, matrix, archive, admin)
 - Layout: Adopt xl-only (>=1280px) no-scroll wrappers; internal panes (columns/rectangles) scroll
