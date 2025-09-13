@@ -5,7 +5,12 @@ import type { Status } from '@/app/api/cards/route'
 
 export const runtime = 'nodejs'
 
-const allowedStatuses = ['delegate', 'decide', 'do', 'decline'] as const
+const allowedStatuses = [
+  'delegate', 'decide', 'do', 'decline',
+  'bmc:key_partners', 'bmc:key_activities', 'bmc:key_resources', 'bmc:value_propositions',
+  'bmc:customer_relationships', 'bmc:channels', 'bmc:customer_segments',
+  'bmc:cost_structure', 'bmc:revenue_streams'
+] as const
 
 // PATCH /api/cards/[id]
 // DELETE /api/cards/[id]

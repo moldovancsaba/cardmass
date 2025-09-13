@@ -4,21 +4,23 @@ import { useState } from 'react'
 
 type Props = {
   disabled?: boolean // disables the input only; nav remains active
-  view?: 'kanban' | 'matrix'
+  view?: 'kanban' | 'matrix' | 'business'
   onCreate?: (text: string) => Promise<void>
   onToggle?: () => void
   onArchiveNav?: () => void
   onKanbanNav?: () => void
   onMatrixNav?: () => void
+  onBusinessNav?: () => void
   onAdminNav?: () => void
   showToggle?: boolean
   showArchive?: boolean
   showKanban?: boolean
   showMatrix?: boolean
+  showBusiness?: boolean
   showAdmin?: boolean
 }
 
-export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, onAdminNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false, showAdmin = false }: Props) {
+export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, onBusinessNav, onAdminNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false, showBusiness = false, showAdmin = false }: Props) {
   const [value, setValue] = useState('')
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -56,6 +58,11 @@ export default function BottomBar({ disabled = false, view = 'kanban', onCreate,
         {showMatrix && (
           <button onClick={() => onMatrixNav && onMatrixNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
             matrix
+          </button>
+        )}
+        {showBusiness && (
+          <button onClick={() => onBusinessNav && onBusinessNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
+            business
           </button>
         )}
         {showArchive && (

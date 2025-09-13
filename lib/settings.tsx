@@ -10,6 +10,17 @@ type Settings = {
     rotten: { least: string; most: string }
     archive?: { oldest?: string; newest?: string }
   }
+  business?: {
+    key_partners?: string
+    key_activities?: string
+    key_resources?: string
+    value_propositions?: string
+    customer_relationships?: string
+    channels?: string
+    customer_segments?: string
+    cost_structure?: string
+    revenue_streams?: string
+  }
 }
 
 const defaultSettings: Settings = {
@@ -17,6 +28,17 @@ const defaultSettings: Settings = {
     age: { oldest: '#0a3d91', newest: '#9ecbff' },
     rotten: { least: '#2ecc71', most: '#8e5b3a' },
   },
+  business: {
+    key_partners: 'Key Partners',
+    key_activities: 'Key Activities',
+    key_resources: 'Key Resources',
+    value_propositions: 'Value Propositions',
+    customer_relationships: 'Customer Relationships',
+    channels: 'Channels',
+    customer_segments: 'Customer Segments',
+    cost_structure: 'Cost Structure',
+    revenue_streams: 'Revenue Streams',
+  }
 }
 
 const SettingsContext = createContext<Settings>(defaultSettings)

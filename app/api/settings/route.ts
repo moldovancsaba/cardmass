@@ -25,6 +25,17 @@ export async function PATCH(req: Request) {
       rotten?: { least?: string; most?: string }
       archive?: { oldest?: string; newest?: string }
     }
+    business: Partial<{
+      key_partners: string
+      key_activities: string
+      key_resources: string
+      value_propositions: string
+      customer_relationships: string
+      channels: string
+      customer_segments: string
+      cost_structure: string
+      revenue_streams: string
+    }>
   }>
 
   // Build a $set doc with only provided dotted fields to avoid conflicts
@@ -35,6 +46,15 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.rotten?.most === 'string') setDoc['colors.rotten.most'] = b.colors!.rotten!.most!
   if (typeof b.colors?.archive?.oldest === 'string') setDoc['colors.archive.oldest'] = b.colors!.archive!.oldest!
   if (typeof b.colors?.archive?.newest === 'string') setDoc['colors.archive.newest'] = b.colors!.archive!.newest!
+  if (typeof b.business?.key_partners === 'string') setDoc['business.key_partners'] = b.business!.key_partners!
+  if (typeof b.business?.key_activities === 'string') setDoc['business.key_activities'] = b.business!.key_activities!
+  if (typeof b.business?.key_resources === 'string') setDoc['business.key_resources'] = b.business!.key_resources!
+  if (typeof b.business?.value_propositions === 'string') setDoc['business.value_propositions'] = b.business!.value_propositions!
+  if (typeof b.business?.customer_relationships === 'string') setDoc['business.customer_relationships'] = b.business!.customer_relationships!
+  if (typeof b.business?.channels === 'string') setDoc['business.channels'] = b.business!.channels!
+  if (typeof b.business?.customer_segments === 'string') setDoc['business.customer_segments'] = b.business!.customer_segments!
+  if (typeof b.business?.cost_structure === 'string') setDoc['business.cost_structure'] = b.business!.cost_structure!
+  if (typeof b.business?.revenue_streams === 'string') setDoc['business.revenue_streams'] = b.business!.revenue_streams!
 
   try {
     const updated = await Settings.findOneAndUpdate(
