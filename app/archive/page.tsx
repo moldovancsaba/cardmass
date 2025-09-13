@@ -9,7 +9,6 @@ import { hoursBetweenUtc } from '@/lib/date'
 export default function ArchivePage() {
   return (
     <main className="min-h-screen p-4 bg-white text-black">
-      <h1 className="text-xl font-mono mb-4">#archive</h1>
       <ArchiveGrid />
       <div className="sticky bottom-0 mt-4 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2 justify-end">
         <a href="/kanban" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">kanban</a>
@@ -49,10 +48,13 @@ function ArchiveGrid() {
   }, [])
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {items.map((c) => (
-        <ArchivedCard key={c.id} card={c} rotStart={rotStart} />
-      ))}
+    <div className="border border-gray-300 rounded-lg p-3 text-black bg-white">
+      <div className="text-sm font-mono text-black mb-2">#archive</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {items.map((c) => (
+          <ArchivedCard key={c.id} card={c} rotStart={rotStart} />
+        ))}
+      </div>
     </div>
   )
 }

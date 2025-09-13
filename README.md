@@ -1,6 +1,6 @@
 # Cardmass — 3-column card chat
 
-Version: v1.13.0
+Version: v1.14.0
 
 Overview
 Cardmass is a minimal 3-column board where you create cards in the center (#backlog) by typing and pressing Enter. Cards can be moved between #roadmap, #backlog, and #todo. Each card is persisted in MongoDB Atlas with createdAt and updatedAt timestamps. The UI shows “X days old” and “rotten for Y days” derived from those timestamps.
