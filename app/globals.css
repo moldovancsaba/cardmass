@@ -24,3 +24,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Disable page scroll on desktop-like widths (>=1200px) */
+@media (min-width: 1200px) {
+  html, body {
+    height: 100vh;
+    overflow: hidden !important; /* no vertical nor horizontal scroll */
+  }
+}
