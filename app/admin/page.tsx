@@ -3,21 +3,14 @@
 import { useEffect, useState } from 'react'
 import { fetchJSON } from '@/lib/client'
 
+import BottomBar from "@/components/BottomBar"
+
 export default function AdminPage() {
   return (
     <main className="min-h-screen p-4 bg-white text-black">
       <h1 className="text-xl font-mono mb-4">#admin — hashtag color settings</h1>
       <SettingsForm />
-      <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2">
-        <div className="flex items-center gap-2">
-          <textarea disabled className="flex-1 w-full resize-none outline-none bg-white text-black min-h-[48px] opacity-50" placeholder="Input disabled on admin" />
-          <div className="flex items-center gap-2">
-            <a href="/archive" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black opacity-50 pointer-events-none">archive</a>
-            <a href="/matrix" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black opacity-50 pointer-events-none">matrix</a>
-          </div>
-        </div>
-        <div className="text-[10px] text-gray-500 mt-1">Enter to create • Shift+Enter for newline</div>
-      </div>
+      <BottomBar disabled view="kanban" />
     </main>
   )
 }

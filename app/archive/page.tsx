@@ -5,21 +5,13 @@ import { fetchJSON } from '@/lib/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
 import { hoursBetweenUtc } from '@/lib/date'
+import BottomBar from '@/components/BottomBar'
 
 export default function ArchivePage() {
   return (
     <main className="min-h-screen p-4 bg-white text-black">
       <ArchiveGrid />
-      <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2">
-        <div className="flex items-center gap-2">
-          <textarea disabled className="flex-1 w-full resize-none outline-none bg-white text-black min-h-[48px] opacity-50" placeholder="Input disabled on archive" />
-          <div className="flex items-center gap-2">
-            <a href="/archive" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black opacity-50 pointer-events-none">archive</a>
-            <a href="/matrix" className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">matrix</a>
-          </div>
-        </div>
-        <div className="text-[10px] text-gray-500 mt-1">Enter to create • Shift+Enter for newline</div>
-      </div>
+      <BottomBar disabled view="kanban" />
     </main>
   )
 }
