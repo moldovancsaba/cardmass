@@ -324,8 +324,10 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
         try { e.dataTransfer.setDragImage(e.currentTarget as Element, 10, 10) } catch {}
         e.dataTransfer.effectAllowed = 'move'
         onDragFlag({ id: card.id, from: status })
+        const el = e.currentTarget as HTMLElement
+        el.classList.add('opacity-70','shadow')
       }}
-      onDragEnd={() => onDragFlag(null)}
+      onDragEnd={(e) => { onDragFlag(null); const el = e.currentTarget as HTMLElement; el.classList.remove('opacity-70','shadow') }}
       onDragOver={(e) => {
         e.preventDefault()
         try { e.dataTransfer.dropEffect = 'move' } catch {}
@@ -355,7 +357,27 @@ function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onA
           }}
         />
       ) : (
-        <div className="whitespace-pre-wrap text-sm text-black">{card.text}</div>
+        <div
+          className="whitespace-pre-wrap text-sm text-black cursor-move select-none"
+          draggable={!editing}
+          onDragStart={(e) => {
+            if (editing) return
+            try { e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index })) } catch {}
+            try { e.dataTransfer.setData('text/plain', card.id) } catch {}
+            try { e.dataTransfer.setDragImage((e.currentTarget as Element).parentElement as Element, 10, 10) } catch {}
+            e.dataTransfer.effectAllowed = 'move'
+            onDragFlag({ id: card.id, from: status })
+            const parent = (e.currentTarget as HTMLElement).parentElement as HTMLElement
+            if (parent) parent.classList.add('opacity-70','shadow')
+          }}
+          onDragEnd={(e) => {
+            onDragFlag(null)
+            const parent = (e.currentTarget as HTMLElement).parentElement as HTMLElement
+            if (parent) parent.classList.remove('opacity-70','shadow')
+          }}
+        >
+          {card.text}
+        </div>
       )}
       <div className="mt-2 flex items-center justify-end text-xs text-gray-700">
         <div className="flex items-center gap-2">
