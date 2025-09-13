@@ -1,4 +1,12 @@
 
+## [v1.27.0] — 2025-09-13T16:13:24.166Z
+- Desktop (>=1200px): hard disable page scroll (overflow hidden) at page level
+- Internal panes (matrix rectangles) remain scrollable
+
+
+## [v1.27.0] — 2025-09-13T16:13:24.098Z
+- (update notes here)
+
 ## [v1.26.0] — 2025-09-13T16:10:34.215Z
 - Admin: wrapped in themed rectangle like archive; BottomBar active nav + disabled input
 

@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black xl:h-screen xl:overflow-hidden`}
       >
         {/* Provide runtime settings to the entire app so UI colors are consistent */}
         {/* The provider fetches /api/settings once on mount and keeps values in memory */}
