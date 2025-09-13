@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/types/card'
 import { fetchJSON } from '@/lib/client'
-import { daysBetweenUtc, hoursBetweenUtc } from '@/lib/date'
+import { daysBetweenUtc } from '@/lib/date'
 import { interpolateColor } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
 import BottomBar from '@/components/BottomBar'
@@ -241,9 +241,7 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
   useEffect(() => setText(card.text), [card.text])
 
   const daysOld = useMemo(() => daysBetweenUtc(card.createdAt), [card.createdAt])
-  const hoursOld = useMemo(() => hoursBetweenUtc(card.createdAt), [card.createdAt])
   const rottenDays = useMemo(() => daysBetweenUtc(card.updatedAt), [card.updatedAt])
-  const rottenHours = useMemo(() => hoursBetweenUtc(card.updatedAt), [card.updatedAt])
 
   // Compute normalized positions for coloring
   const ageMs = useMemo(() => Date.now() - new Date(card.createdAt).getTime(), [card.createdAt])
@@ -299,13 +297,13 @@ function CardItem({ card, onUpdate, onDelete, onArchive, bubbleContext }: {
             className="px-2 py-0.5 rounded-full text-[10px] font-mono"
             style={{ backgroundColor: ageColor }}
           >
-            #{daysOld} days{hoursOld > 0 ? ` (${hoursOld} hours)` : ''} old
+            #{daysOld} days old
           </span>
           <span
             className="px-2 py-0.5 rounded-full text-[10px] font-mono"
             style={{ backgroundColor: rotColor }}
           >
-            #rotten for {rottenDays} days{rottenHours > 0 ? ` (${rottenHours} hours)` : ''}
+            #rotten for {rottenDays} days
           </span>
         </div>
         <div className="flex items-center gap-2">
