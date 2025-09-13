@@ -27,25 +27,24 @@ export async function PATCH(req: Request, context: unknown) {
     }
     update.status = body.status as Status
   }
+  // Archiving sets archived=true and archivedAt now
+  if (typeof body.archived === 'boolean') {
+    if (body.archived === true) {
+      update.archived = true
+      update.archivedAt = new Date()
+    } else {
+      update.archived = false
+      update.archivedAt = null
+    }
+  }
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'No valid fields provided' }, { status: 400 })
   }
-
   const { params } = (context ?? {}) as { params?: { id?: string } }
   const id = params?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  // Archiving sets archived=true and archivedAt now
-  if (body.archived === true) {
-    update.archived = true
-    update.archivedAt = new Date()
-  }
-  if (body.archived === false) {
-    update.archived = false
-    update.archivedAt = null
-  }
-
-  const updated = await Card.findByIdAndUpdate(params.id, update, {
+  const updated = await Card.findByIdAndUpdate(id, update, {
     new: true,
     runValidators: true,
   })

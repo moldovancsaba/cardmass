@@ -1,4 +1,11 @@
 
+## [v1.11.0] — 2025-09-13T11:47:53.328Z
+- Fix: archive button now PATCHes with correct id param; nav buttons added to /archive
+
+
+## [v1.11.0] — 2025-09-13T11:47:53.262Z
+- (update notes here)
+
 ## [v1.10.0] — 2025-09-13T11:43:47.371Z
 - Chore: remove admin useEffect dependency warnings by inlining defaults
 
