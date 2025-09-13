@@ -175,6 +175,7 @@ export default function BusinessCanvas() {
     await updateCard(id, from === targetStatus ? { order: newOrder } : { status: targetStatus, order: newOrder })
   }, [dragging, dropTarget, getList, computeOrder, updateCard])
 
+
   const onContainerDragOver = useCallback((status: S) => {
     setDropTarget((prev) => ({ status, index: prev?.status === status ? (prev.index ?? null) : null }))
   }, [])
@@ -193,50 +194,92 @@ export default function BusinessCanvas() {
   ]
   const TopGrid = () => (
     <div className="grid grid-cols-5 grid-rows-2 gap-4 h-full min-h-0">
-      <div className="row-span-2" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:key_partners') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:key_partners') }}>
-        <BoardColumn title={titles.kp} status={'bmc:key_partners'} isActive={dropTarget?.status==='bmc:key_partners'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-2">
+        <BoardColumn
+          title={`#${titles.kp}`}
+          status="bmc:key_partners"
+          isActive={dropTarget?.status === 'bmc:key_partners'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {kp.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_partners', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div className="row-span-1" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:key_activities') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:key_activities') }}>
-        <BoardColumn title={titles.ka} status={'bmc:key_activities'} isActive={dropTarget?.status==='bmc:key_activities'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-1">
+        <BoardColumn
+          title={`#${titles.ka}`}
+          status="bmc:key_activities"
+          isActive={dropTarget?.status === 'bmc:key_activities'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {ka.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_activities', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div className="row-span-2" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:value_propositions') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:value_propositions') }}>
-        <BoardColumn title={titles.vp} status={'bmc:value_propositions'} isActive={dropTarget?.status==='bmc:value_propositions'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-2">
+        <BoardColumn
+          title={`#${titles.vp}`}
+          status="bmc:value_propositions"
+          isActive={dropTarget?.status === 'bmc:value_propositions'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {vp.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:value_propositions', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div className="row-span-1" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:customer_relationships') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:customer_relationships') }}>
-        <BoardColumn title={titles.cr} status={'bmc:customer_relationships'} isActive={dropTarget?.status==='bmc:customer_relationships'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-1">
+        <BoardColumn
+          title={`#${titles.cr}`}
+          status="bmc:customer_relationships"
+          isActive={dropTarget?.status === 'bmc:customer_relationships'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {cr.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_relationships', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div className="row-span-2" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:customer_segments') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:customer_segments') }}>
-        <BoardColumn title={titles.cs} status={'bmc:customer_segments'} isActive={dropTarget?.status==='bmc:customer_segments'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-2">
+        <BoardColumn
+          title={`#${titles.cs}`}
+          status="bmc:customer_segments"
+          isActive={dropTarget?.status === 'bmc:customer_segments'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {cs.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_segments', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div className="row-span-1 col-start-2" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:key_resources') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:key_resources') }}>
-        <BoardColumn title={titles.kr} status={'bmc:key_resources'} isActive={dropTarget?.status==='bmc:key_resources'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-1 col-start-2">
+        <BoardColumn
+          title={`#${titles.kr}`}
+          status="bmc:key_resources"
+          isActive={dropTarget?.status === 'bmc:key_resources'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {kr.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_resources', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div className="row-span-1 col-start-4" onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:channels') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:channels') }}>
-        <BoardColumn title={titles.ch} status={'bmc:channels'} isActive={dropTarget?.status==='bmc:channels'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div className="row-span-1 col-start-4">
+        <BoardColumn
+          title={`#${titles.ch}`}
+          status="bmc:channels"
+          isActive={dropTarget?.status === 'bmc:channels'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {ch.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:channels', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
@@ -247,15 +290,27 @@ export default function BusinessCanvas() {
 
   const BottomGrid = () => (
     <div className="grid grid-cols-2 gap-4 h-full min-h-0">
-      <div onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:cost_structure') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:cost_structure') }}>
-        <BoardColumn title={titles.cost} status={'bmc:cost_structure'} isActive={dropTarget?.status==='bmc:cost_structure'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div>
+        <BoardColumn
+          title={`#${titles.cost}`}
+          status="bmc:cost_structure"
+          isActive={dropTarget?.status === 'bmc:cost_structure'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {cost.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:cost_structure', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
         </BoardColumn>
       </div>
-      <div onDragOver={(e) => { e.preventDefault(); onContainerDragOver('bmc:revenue_streams') }} onDrop={(e) => { e.preventDefault(); handleDrop('bmc:revenue_streams') }}>
-        <BoardColumn title={titles.rev} status={'bmc:revenue_streams'} isActive={dropTarget?.status==='bmc:revenue_streams'} onContainerDragOver={onContainerDragOver} onContainerDrop={handleDrop}>
+      <div>
+        <BoardColumn
+          title={`#${titles.rev}`}
+          status="bmc:revenue_streams"
+          isActive={dropTarget?.status === 'bmc:revenue_streams'}
+          onContainerDragOver={onContainerDragOver}
+          onContainerDrop={handleDrop}
+        >
           {rev.map((c, idx) => (
             <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:revenue_streams', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
           ))}
@@ -292,95 +347,3 @@ export default function BusinessCanvas() {
   )
 }
 
-function CanvasBlock({ title, status, rows, onDrop, onDragOver, children }: {
-  title: string
-  status: Card['status']
-  rows: 1 | 2
-  onDrop: (s: Card['status']) => void
-  onDragOver: (s: Card['status']) => void
-  children: React.ReactNode
-}) {
-  return (
-    <div
-      className={`border rounded-lg p-3 text-black bg-white ${rows===2 ? 'row-span-2' : ''} border-gray-300 h-full min-h-0 flex flex-col`}
-      onDragOver={(e) => { e.preventDefault(); try { e.dataTransfer.dropEffect = 'move' } catch {}; onDragOver(status) }}
-      onDragEnter={() => { onDragOver(status) }}
-      onDrop={(e) => { e.preventDefault(); onDrop(status) }}
-    >
-      <div className="text-sm font-mono text-black mb-2">#{title}</div>
-      <div className="flex-1 min-h-0 overflow-auto space-y-2">
-        {children}
-      </div>
-    </div>
-  )
-}
-
-/* Replaced by BoardCardItem reuse */
-function CardItem({ card, index, status, onHoverIndex, onDragFlag, onUpdate, onArchive, onDelete }: {
-  card: Card
-  index: number
-  status: Card['status']
-  onHoverIndex: (t: { status: Card['status'], index: number | null }) => void
-  onDragFlag: (d: { id: string; from: Card['status'] } | null) => void
-  onUpdate: (id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => Promise<void>
-  onArchive: (id: string) => Promise<void>
-  onDelete: (id: string) => Promise<void>
-}) {
-  const [editing, setEditing] = useState(false)
-  const [text, setText] = useState(card.text)
-  useEffect(() => setText(card.text), [card.text])
-
-  // Business Canvas cards hide time badges (age/rotten) as not relevant here.
-
-  return (
-    <div
-      className="border border-gray-300 rounded-md p-3 bg-white text-black"
-      draggable={!editing}
-      onDragStart={(e) => {
-        if (editing) return
-        try { e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index })) } catch {}
-        e.dataTransfer.effectAllowed = 'move'
-        onDragFlag({ id: card.id, from: status })
-      }}
-      onDragEnd={() => onDragFlag(null)}
-      onDragOver={(e) => {
-        e.preventDefault()
-        try { e.dataTransfer.dropEffect = 'move' } catch {}
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-        const after = (e.clientY - rect.top) > rect.height / 2
-        const targetIndex = index + (after ? 1 : 0)
-        onHoverIndex({ status, index: targetIndex })
-      }}
-    >
-      {editing ? (
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="w-full resize-none outline-none bg-white text-black"
-          onKeyDown={async (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              const t = text.trim()
-              if (!t) return
-              await onUpdate(card.id, { text: t })
-              setEditing(false)
-            } else if (e.key === 'Escape') {
-              e.preventDefault()
-              setText(card.text)
-              setEditing(false)
-            }
-          }}
-        />
-      ) : (
-        <div className="whitespace-pre-wrap text-sm text-black">{card.text}</div>
-      )}
-      <div className="mt-2 flex items-center justify-end text-xs text-gray-700">
-        <div className="flex items-center gap-2">
-          <button onClick={async () => { await onArchive(card.id) }} className="text-gray-700 hover:underline" aria-label="Archive card">archive</button>
-          <button onClick={() => setEditing((v) => !v)} className="text-blue-600 hover:underline" aria-label="Edit text">{editing ? 'cancel' : 'edit'}</button>
-          <button onClick={() => onDelete(card.id)} className="text-red-600 hover:underline" aria-label="Delete card">delete</button>
-        </div>
-      </div>
-    </div>
-  )
-}
