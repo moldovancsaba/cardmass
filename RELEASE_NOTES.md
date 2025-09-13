@@ -1,4 +1,12 @@
 
+## [v1.9.0] — 2025-09-13T11:40:43.953Z
+- Fix: archive button wired to PATCH; bottom archive nav button added
+- API: /api/cards supports archived filter
+
+
+## [v1.9.0] — 2025-09-13T11:40:43.887Z
+- (update notes here)
+
 ## [v1.8.0] — 2025-09-13T11:35:37.821Z
 - Archive: /archive view shows archived cards in grid, newest first
 - Cards: archive button sets archived & archivedAt via PATCH

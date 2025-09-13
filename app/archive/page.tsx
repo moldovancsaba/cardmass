@@ -1,6 +1,6 @@
 'use client'
 
-import Board from '@/components/Board'
+// Archive is a client page; Board not used here
 import { fetchJSON } from '@/lib/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
@@ -34,10 +34,10 @@ function ArchiveGrid() {
   useEffect(() => {
     let cancelled = false
     async function load() {
-      const all = await fetchJSON<ACard[]>(`/api/cards?status=roadmap`)
-      const b = await fetchJSON<ACard[]>(`/api/cards?status=backlog`)
-      const t = await fetchJSON<ACard[]>(`/api/cards?status=todo`)
-      const merged = [...all, ...b, ...t].filter((c) => c.archived)
+      const all = await fetchJSON<ACard[]>(`/api/cards?status=roadmap&archived=true`)
+      const b = await fetchJSON<ACard[]>(`/api/cards?status=backlog&archived=true`)
+      const t = await fetchJSON<ACard[]>(`/api/cards?status=todo&archived=true`)
+      const merged = [...all, ...b, ...t]
       merged.sort((a, b) => (new Date(b.archivedAt || 0).getTime()) - (new Date(a.archivedAt || 0).getTime()))
       if (!cancelled) setItems(merged)
     }
