@@ -1,4 +1,11 @@
 
+## [v1.4.0] — 2025-09-13T11:12:31.268Z
+- Fix: repositioned Important/Not Important labels inside left margin for visibility
+
+
+## [v1.4.0] — 2025-09-13T11:12:31.203Z
+- (update notes here)
+
 ## [v1.3.0] — 2025-09-13T11:07:01.776Z
 - Fix: left-side axis labels (Important/Not Important) visible with offset and z-index
 
