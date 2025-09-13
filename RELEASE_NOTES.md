@@ -1,4 +1,11 @@
 
+## [v1.17.0] — 2025-09-13T12:11:20.895Z
+- Matrix: equal 2x2 grid; increased padding for visible axis labels; labels outside rectangles
+
+
+## [v1.17.0] — 2025-09-13T12:11:20.829Z
+- (update notes here)
+
 ## [v1.16.0] — 2025-09-13T12:05:38.845Z
 - Matrix: axis labels (Urgent/Not-Urgent, Important/Not Important) positioned outside rectangles
 - Unified bottom bar spacing across pages
