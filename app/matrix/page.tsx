@@ -2,8 +2,10 @@ import Board from '@/components/Board'
 
 export default function MatrixPage() {
   return (
-    <main className="min-h-screen p-4 bg-white text-black">
-      <Board initialView="matrix" />
+    <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
+      <div className="flex-1 xl:overflow-hidden">
+        <Board initialView="matrix" />
+      </div>
     </main>
   )
 }

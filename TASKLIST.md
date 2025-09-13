@@ -9,3 +9,6 @@
 - Title: Version automation + docs baseline
   Owner: moldovan
   Expected Delivery: 2025-09-12T16:00:00.000Z
+- Title: Fix BottomBar overflow on kanban/matrix and align placement across all pages
+  Owner: moldovan
+  Expected Delivery: 2025-09-13T18:00:00.000Z

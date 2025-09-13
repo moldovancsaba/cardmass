@@ -1,6 +1,6 @@
 {
   "name": "cardmass",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "private": true,
   "scripts": {
     "bump:patch": "npm version patch --no-git-tag-version && node scripts/sync-version.mjs",
