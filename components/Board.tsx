@@ -86,6 +86,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
 
   return (
     <div className="relative">
+      <div className="md:overflow-hidden md:h-[calc(100vh-10rem)]">
       {view === 'kanban' ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Column title="#delegate">
@@ -126,7 +127,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
           </Column>
         </div>
       ) : (
-        <div className="mt-2 md:ml-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-2 md:ml-6 grid grid-cols-1 md:grid-cols-2 gap-4 relative">
           <Rect title="#do">
             {todo.map((c) => (
               <CardItem
@@ -181,6 +182,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
           </div>
         </div>
       )}
+      </div>
 
       {/* Bottom sticky composer and layout toggle */}
       <div className="sticky bottom-0 mt-3 bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2">
@@ -212,7 +214,7 @@ function Column({ title, children }: {
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] border border-gray-300 rounded-lg p-3 text-black bg-white">
+    <div className="flex flex-col md:h-full h-[calc(100vh-4rem)] border border-gray-300 rounded-lg p-3 text-black bg-white">
       <div className="text-sm font-mono text-black mb-2">{title}</div>
       <div className="flex-1 space-y-2 overflow-auto pr-1">
         {children}
@@ -247,9 +249,9 @@ function Composer({ onCreate }: { onCreate: (text: string) => Promise<void> }) {
 
 function Rect({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border border-gray-300 rounded-lg p-3 min-h-[300px] text-black bg-white">
+    <div className="border border-gray-300 rounded-lg p-3 md:h-full flex flex-col text-black bg-white">
       <div className="text-sm font-mono text-black mb-2">{title}</div>
-      <div className="space-y-2">
+      <div className="flex-1 space-y-2 overflow-auto pr-1">
         {children}
       </div>
     </div>

@@ -48,12 +48,14 @@ function ArchiveGrid() {
   }, [])
 
   return (
-    <div className="border border-gray-300 rounded-lg p-3 text-black bg-white">
+    <div className="border border-gray-300 rounded-lg p-3 md:h-[calc(100vh-10rem)] flex flex-col text-black bg-white">
       <div className="text-sm font-mono text-black mb-2">#archive</div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((c) => (
-          <ArchivedCard key={c.id} card={c} rotStart={rotStart} />
-        ))}
+      <div className="flex-1 overflow-auto pr-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((c) => (
+            <ArchivedCard key={c.id} card={c} rotStart={rotStart} />
+          ))}
+        </div>
       </div>
     </div>
   )
