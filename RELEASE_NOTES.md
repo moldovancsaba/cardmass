@@ -1,4 +1,11 @@
 
+## [v1.19.0] — 2025-09-13T12:21:27.660Z
+- BottomBar: reused on admin and archive as disabled for identical layout, position, size
+
+
+## [v1.19.0] — 2025-09-13T12:21:27.583Z
+- (update notes here)
+
 ## [v1.18.0] — 2025-09-13T12:16:39.485Z
 - BottomBar: unified input+buttons rectangle across pages; disabled on admin/archive
 - Cleanup: removed unused composer
