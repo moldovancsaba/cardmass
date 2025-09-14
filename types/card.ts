@@ -8,7 +8,7 @@ export type Card = {
     | 'bmc:cost_structure' | 'bmc:revenue_streams'
   order: number
   // Business classification for /business layout
-  business?: 'ValuePropositions' | 'KeyActivities' | 'KeyResources' | 'CustomerRelationships' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
+  business?: 'KeyPartners' | 'KeyActivities' | 'KeyResources' | 'ValuePropositions' | 'CustomerRelationships' | 'Channels' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
   businessOrder?: number
   archived?: boolean
   archivedAt?: string

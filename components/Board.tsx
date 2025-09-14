@@ -181,7 +181,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
             onDragFlag={setDragging}
-extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`]}
           />
             ))}
           </Column>
@@ -204,7 +204,7 @@ extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivitie
             onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'decide', ...stats.backlog }}
             onDragFlag={setDragging}
-extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`]}
           />
             ))}
           </Column>
@@ -227,7 +227,7 @@ extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivitie
             onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'do', ...stats.todo }}
             onDragFlag={setDragging}
-extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`]}
           />
             ))}
           </Column>
@@ -276,7 +276,7 @@ extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivitie
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'decide', ...stats.backlog }}
                 onDragFlag={setDragging}
-extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`]}
               />
             ))}
           </Rect>
@@ -532,7 +532,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
           {!hideBadges && (
             <>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor }}>
-                #{daysOld} days old
+                #Created {daysOld} days ago
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotColor }}>
                 #rotten for {rottenDays} days

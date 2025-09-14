@@ -18,9 +18,9 @@ export async function PATCH(req: Request, context: unknown) {
   await connectToDatabase()
   let bodyUnknown: unknown
   try { bodyUnknown = await req.json() } catch { bodyUnknown = {} }
-  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; order?: number; archived?: boolean; business?: 'ValuePropositions'|'KeyActivities'|'KeyResources'|'CustomerRelationships'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder?: number }
+  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; order?: number; archived?: boolean; business?: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder?: number }
 
-  const update: Partial<{ text: string; status: Status; order: number; archived: boolean; archivedAt: Date | null; business: 'ValuePropositions'|'KeyActivities'|'KeyResources'|'CustomerRelationships'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder: number }> = {}
+  const update: Partial<{ text: string; status: Status; order: number; archived: boolean; archivedAt: Date | null; business: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder: number }> = {}
   if (typeof body.text === 'string') {
     const t = body.text.trim()
     if (!t) return NextResponse.json({ error: 'Text cannot be empty' }, { status: 400 })
@@ -38,10 +38,10 @@ export async function PATCH(req: Request, context: unknown) {
     }
   }
   if (typeof body.business === 'string') {
-    if (!['ValuePropositions','KeyActivities','KeyResources','CustomerRelationships','CustomerSegments','Cost','RevenueStream'].includes(body.business)) {
+    if (!['KeyPartners','KeyActivities','KeyResources','ValuePropositions','CustomerRelationships','Channels','CustomerSegments','Cost','RevenueStream'].includes(body.business)) {
       return NextResponse.json({ error: 'Invalid business' }, { status: 400 })
     }
-    update.business = body.business as 'ValuePropositions'|'KeyActivities'|'KeyResources'|'CustomerRelationships'|'CustomerSegments'|'Cost'|'RevenueStream'
+    update.business = body.business as 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'
     if (typeof body.businessOrder !== 'number') {
       needsTopBizPlacement = true
     }

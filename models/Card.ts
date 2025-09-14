@@ -14,7 +14,7 @@ export interface CardDoc extends mongoose.Document {
   text: string
   status: CardStatus
   order: number // relative position within its status group; lower comes first
-  business: 'ValuePropositions' | 'KeyActivities' | 'KeyResources' | 'CustomerRelationships' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
+  business: 'KeyPartners' | 'KeyActivities' | 'KeyResources' | 'ValuePropositions' | 'CustomerRelationships' | 'Channels' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
   businessOrder: number
   archived?: boolean
   archivedAt?: Date
@@ -41,7 +41,7 @@ const CardSchema = new Schema<CardDoc>(
     // We use fractional insertion (avg of neighbors) on the client; normalization can be added later.
     order: { type: Number, required: true, default: 0, index: true },
     // Business classification used for /business layout; default all cards to ValuePropositions.
-    business: { type: String, enum: ['ValuePropositions', 'KeyActivities', 'KeyResources', 'CustomerRelationships', 'CustomerSegments', 'Cost', 'RevenueStream'], default: 'ValuePropositions', index: true },
+    business: { type: String, enum: ['KeyPartners', 'KeyActivities', 'KeyResources', 'ValuePropositions', 'CustomerRelationships', 'Channels', 'CustomerSegments', 'Cost', 'RevenueStream'], default: 'ValuePropositions', index: true },
     businessOrder: { type: Number, required: true, default: 0, index: true },
     archived: { type: Boolean, default: false, index: true },
     archivedAt: { type: Date, default: null },
