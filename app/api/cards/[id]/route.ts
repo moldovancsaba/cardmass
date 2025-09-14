@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongoose'
 import { Card } from '@/models/Card'
 import type { Status } from '@/app/api/cards/route'
+import { randomUUID } from 'node:crypto'
 
 export const runtime = 'nodejs'
 
@@ -85,6 +86,11 @@ export async function PATCH(req: Request, context: unknown) {
     new: true,
     runValidators: true,
   })
+  // Backfill uuid if missing on update as well
+  if (updated && !updated.uuid) {
+    updated.uuid = randomUUID()
+    await updated.save()
+  }
   if (!updated) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(updated.toJSON())
 }
