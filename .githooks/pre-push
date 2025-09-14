@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Block pushes to any branch other than 'main'.
+set -euo pipefail
+
+# git pre-push receives remote name and URL on stdin as pairs: <local ref> <local sha> <remote ref> <remote sha>
+# We'll parse input and ensure all remote refs are refs/heads/main
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Allow deletions (remote_sha of 0000...), but enforce main-only branch name
+  if [[ -n "${remote_ref:-}" && "$remote_ref" != "refs/heads/main" ]]; then
+    echo "Blocked: pushes are only allowed to 'main'. Remote ref: $remote_ref" >&2
+    exit 1
+  fi
+ done
