@@ -1,37 +1,33 @@
-import { connectToDatabase } from '@/lib/mongoose'
-import { Card } from '@/models/Card'
 import { notFound } from 'next/navigation'
 
 export const revalidate = 0
 export const runtime = 'nodejs'
 
+type PublicCard = { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
+
 export default async function CardPublicPage({ params }: { params: Promise<{ uuid: string }> }) {
   const { uuid } = await params
-  // First, try DB lookup
-  let card: { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string } | null = null
+  let card: PublicCard | null = null
+
+  // Try by-uuid API first (fast path)
   try {
-    await connectToDatabase()
-    const doc = await Card.findOne({ uuid, archived: { $ne: true } })
-    if (doc) {
-      card = doc.toJSON() as { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
-    }
-  } catch {
-    // swallow and fallback to API
-  }
-  if (!card) {
-    // Prefer direct by-uuid API to avoid scanning
     const byUuid = await fetch(`/api/cards/by-uuid/${encodeURIComponent(uuid)}`, { cache: 'no-store' })
     if (byUuid.ok) {
-      card = (await byUuid.json()) as { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
-    } else {
-      // Fallback to broad list (ensures we benefit from server-side uuid backfill)
+      card = (await byUuid.json()) as PublicCard
+    }
+  } catch {}
+
+  // Fallback: scan non-archived list (also triggers server-side uuid backfill)
+  if (!card) {
+    try {
       const res = await fetch(`/api/cards?archived=false`, { cache: 'no-store' })
       if (res.ok) {
-        const arr = (await res.json()) as Array<{ uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }>
+        const arr = (await res.json()) as PublicCard[]
         card = Array.isArray(arr) ? arr.find((c) => c?.uuid === uuid) ?? null : null
       }
-    }
+    } catch {}
   }
+
   if (!card) return notFound()
   return (
     <main className="p-4 bg-white text-black">
