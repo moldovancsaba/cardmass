@@ -1,0 +1,161 @@
+"use client"
+
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { fetchJSON } from '@/lib/client'
+import type { Card } from '@/types/card'
+import BottomBar from '@/components/BottomBar'
+import { Column as BoardColumn, CardItem as BoardCardItem } from '@/components/Board'
+
+// BusinessBoard: simplified 3-column board copied from Kanban behavior
+// Columns: ValuePropositions, KeyActivities, KeyResources
+// Behavior:
+// - All active matrix cards (delegate, decide, do, decline) appear in ValuePropositions by default
+// - Cards carry #matrix status chip and #business chip; chips auto-update on state changes
+// - Drag-and-drop reorders within business columns and moves across them (business + businessOrder)
+// - Deleting/archiving reflects globally
+export default function BusinessBoard() {
+  const router = useRouter()
+  type B = 'ValuePropositions' | 'KeyActivities' | 'KeyResources'
+
+  const [vp, setVp] = useState<Card[]>([])
+  const [ka, setKa] = useState<Card[]>([])
+  const [kr, setKr] = useState<Card[]>([])
+
+  type Status = Card['status']
+  const [dragging, setDragging] = useState<{ id: string; from: B } | null>(null)
+  const [dropTarget, setDropTarget] = useState<{ bucket: B; index: number | null } | null>(null)
+
+  const load = useCallback(async () => {
+    // fetch by business bucket
+    const [a, b, c] = await Promise.all([
+      fetchJSON<Card[]>(`/api/cards?business=ValuePropositions`),
+      fetchJSON<Card[]>(`/api/cards?business=KeyActivities`),
+      fetchJSON<Card[]>(`/api/cards?business=KeyResources`),
+    ])
+    setVp(a)
+    setKa(b)
+    setKr(c)
+  }, [])
+  useEffect(() => { load() }, [load])
+
+  const byBizOrder = useCallback((a: Card, b: Card) => {
+    const aoRaw = (a as unknown as { businessOrder?: number }).businessOrder
+    const boRaw = (b as unknown as { businessOrder?: number }).businessOrder
+    const ao = Number.isFinite(aoRaw ?? NaN) ? (aoRaw as number) : Number.MAX_SAFE_INTEGER
+    const bo = Number.isFinite(boRaw ?? NaN) ? (boRaw as number) : Number.MAX_SAFE_INTEGER
+    if (ao !== bo) return ao - bo
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  }, [])
+  const insertSorted = useCallback((arr: Card[]) => { const next = [...arr]; next.sort(byBizOrder); return next }, [byBizOrder])
+
+  const computeOrder = useCallback((list: Card[], dropIndex: number) => {
+    const prev = list[dropIndex - 1] || null
+    const next = list[dropIndex] || null
+    const prevO = (prev as unknown as { businessOrder?: number })?.businessOrder ?? null
+    const nextO = (next as unknown as { businessOrder?: number })?.businessOrder ?? null
+    if (prev && next && prevO! < nextO!) return (prevO! + nextO!) / 2
+    if (!prev && next) return nextO! - 1
+    if (prev && !next) return prevO! + 1
+    return 0
+  }, [])
+
+  const updateCard = useCallback(async (id: string, data: Partial<Pick<Card, 'text' | 'status'>> & { business?: B; businessOrder?: number }) => {
+    const updated = await fetchJSON<Card>(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify(data) })
+    // remove from all
+    setVp(p => p.filter(c => c.id !== id))
+    setKa(p => p.filter(c => c.id !== id))
+    setKr(p => p.filter(c => c.id !== id))
+    // insert back according to updated.business
+    const biz = (updated as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'
+    if (biz === 'ValuePropositions') setVp(a => insertSorted([...a, updated]))
+    if (biz === 'KeyActivities') setKa(a => insertSorted([...a, updated]))
+    if (biz === 'KeyResources') setKr(a => insertSorted([...a, updated]))
+  }, [insertSorted])
+
+  const archiveCard = useCallback(async (id: string) => {
+    await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) })
+    setVp(p => p.filter(c => c.id !== id))
+    setKa(p => p.filter(c => c.id !== id))
+    setKr(p => p.filter(c => c.id !== id))
+  }, [])
+
+  const deleteCard = useCallback(async (id: string) => {
+    await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' })
+    setVp(p => p.filter(c => c.id !== id))
+    setKa(p => p.filter(c => c.id !== id))
+    setKr(p => p.filter(c => c.id !== id))
+  }, [])
+
+  const onContainerDragOver = useCallback((bucket: B) => {
+    setDropTarget(prev => ({ bucket, index: prev?.bucket === bucket ? (prev.index ?? null) : null }))
+  }, [])
+
+  const handleDrop = useCallback(async (bucket: B) => {
+    const drag = dragging
+    const target = dropTarget
+    setDragging(null)
+    setDropTarget(null)
+    if (!drag) return
+    const id = drag.id
+    const current = bucket === 'ValuePropositions' ? vp : bucket === 'KeyActivities' ? ka : kr
+    let dropIndex = typeof target?.index === 'number' && target.bucket === bucket ? target.index : current.length
+    const filtered = current.filter(c => c.id !== id)
+    if (dropIndex > filtered.length) dropIndex = filtered.length
+    const businessOrder = computeOrder(filtered, Math.max(0, Math.min(filtered.length, dropIndex)))
+    await updateCard(id, { business: bucket, businessOrder })
+  }, [dragging, dropTarget, vp, ka, kr, computeOrder, updateCard])
+
+  const stats = useMemo(() => ({ minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }), [])
+
+  function chipsForCard(card: Card, bucket: B) {
+    const matrix = `#${card.status}`
+    const business = `#${(card as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`
+    // All cards show their business chip; additionally, all cards active on matrix and in ValuePropositions show their matrix chip
+    const showMatrix = bucket === 'ValuePropositions'
+    return showMatrix ? [matrix, business] : [business]
+  }
+
+  return (
+    <div className="relative flex flex-col xl:h-full">
+      <div className="flex-1 xl:overflow-hidden xl:min-h-0 grid grid-cols-1 md:grid-cols-3 gap-4 md:h-full md:min-h-0 relative">
+        <BoardColumn title="#ValuePropositions" status={"bmc:value_propositions" as unknown as Card['status']} isActive={dropTarget?.bucket === 'ValuePropositions'} onContainerDragOver={() => onContainerDragOver('ValuePropositions' )} onContainerDrop={() => handleDrop('ValuePropositions')}>
+          {vp.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'ValuePropositions', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'ValuePropositions' })} extraChips={chipsForCard(c, 'ValuePropositions')} />
+          ))}
+        </BoardColumn>
+        <BoardColumn title="#KeyActivities" status={"bmc:key_activities" as unknown as Card['status']} isActive={dropTarget?.bucket === 'KeyActivities'} onContainerDragOver={() => onContainerDragOver('KeyActivities' )} onContainerDrop={() => handleDrop('KeyActivities')}>
+          {ka.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyActivities', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyActivities' })} extraChips={chipsForCard(c, 'KeyActivities')} />
+          ))}
+        </BoardColumn>
+        <BoardColumn title="#KeyResources" status={"bmc:key_resources" as unknown as Card['status']} isActive={dropTarget?.bucket === 'KeyResources'} onContainerDragOver={() => onContainerDragOver('KeyResources' )} onContainerDrop={() => handleDrop('KeyResources')}>
+          {kr.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyResources', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyResources' })} extraChips={chipsForCard(c, 'KeyResources')} />
+          ))}
+        </BoardColumn>
+      </div>
+
+      <BottomBar
+        view={'business'}
+        onCreate={async (text) => {
+          // new cards go to ValuePropositions bucket by default, keep status unchanged default (decide) in API
+          const created = await fetchJSON<Card>(`/api/cards`, { method: 'POST', body: JSON.stringify({ text, business: 'ValuePropositions' }) })
+          setVp(prev => insertSorted([created, ...prev]))
+        }}
+        onToggle={() => router.push('/kanban')}
+        onArchiveNav={() => router.push('/archive')}
+        onKanbanNav={() => router.push('/kanban')}
+        onMatrixNav={() => router.push('/matrix')}
+        onBusinessNav={() => router.push('/business')}
+        showToggle={false}
+        showArchive={true}
+        showKanban={true}
+        showMatrix={true}
+        showBusiness={false}
+        showAdmin={true}
+        onAdminNav={() => router.push('/admin')}
+      />
+    </div>
+  )
+}
