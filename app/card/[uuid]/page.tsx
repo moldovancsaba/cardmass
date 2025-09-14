@@ -1,7 +1,6 @@
 import { connectToDatabase } from '@/lib/mongoose'
 import { Card } from '@/models/Card'
 import { notFound } from 'next/navigation'
-import { headers } from 'next/headers'
 
 export const revalidate = 0
 
@@ -15,11 +14,7 @@ export default async function CardPublicPage({ params }: { params: Promise<{ uui
     card = doc.toJSON() as { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
   } else {
     // Fallback to internal API (ensures we benefit from server-side uuid backfill)
-    const h = await headers()
-    const host = (await h).get('x-forwarded-host') || (await h).get('host') || ''
-    const proto = (await h).get('x-forwarded-proto') || 'https'
-    const base = `${proto}://${host}`
-    const res = await fetch(`${base}/api/cards?archived=false`, { cache: 'no-store' })
+    const res = await fetch(`/api/cards?archived=false`, { cache: 'no-store' })
     if (res.ok) {
       const arr = (await res.json()) as Array<{ uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }>
       card = Array.isArray(arr) ? arr.find((c) => c?.uuid === uuid) ?? null : null
