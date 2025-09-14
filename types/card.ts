@@ -1,5 +1,6 @@
 export type Card = {
   id: string
+  uuid?: string
   text: string
   status:
     | 'delegate' | 'decide' | 'do' | 'decline'

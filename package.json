@@ -11,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "version:check": "node scripts/sync-version.mjs --check"
+    "version:check": "node scripts/sync-version.mjs --check",
+    "migrate:add-uuid": "node scripts/migrate-add-uuid.mjs"
   },
   "dependencies": {
     "mongoose": "^8.18.1",
