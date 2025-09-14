@@ -1,4 +1,5 @@
 import mongoose, { Schema, model, models } from 'mongoose'
+import { randomUUID } from 'node:crypto'
 
 // Card model encapsulates the core domain entity used in the UI columns.
 // Why mongoose timestamps: ensures consistent createdAt/updatedAt in UTC Dates,
@@ -12,6 +13,7 @@ export type CardStatus =
 
 export interface CardDoc extends mongoose.Document {
   text: string
+  uuid?: string
   status: CardStatus
   order: number // relative position within its status group; lower comes first
   business: 'KeyPartners' | 'KeyActivities' | 'KeyResources' | 'ValuePropositions' | 'CustomerRelationships' | 'Channels' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
@@ -25,6 +27,8 @@ export interface CardDoc extends mongoose.Document {
 const CardSchema = new Schema<CardDoc>(
   {
     text: { type: String, required: true, trim: true },
+    // Public shareable identifier. A random v4 UUID assigned on creation.
+    uuid: { type: String, default: () => randomUUID() },
     // Status values include classic kanban/matrix and Business Model Canvas buckets.
     status: {
       type: String,
@@ -54,6 +58,8 @@ CardSchema.index({ updatedAt: -1 })
 CardSchema.index({ archivedAt: -1 })
 CardSchema.index({ status: 1, order: 1 })
 CardSchema.index({ business: 1, businessOrder: 1 })
+// Unique sparse index so existing docs without uuid don't break; migration will backfill.
+CardSchema.index({ uuid: 1 }, { unique: true, sparse: true })
 
 // Transform Mongo fields to API-friendly JSON
 CardSchema.set('toJSON', {
