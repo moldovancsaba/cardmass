@@ -181,6 +181,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
             onDragFlag={setDragging}
+extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
           />
             ))}
           </Column>
@@ -203,6 +204,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'decide', ...stats.backlog }}
             onDragFlag={setDragging}
+extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
           />
             ))}
           </Column>
@@ -225,6 +227,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
             onHoverIndex={setDropTarget}
             bubbleContext={{ kind: 'do', ...stats.todo }}
             onDragFlag={setDragging}
+extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
           />
             ))}
           </Column>
@@ -250,6 +253,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'do', ...stats.todo }}
                 onDragFlag={setDragging}
+extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
               />
             ))}
           </Rect>
@@ -272,6 +276,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'decide', ...stats.backlog }}
                 onDragFlag={setDragging}
+extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
               />
             ))}
           </Rect>
@@ -294,6 +299,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
                 onDragFlag={setDragging}
+                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
               />
             ))}
           </Rect>
@@ -316,6 +322,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'decline', ...stats.decline }}
                 onDragFlag={setDragging}
+                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
               />
             ))}
           </Rect>
@@ -368,14 +375,14 @@ export function Column({ title, status, isActive, onContainerDragOver, onContain
   return (
     <div
       className={`flex flex-col xl:h-full xl:min-h-0 md:min-h-0 border rounded-lg p-3 text-black bg-white ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
-      onDragOver={(e) => { e.preventDefault(); onContainerDragOver(status) }}
+      onDragOver={(e) => { e.preventDefault(); try { ((e as unknown as DragEvent).dataTransfer as DataTransfer).dropEffect = 'move' } catch {}; onContainerDragOver(status) }}
       onDragEnter={() => onContainerDragOver(status)}
       onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
     >
       <div className="text-sm font-mono text-black mb-2">{title}</div>
       <div
         className="flex-1 space-y-2 overflow-auto pr-1"
-        onDragOver={(e) => { e.preventDefault(); onContainerDragOver(status) }}
+        onDragOver={(e) => { e.preventDefault(); try { ((e as unknown as DragEvent).dataTransfer as DataTransfer).dropEffect = 'move' } catch {}; onContainerDragOver(status) }}
         onDragEnter={() => onContainerDragOver(status)}
         onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
       >
@@ -409,7 +416,7 @@ function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, c
   )
 }
 
-export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag, statusOptions, hideBadges = false }: {
+export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag, statusOptions, hideBadges = false, extraChips }: {
   card: Card
   index: number
   status: Card['status']
@@ -421,6 +428,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
   onDragFlag: (d: { id: string; from: Card['status'] } | null) => void
   statusOptions?: Array<{ value: Card['status']; label: string }>
   hideBadges?: boolean
+  extraChips?: string[]
 }) {
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(card.text)
@@ -517,7 +525,10 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
         <div className="whitespace-pre-wrap text-sm text-black">{card.text}</div>
       )}
       <div className="mt-2 flex items-center justify-between text-xs text-gray-700">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {Array.isArray(extraChips) && extraChips.map((chip, i) => (
+            <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-gray-200 text-gray-800">{chip}</span>
+          ))}
           {!hideBadges && (
             <>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor }}>

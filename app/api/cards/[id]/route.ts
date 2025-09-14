@@ -18,15 +18,16 @@ export async function PATCH(req: Request, context: unknown) {
   await connectToDatabase()
   let bodyUnknown: unknown
   try { bodyUnknown = await req.json() } catch { bodyUnknown = {} }
-  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; order?: number; archived?: boolean }
+  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; order?: number; archived?: boolean; business?: 'ValuePropositions'|'KeyActivities'|'KeyResources'; businessOrder?: number }
 
-  const update: Partial<{ text: string; status: Status; order: number; archived: boolean; archivedAt: Date | null }> = {}
+  const update: Partial<{ text: string; status: Status; order: number; archived: boolean; archivedAt: Date | null; business: 'ValuePropositions'|'KeyActivities'|'KeyResources'; businessOrder: number }> = {}
   if (typeof body.text === 'string') {
     const t = body.text.trim()
     if (!t) return NextResponse.json({ error: 'Text cannot be empty' }, { status: 400 })
     update.text = t
   }
   let needsTopPlacement = false
+  let needsTopBizPlacement = false
   if (typeof body.status === 'string') {
     if (!(allowedStatuses as readonly string[]).includes(body.status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
@@ -36,8 +37,20 @@ export async function PATCH(req: Request, context: unknown) {
       needsTopPlacement = true
     }
   }
+  if (typeof body.business === 'string') {
+    if (!['ValuePropositions','KeyActivities','KeyResources'].includes(body.business)) {
+      return NextResponse.json({ error: 'Invalid business' }, { status: 400 })
+    }
+    update.business = body.business as 'ValuePropositions'|'KeyActivities'|'KeyResources'
+    if (typeof body.businessOrder !== 'number') {
+      needsTopBizPlacement = true
+    }
+  }
   if (typeof body.order === 'number' && Number.isFinite(body.order)) {
     update.order = body.order
+  }
+  if (typeof body.businessOrder === 'number' && Number.isFinite(body.businessOrder)) {
+    update.businessOrder = body.businessOrder
   }
   // Archiving sets archived=true and archivedAt now
   if (typeof body.archived === 'boolean') {
@@ -57,6 +70,12 @@ export async function PATCH(req: Request, context: unknown) {
   if (needsTopPlacement && update.status) {
     const top = await Card.findOne({ status: update.status, archived: { $ne: true } }).sort({ order: 1 })
     update.order = top && typeof top.order === 'number' ? top.order - 1 : 0
+  }
+  // If business changed without explicit businessOrder, place at the top of the target business bucket.
+  if (needsTopBizPlacement && update.business) {
+    const topBiz = await Card.findOne({ business: update.business, archived: { $ne: true } }).sort({ businessOrder: 1 })
+    const topBizOrder = (topBiz && (topBiz as unknown as { businessOrder?: number }).businessOrder)
+    update.businessOrder = typeof topBizOrder === 'number' ? (topBizOrder as number) - 1 : 0
   }
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'No valid fields provided' }, { status: 400 })
