@@ -373,7 +373,12 @@ export function Column({ title, status, isActive, onContainerDragOver, onContain
       onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
     >
       <div className="text-sm font-mono text-black mb-2">{title}</div>
-      <div className="flex-1 space-y-2 overflow-auto pr-1">
+      <div
+        className="flex-1 space-y-2 overflow-auto pr-1"
+        onDragOver={(e) => { e.preventDefault(); onContainerDragOver(status) }}
+        onDragEnter={() => onContainerDragOver(status)}
+        onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
+      >
         {children}
       </div>
     </div>
@@ -459,12 +464,15 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
 
   return (
     <div
-      className={`border border-gray-300 rounded-md p-3 bg-white text-black`}
+      className={`border border-gray-300 rounded-md p-3 bg-white text-black select-none cursor-move`}
       draggable={!editing}
       onDragStart={(e) => {
         if (editing) return
         try {
           e.dataTransfer.setData('application/x-cardmass', JSON.stringify({ id: card.id, fromStatus: status, fromIndex: index }))
+        } catch {}
+        try {
+          e.dataTransfer.setData('text/plain', card.id)
         } catch {}
         e.dataTransfer.effectAllowed = 'move'
         onDragFlag({ id: card.id, from: status })
@@ -479,6 +487,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
       onDragOver={(e) => {
         // Compute insertion index before/after this item based on cursor position
         e.preventDefault()
+        try { e.dataTransfer.dropEffect = 'move' } catch {}
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
         const after = (e.clientY - rect.top) > rect.height / 2
         const targetIndex = index + (after ? 1 : 0)
