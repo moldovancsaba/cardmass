@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Auto-push to origin/main after every successful commit on main.
+set -euo pipefail
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "$branch" == "main" ]]; then
+  # Only push if there are local commits ahead of origin/main
+  upstream="origin/main"
+  if git rev-parse --verify "$upstream" >/dev/null 2>&1; then
+    if [[ -n "$(git rev-list --left-only --count "$upstream"...HEAD)" ]]; then
+      # Silently attempt push; if it fails (e.g. network), print a friendly notice
+      if ! git push origin HEAD:main; then
+        echo "Notice: Auto-push to origin/main failed. Please run: git push origin HEAD:main" >&2
+      fi
+    else
+      # Fallback: still try to push in case upstream tracking not set yet
+      git push origin HEAD:main || true
+    fi
+  else
+    git push origin HEAD:main || true
+  fi
+fi
