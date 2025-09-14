@@ -567,6 +567,23 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
             {editing ? 'cancel' : 'edit'}
           </button>
           <button
+            onClick={async () => {
+              if (!('uuid' in card) || !card.uuid) {
+                // No UUID present (should be rare after migration). Provide feedback safely.
+                try { alert('Share link unavailable yet for this card.'); } catch {}
+                return
+              }
+              try {
+                const url = `${window.location.origin}/card/${card.uuid}`
+                await navigator.clipboard.writeText(url)
+              } catch {}
+            }}
+            className="text-gray-700 hover:underline"
+            aria-label="Copy share link"
+          >
+            copy link
+          </button>
+          <button
             onClick={() => onDelete(card.id)}
             className="text-red-600 hover:underline"
             aria-label="Delete card"

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongoose'
 import { Card } from '@/models/Card'
+import { randomUUID } from 'node:crypto'
 
 export const runtime = 'nodejs'
 
@@ -65,6 +66,13 @@ export async function GET(req: Request) {
   // Sort by dimension: if business filtered, use businessOrder; else use order
   const sortTuples: [string, 1 | -1][] = business ? [['businessOrder', 1], ['updatedAt', -1]] : [['order', 1], ['updatedAt', -1]]
   const docs = await Card.find(filter).sort(sortTuples)
+  // Auto-backfill UUIDs for any documents missing one. This runs server-side in every environment,
+  // ensuring global convergence without requiring manual migrations in each environment.
+  type CardDocLike = { uuid?: string; save: () => Promise<unknown> }
+  const missing = (docs as unknown as CardDocLike[]).filter((d) => !d.uuid)
+  if (missing.length) {
+    await Promise.all(missing.map(async (d) => { (d as CardDocLike).uuid = randomUUID(); await d.save() }))
+  }
   const payload = docs.map((d) => d.toJSON())
   return NextResponse.json(payload)
 }
