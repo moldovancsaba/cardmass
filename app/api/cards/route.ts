@@ -43,7 +43,7 @@ export async function GET(req: Request) {
     filter.status = { $in: synonyms[status as Status] }
   }
   if (business) {
-    if (!['ValuePropositions','KeyActivities','KeyResources','CustomerRelationships','CustomerSegments','Cost','RevenueStream'].includes(business)) {
+    if (!['KeyPartners','KeyActivities','KeyResources','ValuePropositions','CustomerRelationships','Channels','CustomerSegments','Cost','RevenueStream'].includes(business)) {
       return NextResponse.json({ error: 'Invalid business' }, { status: 400 })
     }
     if (business === 'ValuePropositions') {
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
   await connectToDatabase()
   let body: unknown
   try { body = await req.json() } catch { body = {} }
-  const b = (body ?? {}) as { text?: string; status?: string; business?: 'ValuePropositions'|'KeyActivities'|'KeyResources'|'CustomerRelationships'|'CustomerSegments'|'Cost'|'RevenueStream' }
+  const b = (body ?? {}) as { text?: string; status?: string; business?: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream' }
   const text = (b.text ?? '').trim()
   if (!text) {
     return NextResponse.json({ error: 'Text is required' }, { status: 400 })
@@ -84,8 +84,8 @@ export async function POST(req: Request) {
   if (typeof b.status === 'string' && (allowedStatuses as readonly string[]).includes(b.status)) {
     status = b.status as Status
   }
-  const business: 'ValuePropositions'|'KeyActivities'|'KeyResources'|'CustomerRelationships'|'CustomerSegments'|'Cost'|'RevenueStream' =
-    (b.business === 'KeyActivities' || b.business === 'KeyResources' || b.business === 'CustomerRelationships' || b.business === 'CustomerSegments' || b.business === 'Cost' || b.business === 'RevenueStream') ? b.business : 'ValuePropositions'
+  const business: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream' =
+    (b.business === 'KeyPartners' || b.business === 'KeyActivities' || b.business === 'KeyResources' || b.business === 'ValuePropositions' || b.business === 'CustomerRelationships' || b.business === 'Channels' || b.business === 'CustomerSegments' || b.business === 'Cost' || b.business === 'RevenueStream') ? b.business : 'ValuePropositions'
   // Insert new cards at the top of the chosen status and business columns by assigning an order less than the current minimum.
   const top = await Card.findOne({ status, archived: { $ne: true } }).sort({ order: 1 })
   const order = top && typeof top.order === 'number' ? top.order - 1 : 0
