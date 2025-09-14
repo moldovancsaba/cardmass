@@ -16,11 +16,13 @@ import { Column as BoardColumn, CardItem as BoardCardItem } from '@/components/B
 // - Deleting/archiving reflects globally
 export default function BusinessBoard() {
   const router = useRouter()
-  type B = 'ValuePropositions' | 'KeyActivities' | 'KeyResources'
+  type B = 'ValuePropositions' | 'KeyActivities' | 'KeyResources' | 'CustomerRelationships' | 'CustomerSegments'
 
   const [vp, setVp] = useState<Card[]>([])
   const [ka, setKa] = useState<Card[]>([])
   const [kr, setKr] = useState<Card[]>([])
+  const [rel, setRel] = useState<Card[]>([])
+  const [seg, setSeg] = useState<Card[]>([])
 
   type Status = Card['status']
   const [dragging, setDragging] = useState<{ id: string; from: B } | null>(null)
@@ -28,14 +30,18 @@ export default function BusinessBoard() {
 
   const load = useCallback(async () => {
     // fetch by business bucket
-    const [a, b, c] = await Promise.all([
+    const [a, b, c, d, e] = await Promise.all([
       fetchJSON<Card[]>(`/api/cards?business=ValuePropositions`),
       fetchJSON<Card[]>(`/api/cards?business=KeyActivities`),
       fetchJSON<Card[]>(`/api/cards?business=KeyResources`),
+      fetchJSON<Card[]>(`/api/cards?business=CustomerRelationships`),
+      fetchJSON<Card[]>(`/api/cards?business=CustomerSegments`),
     ])
     setVp(a)
     setKa(b)
     setKr(c)
+    setRel(d)
+    setSeg(e)
   }, [])
   useEffect(() => { load() }, [load])
 
@@ -66,11 +72,15 @@ export default function BusinessBoard() {
     setVp(p => p.filter(c => c.id !== id))
     setKa(p => p.filter(c => c.id !== id))
     setKr(p => p.filter(c => c.id !== id))
+    setRel(p => p.filter(c => c.id !== id))
+    setSeg(p => p.filter(c => c.id !== id))
     // insert back according to updated.business
-    const biz = (updated as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'
+    const biz = (updated as unknown as { business?: B }).business || 'ValuePropositions'
     if (biz === 'ValuePropositions') setVp(a => insertSorted([...a, updated]))
     if (biz === 'KeyActivities') setKa(a => insertSorted([...a, updated]))
     if (biz === 'KeyResources') setKr(a => insertSorted([...a, updated]))
+    if (biz === 'CustomerRelationships') setRel(a => insertSorted([...a, updated]))
+    if (biz === 'CustomerSegments') setSeg(a => insertSorted([...a, updated]))
   }, [insertSorted])
 
   const archiveCard = useCallback(async (id: string) => {
@@ -98,7 +108,7 @@ export default function BusinessBoard() {
     setDropTarget(null)
     if (!drag) return
     const id = drag.id
-    const current = bucket === 'ValuePropositions' ? vp : bucket === 'KeyActivities' ? ka : kr
+    const current = bucket === 'ValuePropositions' ? vp : bucket === 'KeyActivities' ? ka : bucket === 'KeyResources' ? kr : bucket === 'CustomerRelationships' ? rel : seg
     let dropIndex = typeof target?.index === 'number' && target.bucket === bucket ? target.index : current.length
     const filtered = current.filter(c => c.id !== id)
     if (dropIndex > filtered.length) dropIndex = filtered.length
@@ -118,7 +128,7 @@ export default function BusinessBoard() {
 
   return (
     <div className="relative flex flex-col xl:h-full">
-      <div className="flex-1 xl:overflow-hidden xl:min-h-0 grid grid-cols-1 md:grid-cols-3 gap-4 md:h-full md:min-h-0 relative">
+      <div className="flex-1 xl:overflow-hidden xl:min-h-0 grid grid-cols-1 md:grid-cols-5 gap-4 md:h-full md:min-h-0 relative">
         <BoardColumn title="#ValuePropositions" status={"bmc:value_propositions" as unknown as Card['status']} isActive={dropTarget?.bucket === 'ValuePropositions'} onContainerDragOver={() => onContainerDragOver('ValuePropositions' )} onContainerDrop={() => handleDrop('ValuePropositions')}>
           {vp.map((c, idx) => (
             <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'ValuePropositions', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'ValuePropositions' })} extraChips={chipsForCard(c, 'ValuePropositions')} />
@@ -132,6 +142,16 @@ export default function BusinessBoard() {
         <BoardColumn title="#KeyResources" status={"bmc:key_resources" as unknown as Card['status']} isActive={dropTarget?.bucket === 'KeyResources'} onContainerDragOver={() => onContainerDragOver('KeyResources' )} onContainerDrop={() => handleDrop('KeyResources')}>
           {kr.map((c, idx) => (
             <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyResources', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyResources' })} extraChips={chipsForCard(c, 'KeyResources')} />
+          ))}
+        </BoardColumn>
+        <BoardColumn title="#CustomerRelationships" status={"bmc:customer_relationships" as unknown as Card['status']} isActive={dropTarget?.bucket === 'CustomerRelationships'} onContainerDragOver={() => onContainerDragOver('CustomerRelationships')} onContainerDrop={() => handleDrop('CustomerRelationships')}>
+          {rel.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerRelationships', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerRelationships' })} extraChips={chipsForCard(c, 'CustomerRelationships')} />
+          ))}
+        </BoardColumn>
+        <BoardColumn title="#CustomerSegments" status={"bmc:customer_segments" as unknown as Card['status']} isActive={dropTarget?.bucket === 'CustomerSegments'} onContainerDragOver={() => onContainerDragOver('CustomerSegments')} onContainerDrop={() => handleDrop('CustomerSegments')}>
+          {seg.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerSegments', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerSegments' })} extraChips={chipsForCard(c, 'CustomerSegments')} />
           ))}
         </BoardColumn>
       </div>
