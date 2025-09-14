@@ -581,7 +581,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
             className="text-gray-700 hover:underline"
             aria-label="Copy share link"
           >
-            copy link
+            link
           </button>
           <button
             onClick={() => onDelete(card.id)}
