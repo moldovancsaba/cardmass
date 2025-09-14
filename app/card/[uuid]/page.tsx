@@ -3,6 +3,7 @@ import { Card } from '@/models/Card'
 import { notFound } from 'next/navigation'
 
 export const revalidate = 0
+export const runtime = 'nodejs'
 
 export default async function CardPublicPage({ params }: { params: Promise<{ uuid: string }> }) {
   const { uuid } = await params
