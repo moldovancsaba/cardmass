@@ -8,12 +8,17 @@ export const runtime = 'nodejs'
 export default async function CardPublicPage({ params }: { params: Promise<{ uuid: string }> }) {
   const { uuid } = await params
   // First, try DB lookup
-  await connectToDatabase()
-  const doc = await Card.findOne({ uuid, archived: { $ne: true } })
   let card: { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string } | null = null
-  if (doc) {
-    card = doc.toJSON() as { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
-  } else {
+  try {
+    await connectToDatabase()
+    const doc = await Card.findOne({ uuid, archived: { $ne: true } })
+    if (doc) {
+      card = doc.toJSON() as { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
+    }
+  } catch {
+    // swallow and fallback to API
+  }
+  if (!card) {
     // Fallback to internal API (ensures we benefit from server-side uuid backfill)
     const res = await fetch(`/api/cards?archived=false`, { cache: 'no-store' })
     if (res.ok) {
