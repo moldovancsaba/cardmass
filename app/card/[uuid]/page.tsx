@@ -19,11 +19,17 @@ export default async function CardPublicPage({ params }: { params: Promise<{ uui
     // swallow and fallback to API
   }
   if (!card) {
-    // Fallback to internal API (ensures we benefit from server-side uuid backfill)
-    const res = await fetch(`/api/cards?archived=false`, { cache: 'no-store' })
-    if (res.ok) {
-      const arr = (await res.json()) as Array<{ uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }>
-      card = Array.isArray(arr) ? arr.find((c) => c?.uuid === uuid) ?? null : null
+    // Prefer direct by-uuid API to avoid scanning
+    const byUuid = await fetch(`/api/cards/by-uuid/${encodeURIComponent(uuid)}`, { cache: 'no-store' })
+    if (byUuid.ok) {
+      card = (await byUuid.json()) as { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
+    } else {
+      // Fallback to broad list (ensures we benefit from server-side uuid backfill)
+      const res = await fetch(`/api/cards?archived=false`, { cache: 'no-store' })
+      if (res.ok) {
+        const arr = (await res.json()) as Array<{ uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }>
+        card = Array.isArray(arr) ? arr.find((c) => c?.uuid === uuid) ?? null : null
+      }
     }
   }
   if (!card) return notFound()
