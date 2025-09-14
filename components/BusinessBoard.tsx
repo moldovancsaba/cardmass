@@ -16,13 +16,15 @@ import { Column as BoardColumn, CardItem as BoardCardItem } from '@/components/B
 // - Deleting/archiving reflects globally
 export default function BusinessBoard() {
   const router = useRouter()
-  type B = 'ValuePropositions' | 'KeyActivities' | 'KeyResources' | 'CustomerRelationships' | 'CustomerSegments'
+  type B = 'ValuePropositions' | 'KeyActivities' | 'KeyResources' | 'CustomerRelationships' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
 
   const [vp, setVp] = useState<Card[]>([])
   const [ka, setKa] = useState<Card[]>([])
   const [kr, setKr] = useState<Card[]>([])
   const [rel, setRel] = useState<Card[]>([])
   const [seg, setSeg] = useState<Card[]>([])
+  const [cost, setCost] = useState<Card[]>([])
+  const [rev, setRev] = useState<Card[]>([])
 
   type Status = Card['status']
   const [dragging, setDragging] = useState<{ id: string; from: B } | null>(null)
@@ -30,18 +32,22 @@ export default function BusinessBoard() {
 
   const load = useCallback(async () => {
     // fetch by business bucket
-    const [a, b, c, d, e] = await Promise.all([
+    const [a, b, c, d, e, f, g] = await Promise.all([
       fetchJSON<Card[]>(`/api/cards?business=ValuePropositions`),
       fetchJSON<Card[]>(`/api/cards?business=KeyActivities`),
       fetchJSON<Card[]>(`/api/cards?business=KeyResources`),
       fetchJSON<Card[]>(`/api/cards?business=CustomerRelationships`),
       fetchJSON<Card[]>(`/api/cards?business=CustomerSegments`),
+      fetchJSON<Card[]>(`/api/cards?business=Cost`),
+      fetchJSON<Card[]>(`/api/cards?business=RevenueStream`),
     ])
     setVp(a)
     setKa(b)
     setKr(c)
     setRel(d)
     setSeg(e)
+    setCost(f)
+    setRev(g)
   }, [])
   useEffect(() => { load() }, [load])
 
@@ -74,6 +80,8 @@ export default function BusinessBoard() {
     setKr(p => p.filter(c => c.id !== id))
     setRel(p => p.filter(c => c.id !== id))
     setSeg(p => p.filter(c => c.id !== id))
+    setCost(p => p.filter(c => c.id !== id))
+    setRev(p => p.filter(c => c.id !== id))
     // insert back according to updated.business
     const biz = (updated as unknown as { business?: B }).business || 'ValuePropositions'
     if (biz === 'ValuePropositions') setVp(a => insertSorted([...a, updated]))
@@ -81,6 +89,8 @@ export default function BusinessBoard() {
     if (biz === 'KeyResources') setKr(a => insertSorted([...a, updated]))
     if (biz === 'CustomerRelationships') setRel(a => insertSorted([...a, updated]))
     if (biz === 'CustomerSegments') setSeg(a => insertSorted([...a, updated]))
+    if (biz === 'Cost') setCost(a => insertSorted([...a, updated]))
+    if (biz === 'RevenueStream') setRev(a => insertSorted([...a, updated]))
   }, [insertSorted])
 
   const archiveCard = useCallback(async (id: string) => {
@@ -108,13 +118,13 @@ export default function BusinessBoard() {
     setDropTarget(null)
     if (!drag) return
     const id = drag.id
-    const current = bucket === 'ValuePropositions' ? vp : bucket === 'KeyActivities' ? ka : bucket === 'KeyResources' ? kr : bucket === 'CustomerRelationships' ? rel : seg
+    const current = bucket === 'ValuePropositions' ? vp : bucket === 'KeyActivities' ? ka : bucket === 'KeyResources' ? kr : bucket === 'CustomerRelationships' ? rel : bucket === 'CustomerSegments' ? seg : bucket === 'Cost' ? cost : rev
     let dropIndex = typeof target?.index === 'number' && target.bucket === bucket ? target.index : current.length
     const filtered = current.filter(c => c.id !== id)
     if (dropIndex > filtered.length) dropIndex = filtered.length
     const businessOrder = computeOrder(filtered, Math.max(0, Math.min(filtered.length, dropIndex)))
     await updateCard(id, { business: bucket, businessOrder })
-  }, [dragging, dropTarget, vp, ka, kr, computeOrder, updateCard])
+  }, [dragging, dropTarget, vp, ka, kr, rel, seg, cost, rev, computeOrder, updateCard])
 
   const stats = useMemo(() => ({ minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }), [])
 
@@ -152,6 +162,19 @@ export default function BusinessBoard() {
         <BoardColumn title="#CustomerSegments" status={"bmc:customer_segments" as unknown as Card['status']} isActive={dropTarget?.bucket === 'CustomerSegments'} onContainerDragOver={() => onContainerDragOver('CustomerSegments')} onContainerDrop={() => handleDrop('CustomerSegments')}>
           {seg.map((c, idx) => (
             <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerSegments', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerSegments' })} extraChips={chipsForCard(c, 'CustomerSegments')} />
+          ))}
+        </BoardColumn>
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 md:h-full md:min-h-0 relative">
+        <BoardColumn title="#Cost" status={"bmc:cost_structure" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Cost'} onContainerDragOver={() => onContainerDragOver('Cost')} onContainerDrop={() => handleDrop('Cost')}>
+          {cost.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'Cost', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'Cost' })} extraChips={chipsForCard(c, 'Cost')} />
+          ))}
+        </BoardColumn>
+        <BoardColumn title="#RevenueStream" status={"bmc:revenue_streams" as unknown as Card['status']} isActive={dropTarget?.bucket === 'RevenueStream'} onContainerDragOver={() => onContainerDragOver('RevenueStream')} onContainerDrop={() => handleDrop('RevenueStream')}>
+          {rev.map((c, idx) => (
+            <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'RevenueStream', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'RevenueStream' })} extraChips={chipsForCard(c, 'RevenueStream')} />
           ))}
         </BoardColumn>
       </div>
