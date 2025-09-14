@@ -128,12 +128,12 @@ export default function BusinessBoard() {
 
   const stats = useMemo(() => ({ minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }), [])
 
-  function chipsForCard(card: Card, bucket: B) {
+function chipsForCard(card: Card) {
     const matrix = `#${card.status}`
-    const business = `#${(card as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`
-    // All cards show their business chip; additionally, all cards active on matrix and in ValuePropositions show their matrix chip
-    const showMatrix = bucket === 'ValuePropositions'
-    return showMatrix ? [matrix, business] : [business]
+    const bizVal = (card as unknown as { business?: B }).business || 'ValuePropositions'
+    const business = `#${bizVal}`
+    // Always show both chips for clarity
+    return [matrix, business]
   }
 
   return (
@@ -143,27 +143,27 @@ export default function BusinessBoard() {
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 h-full min-h-0 relative">
             <BoardColumn title="#ValuePropositions" status={"bmc:value_propositions" as unknown as Card['status']} isActive={dropTarget?.bucket === 'ValuePropositions'} onContainerDragOver={() => onContainerDragOver('ValuePropositions' )} onContainerDrop={() => handleDrop('ValuePropositions')}>
               {vp.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'ValuePropositions', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'ValuePropositions' })} extraChips={chipsForCard(c, 'ValuePropositions')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'ValuePropositions', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'ValuePropositions' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
             <BoardColumn title="#KeyActivities" status={"bmc:key_activities" as unknown as Card['status']} isActive={dropTarget?.bucket === 'KeyActivities'} onContainerDragOver={() => onContainerDragOver('KeyActivities' )} onContainerDrop={() => handleDrop('KeyActivities')}>
               {ka.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyActivities', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyActivities' })} extraChips={chipsForCard(c, 'KeyActivities')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyActivities', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyActivities' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
             <BoardColumn title="#KeyResources" status={"bmc:key_resources" as unknown as Card['status']} isActive={dropTarget?.bucket === 'KeyResources'} onContainerDragOver={() => onContainerDragOver('KeyResources' )} onContainerDrop={() => handleDrop('KeyResources')}>
               {kr.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyResources', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyResources' })} extraChips={chipsForCard(c, 'KeyResources')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'KeyResources', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'KeyResources' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
             <BoardColumn title="#CustomerRelationships" status={"bmc:customer_relationships" as unknown as Card['status']} isActive={dropTarget?.bucket === 'CustomerRelationships'} onContainerDragOver={() => onContainerDragOver('CustomerRelationships')} onContainerDrop={() => handleDrop('CustomerRelationships')}>
               {rel.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerRelationships', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerRelationships' })} extraChips={chipsForCard(c, 'CustomerRelationships')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerRelationships', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerRelationships' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
             <BoardColumn title="#CustomerSegments" status={"bmc:customer_segments" as unknown as Card['status']} isActive={dropTarget?.bucket === 'CustomerSegments'} onContainerDragOver={() => onContainerDragOver('CustomerSegments')} onContainerDrop={() => handleDrop('CustomerSegments')}>
               {seg.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerSegments', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerSegments' })} extraChips={chipsForCard(c, 'CustomerSegments')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'CustomerSegments', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'CustomerSegments' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
           </div>
@@ -172,12 +172,12 @@ export default function BusinessBoard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-0 relative">
             <BoardColumn title="#Cost" status={"bmc:cost_structure" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Cost'} onContainerDragOver={() => onContainerDragOver('Cost')} onContainerDrop={() => handleDrop('Cost')}>
               {cost.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'Cost', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'Cost' })} extraChips={chipsForCard(c, 'Cost')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'Cost', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'Cost' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
             <BoardColumn title="#RevenueStream" status={"bmc:revenue_streams" as unknown as Card['status']} isActive={dropTarget?.bucket === 'RevenueStream'} onContainerDragOver={() => onContainerDragOver('RevenueStream')} onContainerDrop={() => handleDrop('RevenueStream')}>
               {rev.map((c, idx) => (
-                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'RevenueStream', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'RevenueStream' })} extraChips={chipsForCard(c, 'RevenueStream')} />
+                <BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id, data) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t) => setDropTarget({ bucket: 'RevenueStream', index: t.index })} bubbleContext={{ kind: c.status as Status, ...stats }} onDragFlag={() => setDragging({ id: c.id, from: 'RevenueStream' })} extraChips={chipsForCard(c)} />
               ))}
             </BoardColumn>
           </div>
