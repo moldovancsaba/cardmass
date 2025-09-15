@@ -24,6 +24,18 @@ export async function PATCH(req: Request) {
       age?: { oldest?: string; newest?: string }
       rotten?: { least?: string; most?: string }
       archive?: { oldest?: string; newest?: string }
+      status?: { delegate?: string; decide?: string; do?: string; decline?: string }
+      businessBadges?: {
+        key_partners?: string
+        key_activities?: string
+        key_resources?: string
+        value_propositions?: string
+        customer_relationships?: string
+        channels?: string
+        customer_segments?: string
+        cost_structure?: string
+        revenue_streams?: string
+      }
     }
     business: Partial<{
       key_partners: string
@@ -46,6 +58,19 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.rotten?.most === 'string') setDoc['colors.rotten.most'] = b.colors!.rotten!.most!
   if (typeof b.colors?.archive?.oldest === 'string') setDoc['colors.archive.oldest'] = b.colors!.archive!.oldest!
   if (typeof b.colors?.archive?.newest === 'string') setDoc['colors.archive.newest'] = b.colors!.archive!.newest!
+  if (typeof b.colors?.status?.delegate === 'string') setDoc['colors.status.delegate'] = b.colors!.status!.delegate!
+  if (typeof b.colors?.status?.decide === 'string') setDoc['colors.status.decide'] = b.colors!.status!.decide!
+  if (typeof b.colors?.status?.do === 'string') setDoc['colors.status.do'] = b.colors!.status!.do!
+  if (typeof b.colors?.status?.decline === 'string') setDoc['colors.status.decline'] = b.colors!.status!.decline!
+  if (typeof b.colors?.businessBadges?.key_partners === 'string') setDoc['colors.businessBadges.key_partners'] = b.colors!.businessBadges!.key_partners!
+  if (typeof b.colors?.businessBadges?.key_activities === 'string') setDoc['colors.businessBadges.key_activities'] = b.colors!.businessBadges!.key_activities!
+  if (typeof b.colors?.businessBadges?.key_resources === 'string') setDoc['colors.businessBadges.key_resources'] = b.colors!.businessBadges!.key_resources!
+  if (typeof b.colors?.businessBadges?.value_propositions === 'string') setDoc['colors.businessBadges.value_propositions'] = b.colors!.businessBadges!.value_propositions!
+  if (typeof b.colors?.businessBadges?.customer_relationships === 'string') setDoc['colors.businessBadges.customer_relationships'] = b.colors!.businessBadges!.customer_relationships!
+  if (typeof b.colors?.businessBadges?.channels === 'string') setDoc['colors.businessBadges.channels'] = b.colors!.businessBadges!.channels!
+  if (typeof b.colors?.businessBadges?.customer_segments === 'string') setDoc['colors.businessBadges.customer_segments'] = b.colors!.businessBadges!.customer_segments!
+  if (typeof b.colors?.businessBadges?.cost_structure === 'string') setDoc['colors.businessBadges.cost_structure'] = b.colors!.businessBadges!.cost_structure!
+  if (typeof b.colors?.businessBadges?.revenue_streams === 'string') setDoc['colors.businessBadges.revenue_streams'] = b.colors!.businessBadges!.revenue_streams!
   if (typeof b.business?.key_partners === 'string') setDoc['business.key_partners'] = b.business!.key_partners!
   if (typeof b.business?.key_activities === 'string') setDoc['business.key_activities'] = b.business!.key_activities!
   if (typeof b.business?.key_resources === 'string') setDoc['business.key_resources'] = b.business!.key_resources!

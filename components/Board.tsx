@@ -526,9 +526,28 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
       )}
       <div className="mt-2 flex items-center justify-between text-xs text-gray-700">
         <div className="flex items-center gap-2 flex-wrap">
-          {Array.isArray(extraChips) && extraChips.map((chip, i) => (
-            <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-gray-200 text-gray-800">{chip}</span>
-          ))}
+          {Array.isArray(extraChips) && extraChips.map((chip, i) => {
+            // Decide chip background by type: status or business bucket.
+            const chipRaw = chip.replace('#','')
+            const sKey = chipRaw.toLowerCase()
+            const statusColors = settings?.colors?.status || {}
+            const bizMap = settings?.colors?.businessBadges || {}
+            let bg = '#e5e7eb'
+            if (sKey === 'delegate' || sKey === 'decide' || sKey === 'do' || sKey === 'decline') {
+              bg = (statusColors as any)[sKey] || bg
+            } else {
+              // Convert PascalCase/CamelCase to snake_case
+              const snake = chipRaw
+                .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+                .replace(/\s+/g, '_')
+                .toLowerCase()
+              const mapped = snake === 'cost' ? 'cost_structure' : (snake === 'revenue_stream' ? 'revenue_streams' : snake)
+              bg = (bizMap as any)[mapped] || bg
+            }
+            return (
+              <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: bg }}>{chip}</span>
+            )
+          })}
           {!hideBadges && (
             <>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor }}>
@@ -575,7 +594,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
                 const { uuid } = await res.json() as { uuid?: string }
                 if (!uuid) return
                 const url = `${window.location.origin}/card/${uuid}`
-                window.open(url, '_blank', 'noopener,noreferrer')
+                window.location.href = url
               } catch {}
             }}
             className="text-gray-700 hover:underline"

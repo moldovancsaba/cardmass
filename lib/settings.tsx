@@ -9,6 +9,18 @@ type Settings = {
     age: { oldest: string; newest: string }
     rotten: { least: string; most: string }
     archive?: { oldest?: string; newest?: string }
+    status?: { delegate?: string; decide?: string; do?: string; decline?: string }
+    businessBadges?: {
+      key_partners?: string
+      key_activities?: string
+      key_resources?: string
+      value_propositions?: string
+      customer_relationships?: string
+      channels?: string
+      customer_segments?: string
+      cost_structure?: string
+      revenue_streams?: string
+    }
   }
   business?: {
     key_partners?: string
@@ -27,6 +39,11 @@ const defaultSettings: Settings = {
   colors: {
     age: { oldest: '#0a3d91', newest: '#9ecbff' },
     rotten: { least: '#2ecc71', most: '#8e5b3a' },
+    status: { delegate: '#93c5fd', decide: '#fde68a', do: '#86efac', decline: '#fca5a5' },
+    businessBadges: {
+      key_partners: '#e5e7eb', key_activities: '#e5e7eb', key_resources: '#e5e7eb', value_propositions: '#e5e7eb',
+      customer_relationships: '#e5e7eb', channels: '#e5e7eb', customer_segments: '#e5e7eb', cost_structure: '#e5e7eb', revenue_streams: '#e5e7eb'
+    }
   },
   business: {
     key_partners: 'Key Partners',
