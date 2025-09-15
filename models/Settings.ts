@@ -23,6 +23,22 @@ export interface SettingsDoc extends mongoose.Document {
       cost_structure: string
       revenue_streams: string
     }
+    textContrast?: {
+      status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }
+      matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }
+      businessBadges?: {
+        key_partners?: boolean
+        key_activities?: boolean
+        key_resources?: boolean
+        value_propositions?: boolean
+        customer_relationships?: boolean
+        channels?: boolean
+        customer_segments?: boolean
+        cost_structure?: boolean
+        revenue_streams?: boolean
+      }
+      ranges?: { age?: boolean; rotten?: boolean; archive?: boolean }
+    }
   }
   business: {
     key_partners: string

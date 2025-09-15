@@ -37,6 +37,22 @@ export async function PATCH(req: Request) {
         cost_structure?: string
         revenue_streams?: string
       }
+      textContrast?: {
+        status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }
+        matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }
+        businessBadges?: {
+          key_partners?: boolean
+          key_activities?: boolean
+          key_resources?: boolean
+          value_propositions?: boolean
+          customer_relationships?: boolean
+          channels?: boolean
+          customer_segments?: boolean
+          cost_structure?: boolean
+          revenue_streams?: boolean
+        }
+        ranges?: { age?: boolean; rotten?: boolean; archive?: boolean }
+      }
     }
     business: Partial<{
       key_partners: string
@@ -76,6 +92,26 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.businessBadges?.customer_segments === 'string') setDoc['colors.businessBadges.customer_segments'] = b.colors!.businessBadges!.customer_segments!
   if (typeof b.colors?.businessBadges?.cost_structure === 'string') setDoc['colors.businessBadges.cost_structure'] = b.colors!.businessBadges!.cost_structure!
   if (typeof b.colors?.businessBadges?.revenue_streams === 'string') setDoc['colors.businessBadges.revenue_streams'] = b.colors!.businessBadges!.revenue_streams!
+  if (typeof b.colors?.textContrast?.status?.delegate === 'boolean') setDoc['colors.textContrast.status.delegate'] = b.colors!.textContrast!.status!.delegate!
+  if (typeof b.colors?.textContrast?.status?.decide === 'boolean') setDoc['colors.textContrast.status.decide'] = b.colors!.textContrast!.status!.decide!
+  if (typeof b.colors?.textContrast?.status?.do === 'boolean') setDoc['colors.textContrast.status.do'] = b.colors!.textContrast!.status!.do!
+  if (typeof b.colors?.textContrast?.status?.decline === 'boolean') setDoc['colors.textContrast.status.decline'] = b.colors!.textContrast!.status!.decline!
+  if (typeof b.colors?.textContrast?.matrixAxis?.important === 'boolean') setDoc['colors.textContrast.matrixAxis.important'] = b.colors!.textContrast!.matrixAxis!.important!
+  if (typeof b.colors?.textContrast?.matrixAxis?.not_important === 'boolean') setDoc['colors.textContrast.matrixAxis.not_important'] = b.colors!.textContrast!.matrixAxis!.not_important!
+  if (typeof b.colors?.textContrast?.matrixAxis?.urgent === 'boolean') setDoc['colors.textContrast.matrixAxis.urgent'] = b.colors!.textContrast!.matrixAxis!.urgent!
+  if (typeof b.colors?.textContrast?.matrixAxis?.not_urgent === 'boolean') setDoc['colors.textContrast.matrixAxis.not_urgent'] = b.colors!.textContrast!.matrixAxis!.not_urgent!
+  if (typeof b.colors?.textContrast?.businessBadges?.key_partners === 'boolean') setDoc['colors.textContrast.businessBadges.key_partners'] = b.colors!.textContrast!.businessBadges!.key_partners!
+  if (typeof b.colors?.textContrast?.businessBadges?.key_activities === 'boolean') setDoc['colors.textContrast.businessBadges.key_activities'] = b.colors!.textContrast!.businessBadges!.key_activities!
+  if (typeof b.colors?.textContrast?.businessBadges?.key_resources === 'boolean') setDoc['colors.textContrast.businessBadges.key_resources'] = b.colors!.textContrast!.businessBadges!.key_resources!
+  if (typeof b.colors?.textContrast?.businessBadges?.value_propositions === 'boolean') setDoc['colors.textContrast.businessBadges.value_propositions'] = b.colors!.textContrast!.businessBadges!.value_propositions!
+  if (typeof b.colors?.textContrast?.businessBadges?.customer_relationships === 'boolean') setDoc['colors.textContrast.businessBadges.customer_relationships'] = b.colors!.textContrast!.businessBadges!.customer_relationships!
+  if (typeof b.colors?.textContrast?.businessBadges?.channels === 'boolean') setDoc['colors.textContrast.businessBadges.channels'] = b.colors!.textContrast!.businessBadges!.channels!
+  if (typeof b.colors?.textContrast?.businessBadges?.customer_segments === 'boolean') setDoc['colors.textContrast.businessBadges.customer_segments'] = b.colors!.textContrast!.businessBadges!.customer_segments!
+  if (typeof b.colors?.textContrast?.businessBadges?.cost_structure === 'boolean') setDoc['colors.textContrast.businessBadges.cost_structure'] = b.colors!.textContrast!.businessBadges!.cost_structure!
+  if (typeof b.colors?.textContrast?.businessBadges?.revenue_streams === 'boolean') setDoc['colors.textContrast.businessBadges.revenue_streams'] = b.colors!.textContrast!.businessBadges!.revenue_streams!
+  if (typeof b.colors?.textContrast?.ranges?.age === 'boolean') setDoc['colors.textContrast.ranges.age'] = b.colors!.textContrast!.ranges!.age!
+  if (typeof b.colors?.textContrast?.ranges?.rotten === 'boolean') setDoc['colors.textContrast.ranges.rotten'] = b.colors!.textContrast!.ranges!.rotten!
+  if (typeof b.colors?.textContrast?.ranges?.archive === 'boolean') setDoc['colors.textContrast.ranges.archive'] = b.colors!.textContrast!.ranges!.archive!
   if (typeof b.business?.key_partners === 'string') setDoc['business.key_partners'] = b.business!.key_partners!
   if (typeof b.business?.key_activities === 'string') setDoc['business.key_activities'] = b.business!.key_activities!
   if (typeof b.business?.key_resources === 'string') setDoc['business.key_resources'] = b.business!.key_resources!
