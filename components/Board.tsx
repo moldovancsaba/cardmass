@@ -568,20 +568,20 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
           </button>
           <button
             onClick={async () => {
-              if (!('uuid' in card) || !card.uuid) {
-                // No UUID present (should be rare after migration). Provide feedback safely.
-                try { alert('Share link unavailable yet for this card.'); } catch {}
-                return
-              }
               try {
-                const url = `${window.location.origin}/card/${card.uuid}`
-                await navigator.clipboard.writeText(url)
+                // Ensure UUID exists by fetching card by ID (API will backfill if missing)
+                const res = await fetch(`/api/cards/${card.id}`)
+                if (!res.ok) return
+                const c = await res.json() as { uuid?: string }
+                if (!c?.uuid) return
+                const url = `${window.location.origin}/card/${c.uuid}`
+                window.open(url, '_blank', 'noopener,noreferrer')
               } catch {}
             }}
             className="text-gray-700 hover:underline"
-            aria-label="Copy share link"
+            aria-label="Open public link"
           >
-            link
+            open
           </button>
           <button
             onClick={() => onDelete(card.id)}

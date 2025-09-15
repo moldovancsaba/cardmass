@@ -12,7 +12,8 @@ export async function GET(_req: Request, context: unknown) {
   if (!uuid || typeof uuid !== 'string') {
     return NextResponse.json({ error: 'Missing uuid' }, { status: 400 })
   }
-  const doc = await Card.findOne({ uuid, archived: { $ne: true } })
+  // Return even if archived, to ensure public links remain resolvable.
+  const doc = await Card.findOne({ uuid })
   if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   return NextResponse.json(doc.toJSON())
 }
