@@ -26,7 +26,30 @@ export default function AdminPage() {
 function SettingsForm() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [form, setForm] = useState({
+
+  type FormState = {
+    age_oldest: string
+    age_newest: string
+    rotten_least: string
+    rotten_most: string
+    archive_oldest: string
+    archive_newest: string
+    status_delegate: string
+    status_decide: string
+    status_do: string
+    status_decline: string
+    biz_key_partners: string
+    biz_key_activities: string
+    biz_key_resources: string
+    biz_value_propositions: string
+    biz_customer_relationships: string
+    biz_channels: string
+    biz_customer_segments: string
+    biz_cost_structure: string
+    biz_revenue_streams: string
+  }
+
+  const [form, setForm] = useState<FormState>({
     age_oldest: '#0a3d91',
     age_newest: '#9ecbff',
     rotten_least: '#2ecc71',
@@ -91,17 +114,17 @@ function SettingsForm() {
             age: { oldest: form.age_oldest, newest: form.age_newest },
             rotten: { least: form.rotten_least, most: form.rotten_most },
             archive: { oldest: form.archive_oldest, newest: form.archive_newest },
-            status: { delegate: (form as any).status_delegate, decide: (form as any).status_decide, do: (form as any).status_do, decline: (form as any).status_decline },
+            status: { delegate: form.status_delegate, decide: form.status_decide, do: form.status_do, decline: form.status_decline },
             businessBadges: {
-              key_partners: (form as any).biz_key_partners,
-              key_activities: (form as any).biz_key_activities,
-              key_resources: (form as any).biz_key_resources,
-              value_propositions: (form as any).biz_value_propositions,
-              customer_relationships: (form as any).biz_customer_relationships,
-              channels: (form as any).biz_channels,
-              customer_segments: (form as any).biz_customer_segments,
-              cost_structure: (form as any).biz_cost_structure,
-              revenue_streams: (form as any).biz_revenue_streams,
+              key_partners: form.biz_key_partners,
+              key_activities: form.biz_key_activities,
+              key_resources: form.biz_key_resources,
+              value_propositions: form.biz_value_propositions,
+              customer_relationships: form.biz_customer_relationships,
+              channels: form.biz_channels,
+              customer_segments: form.biz_customer_segments,
+              cost_structure: form.biz_cost_structure,
+              revenue_streams: form.biz_revenue_streams,
             }
           },
         }),
@@ -155,16 +178,16 @@ function SettingsForm() {
         <legend className="text-sm font-mono">Kanban hashtag colors</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           <label className="flex items-center gap-2">#delegate
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={(form as any).status_delegate ?? '#93c5fd'} onChange={(e) => setForm(f => ({...f, status_delegate: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_delegate} onChange={(e) => setForm(f => ({...f, status_delegate: e.target.value}))}/>
           </label>
           <label className="flex items-center gap-2">#decide
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={(form as any).status_decide ?? '#fde68a'} onChange={(e) => setForm(f => ({...f, status_decide: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_decide} onChange={(e) => setForm(f => ({...f, status_decide: e.target.value}))}/>
           </label>
           <label className="flex items-center gap-2">#do
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={(form as any).status_do ?? '#86efac'} onChange={(e) => setForm(f => ({...f, status_do: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_do} onChange={(e) => setForm(f => ({...f, status_do: e.target.value}))}/>
           </label>
           <label className="flex items-center gap-2">#decline
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={(form as any).status_decline ?? '#fca5a5'} onChange={(e) => setForm(f => ({...f, status_decline: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_decline} onChange={(e) => setForm(f => ({...f, status_decline: e.target.value}))}/>
           </label>
         </div>
       </fieldset>
@@ -172,14 +195,17 @@ function SettingsForm() {
       <fieldset className="border border-gray-300 rounded p-3">
         <legend className="text-sm font-mono">Business hashtag colors</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          {[
+          {([
             ['key_partners','Key Partners'], ['key_activities','Key Activities'], ['key_resources','Key Resources'], ['value_propositions','Value Propositions'],
             ['customer_relationships','Customer Relationships'], ['channels','Channels'], ['customer_segments','Customer Segments'], ['cost_structure','Cost Structure'], ['revenue_streams','Revenue Streams']
-          ].map(([k,label]) => (
-            <label key={k} className="flex items-center gap-2">#{label}
-              <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={(form as any)[`biz_${k}`] ?? '#e5e7eb'} onChange={(e) => setForm(f => ({...f, [`biz_${k}`]: e.target.value}))}/>
-            </label>
-          ))}
+          ] as Array<[string, string]>).map(([k,label]) => {
+            const key = `biz_${k}` as keyof FormState
+            return (
+              <label key={k} className="flex items-center gap-2">#{label}
+                <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form[key] as string} onChange={(e) => setForm(f => ({...f, [key]: e.target.value } as FormState))}/>
+              </label>
+            )
+          })}
         </div>
       </fieldset>
       <button

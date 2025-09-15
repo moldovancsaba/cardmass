@@ -83,11 +83,13 @@ export default async function CardPublicPage({ params }: { params: Promise<{ uui
       const chipBgColors: (string | undefined)[] = titleChips.map((chip) => {
         const raw = chip.replace('#','')
         const lower = raw.toLowerCase()
-        const statusColor = (settings?.colors?.status as any)?.[lower]
-        if (statusColor) return statusColor as string
+        const statusMap: Record<string, string> = (settings?.colors?.status ?? {}) as Record<string, string>
+        const statusColor = statusMap[lower]
+        if (statusColor) return statusColor
         const snake = raw.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/\s+/g,'_').toLowerCase()
         const mapped = snake === 'cost' ? 'cost_structure' : (snake === 'revenue_stream' ? 'revenue_streams' : snake)
-        return (settings?.colors?.businessBadges as any)?.[mapped] as string | undefined
+        const bizMap: Record<string, string> = (settings?.colors?.businessBadges ?? {}) as Record<string, string>
+        return bizMap[mapped]
       })
 
       const timingChips = [

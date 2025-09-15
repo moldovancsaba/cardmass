@@ -530,11 +530,11 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
             // Decide chip background by type: status or business bucket.
             const chipRaw = chip.replace('#','')
             const sKey = chipRaw.toLowerCase()
-            const statusColors = settings?.colors?.status || {}
-            const bizMap = settings?.colors?.businessBadges || {}
+            const statusColors: Record<string, string> = (settings?.colors?.status ?? {}) as Record<string, string>
+            const bizMap: Record<string, string> = (settings?.colors?.businessBadges ?? {}) as Record<string, string>
             let bg = '#e5e7eb'
             if (sKey === 'delegate' || sKey === 'decide' || sKey === 'do' || sKey === 'decline') {
-              bg = (statusColors as any)[sKey] || bg
+              bg = statusColors[sKey] || bg
             } else {
               // Convert PascalCase/CamelCase to snake_case
               const snake = chipRaw
