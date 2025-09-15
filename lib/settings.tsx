@@ -61,6 +61,15 @@ const defaultSettings: Settings = {
     businessBadges: {
       key_partners: '#e5e7eb', key_activities: '#e5e7eb', key_resources: '#e5e7eb', value_propositions: '#e5e7eb',
       customer_relationships: '#e5e7eb', channels: '#e5e7eb', customer_segments: '#e5e7eb', cost_structure: '#e5e7eb', revenue_streams: '#e5e7eb'
+    },
+    textContrast: {
+      status: { delegate: true, decide: true, do: true, decline: true },
+      matrixAxis: { important: true, not_important: true, urgent: true, not_urgent: true },
+      businessBadges: {
+        key_partners: true, key_activities: true, key_resources: true, value_propositions: true,
+        customer_relationships: true, channels: true, customer_segments: true, cost_structure: true, revenue_streams: true,
+      },
+      ranges: { age: true, rotten: true, archive: true },
     }
   },
   business: {

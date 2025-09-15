@@ -124,7 +124,7 @@ function SettingsForm() {
 
   useEffect(() => {
     let cancelled = false
-    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
+    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string }, textContrast?: { status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }, matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }, businessBadges?: { key_partners?: boolean; key_activities?: boolean; key_resources?: boolean; value_propositions?: boolean; customer_relationships?: boolean; channels?: boolean; customer_segments?: boolean; cost_structure?: boolean; revenue_streams?: boolean }, ranges?: { age?: boolean; rotten?: boolean; archive?: boolean } } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
     fetchJSON<S>('/api/settings').then((s) => {
       if (cancelled) return
       setForm((prev) => ({
@@ -152,6 +152,27 @@ function SettingsForm() {
         biz_customer_segments: s.colors?.businessBadges?.customer_segments ?? prev.biz_customer_segments,
         biz_cost_structure: s.colors?.businessBadges?.cost_structure ?? prev.biz_cost_structure,
         biz_revenue_streams: s.colors?.businessBadges?.revenue_streams ?? prev.biz_revenue_streams,
+        // load text contrast
+        status_delegate_black: s.colors?.textContrast?.status?.delegate ?? prev.status_delegate_black,
+        status_decide_black: s.colors?.textContrast?.status?.decide ?? prev.status_decide_black,
+        status_do_black: s.colors?.textContrast?.status?.do ?? prev.status_do_black,
+        status_decline_black: s.colors?.textContrast?.status?.decline ?? prev.status_decline_black,
+        axis_important_black: s.colors?.textContrast?.matrixAxis?.important ?? prev.axis_important_black,
+        axis_not_important_black: s.colors?.textContrast?.matrixAxis?.not_important ?? prev.axis_not_important_black,
+        axis_urgent_black: s.colors?.textContrast?.matrixAxis?.urgent ?? prev.axis_urgent_black,
+        axis_not_urgent_black: s.colors?.textContrast?.matrixAxis?.not_urgent ?? prev.axis_not_urgent_black,
+        biz_key_partners_black: s.colors?.textContrast?.businessBadges?.key_partners ?? prev.biz_key_partners_black,
+        biz_key_activities_black: s.colors?.textContrast?.businessBadges?.key_activities ?? prev.biz_key_activities_black,
+        biz_key_resources_black: s.colors?.textContrast?.businessBadges?.key_resources ?? prev.biz_key_resources_black,
+        biz_value_propositions_black: s.colors?.textContrast?.businessBadges?.value_propositions ?? prev.biz_value_propositions_black,
+        biz_customer_relationships_black: s.colors?.textContrast?.businessBadges?.customer_relationships ?? prev.biz_customer_relationships_black,
+        biz_channels_black: s.colors?.textContrast?.businessBadges?.channels ?? prev.biz_channels_black,
+        biz_customer_segments_black: s.colors?.textContrast?.businessBadges?.customer_segments ?? prev.biz_customer_segments_black,
+        biz_cost_structure_black: s.colors?.textContrast?.businessBadges?.cost_structure ?? prev.biz_cost_structure_black,
+        biz_revenue_streams_black: s.colors?.textContrast?.businessBadges?.revenue_streams ?? prev.biz_revenue_streams_black,
+        age_black: s.colors?.textContrast?.ranges?.age ?? prev.age_black,
+        rotten_black: s.colors?.textContrast?.ranges?.rotten ?? prev.rotten_black,
+        archive_black: s.colors?.textContrast?.ranges?.archive ?? prev.archive_black,
       }))
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -180,6 +201,32 @@ function SettingsForm() {
               customer_segments: form.biz_customer_segments,
               cost_structure: form.biz_cost_structure,
               revenue_streams: form.biz_revenue_streams,
+            },
+            textContrast: {
+              status: {
+                delegate: form.status_delegate_black,
+                decide: form.status_decide_black,
+                do: form.status_do_black,
+                decline: form.status_decline_black,
+              },
+              matrixAxis: {
+                important: form.axis_important_black,
+                not_important: form.axis_not_important_black,
+                urgent: form.axis_urgent_black,
+                not_urgent: form.axis_not_urgent_black,
+              },
+              businessBadges: {
+                key_partners: form.biz_key_partners_black,
+                key_activities: form.biz_key_activities_black,
+                key_resources: form.biz_key_resources_black,
+                value_propositions: form.biz_value_propositions_black,
+                customer_relationships: form.biz_customer_relationships_black,
+                channels: form.biz_channels_black,
+                customer_segments: form.biz_customer_segments_black,
+                cost_structure: form.biz_cost_structure_black,
+                revenue_streams: form.biz_revenue_streams_black,
+              },
+              ranges: { age: form.age_black, rotten: form.rotten_black, archive: form.archive_black },
             }
           },
         }),
@@ -208,14 +255,14 @@ function SettingsForm() {
                 style={{ backgroundColor: form.age_oldest, color: form.age_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_age_oldest') as HTMLInputElement | null; el?.click() }}
               >#Oldest</span>
-              <input id="picker_age_oldest" type="color" style={{ display: 'none' }} value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
+<input id="picker_age_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.age_newest, color: form.age_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_age_newest') as HTMLInputElement | null; el?.click() }}
               >#Newest</span>
-              <input id="picker_age_newest" type="color" style={{ display: 'none' }} value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
+<input id="picker_age_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
             </div>
           </div>
         </fieldset>
@@ -230,14 +277,14 @@ function SettingsForm() {
                 style={{ backgroundColor: form.rotten_least, color: form.rotten_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_rotten_least') as HTMLInputElement | null; el?.click() }}
               >#Least</span>
-              <input id="picker_rotten_least" type="color" style={{ display: 'none' }} value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
+<input id="picker_rotten_least" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.rotten_most, color: form.rotten_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_rotten_most') as HTMLInputElement | null; el?.click() }}
               >#Most</span>
-              <input id="picker_rotten_most" type="color" style={{ display: 'none' }} value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
+<input id="picker_rotten_most" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
             </div>
           </div>
         </fieldset>
@@ -252,14 +299,14 @@ function SettingsForm() {
                 style={{ backgroundColor: form.archive_oldest, color: form.archive_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_archive_oldest') as HTMLInputElement | null; el?.click() }}
               >#Oldest</span>
-              <input id="picker_archive_oldest" type="color" style={{ display: 'none' }} value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
+<input id="picker_archive_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.archive_newest, color: form.archive_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_archive_newest') as HTMLInputElement | null; el?.click() }}
               >#Newest</span>
-              <input id="picker_archive_newest" type="color" style={{ display: 'none' }} value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
+<input id="picker_archive_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
             </div>
           </div>
         </fieldset>
@@ -288,7 +335,7 @@ function SettingsForm() {
                       style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
                       onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
                     >{label}</span>
-                    <input id={id} type="color" style={{ display: 'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+<input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
                   </div>
                 )
               })
@@ -319,7 +366,7 @@ function SettingsForm() {
                       style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
                       onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
                     >{label}</span>
-                    <input id={id} type="color" style={{ display: 'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+<input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
                   </div>
                 )
               })
@@ -348,7 +395,7 @@ function SettingsForm() {
                     style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
                     onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
                   >#{hashtag}</span>
-                  <input id={id} type="color" style={{ display: 'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+<input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0, pointerEvents:'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
                 </div>
               )
             })}
