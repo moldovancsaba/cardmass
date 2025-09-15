@@ -78,6 +78,36 @@ const SettingsSchema = new Schema<SettingsDoc>(
         cost_structure: { type: String, required: true, default: '#e5e7eb' },
         revenue_streams: { type: String, required: true, default: '#e5e7eb' },
       },
+      textContrast: {
+        status: {
+          delegate: { type: Boolean, default: true },
+          decide: { type: Boolean, default: true },
+          do: { type: Boolean, default: true },
+          decline: { type: Boolean, default: true },
+        },
+        matrixAxis: {
+          important: { type: Boolean, default: true },
+          not_important: { type: Boolean, default: true },
+          urgent: { type: Boolean, default: true },
+          not_urgent: { type: Boolean, default: true },
+        },
+        businessBadges: {
+          key_partners: { type: Boolean, default: true },
+          key_activities: { type: Boolean, default: true },
+          key_resources: { type: Boolean, default: true },
+          value_propositions: { type: Boolean, default: true },
+          customer_relationships: { type: Boolean, default: true },
+          channels: { type: Boolean, default: true },
+          customer_segments: { type: Boolean, default: true },
+          cost_structure: { type: Boolean, default: true },
+          revenue_streams: { type: Boolean, default: true },
+        },
+        ranges: {
+          age: { type: Boolean, default: true },
+          rotten: { type: Boolean, default: true },
+          archive: { type: Boolean, default: true },
+        }
+      },
     },
     business: {
       key_partners: { type: String, required: true, default: 'Key Partners' },
