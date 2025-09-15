@@ -542,7 +542,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
                 .replace(/\s+/g, '_')
                 .toLowerCase()
               const mapped = snake === 'cost' ? 'cost_structure' : (snake === 'revenue_stream' ? 'revenue_streams' : snake)
-              bg = (bizMap as any)[mapped] || bg
+              bg = bizMap[mapped] || bg
             }
             return (
               <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: bg }}>{chip}</span>
