@@ -13,6 +13,22 @@ const allowedStatuses = [
   'bmc:cost_structure', 'bmc:revenue_streams'
 ] as const
 
+// GET /api/cards/[id]
+export async function GET(_req: Request, context: unknown) {
+  await connectToDatabase()
+  const { params } = (context ?? {}) as { params?: { id?: string } }
+  const id = params?.id
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  const doc = await Card.findById(id)
+  if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  // Backfill uuid if missing
+  if (!doc.uuid) {
+    doc.uuid = randomUUID()
+    await doc.save()
+  }
+  return NextResponse.json(doc.toJSON())
+}
+
 // PATCH /api/cards/[id]
 // DELETE /api/cards/[id]
 export async function PATCH(req: Request, context: unknown) {
