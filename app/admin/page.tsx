@@ -159,10 +159,10 @@ function SettingsForm() {
         <legend className="text-sm font-mono">Age bubble colors (oldest → newest)</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           <label className="flex items-center gap-2">Oldest
-            <input type="color" value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
           </label>
           <label className="flex items-center gap-2">Newest
-            <input type="color" value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
           </label>
         </div>
       </fieldset>
@@ -170,10 +170,10 @@ function SettingsForm() {
         <legend className="text-sm font-mono">Rotten bubble colors (least → most)</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           <label className="flex items-center gap-2">Least rotten
-            <input type="color" value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
           </label>
           <label className="flex items-center gap-2">Most rotten
-            <input type="color" value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
           </label>
         </div>
       </fieldset>
@@ -181,10 +181,10 @@ function SettingsForm() {
         <legend className="text-sm font-mono">Archive badge colors (oldest → newest)</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           <label className="flex items-center gap-2">Oldest
-            <input type="color" value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
           </label>
           <label className="flex items-center gap-2">Newest
-            <input type="color" value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
           </label>
         </div>
       </fieldset>
@@ -193,15 +193,19 @@ function SettingsForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           <label className="flex items-center gap-2">#important
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_important} onChange={(e) => setForm(f => ({...f, axis_important: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_important }}>#important</span>
           </label>
           <label className="flex items-center gap-2">#not-important
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_not_important} onChange={(e) => setForm(f => ({...f, axis_not_important: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_not_important }}>#not-important</span>
           </label>
           <label className="flex items-center gap-2">#urgent
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_urgent} onChange={(e) => setForm(f => ({...f, axis_urgent: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_urgent }}>#urgent</span>
           </label>
           <label className="flex items-center gap-2">#not-urgent
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_not_urgent} onChange={(e) => setForm(f => ({...f, axis_not_urgent: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_not_urgent }}>#not-urgent</span>
           </label>
         </div>
       </fieldset>
@@ -211,15 +215,19 @@ function SettingsForm() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           <label className="flex items-center gap-2">#delegate
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_delegate} onChange={(e) => setForm(f => ({...f, status_delegate: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_delegate }}>#delegate</span>
           </label>
           <label className="flex items-center gap-2">#decide
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_decide} onChange={(e) => setForm(f => ({...f, status_decide: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_decide }}>#decide</span>
           </label>
           <label className="flex items-center gap-2">#do
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_do} onChange={(e) => setForm(f => ({...f, status_do: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_do }}>#do</span>
           </label>
           <label className="flex items-center gap-2">#decline
             <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_decline} onChange={(e) => setForm(f => ({...f, status_decline: e.target.value}))}/>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_decline }}>#decline</span>
           </label>
         </div>
       </fieldset>
@@ -228,13 +236,15 @@ function SettingsForm() {
         <legend className="text-sm font-mono">Business hashtag colors</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
           {([
-            ['key_partners','Key Partners'], ['key_activities','Key Activities'], ['key_resources','Key Resources'], ['value_propositions','Value Propositions'],
-            ['customer_relationships','Customer Relationships'], ['channels','Channels'], ['customer_segments','Customer Segments'], ['cost_structure','Cost Structure'], ['revenue_streams','Revenue Streams']
-          ] as Array<[string, string]>).map(([k,label]) => {
+            ['key_partners','KeyPartners'], ['key_activities','KeyActivities'], ['key_resources','KeyResources'], ['value_propositions','ValuePropositions'],
+            ['customer_relationships','CustomerRelationships'], ['channels','Channels'], ['customer_segments','CustomerSegments'], ['cost_structure','Cost'], ['revenue_streams','RevenueStream']
+          ] as Array<[string, string]>).map(([k,hashtag]) => {
             const key = `biz_${k}` as keyof FormState
+            const value = form[key] as string
             return (
-              <label key={k} className="flex items-center gap-2">#{label}
-                <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form[key] as string} onChange={(e) => setForm(f => ({...f, [key]: e.target.value } as FormState))}/>
+              <label key={k} className="flex items-center gap-2">#{hashtag}
+                <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={value} onChange={(e) => setForm(f => ({...f, [key]: e.target.value } as FormState))}/>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: value }}>#{hashtag}</span>
               </label>
             )
           })}
