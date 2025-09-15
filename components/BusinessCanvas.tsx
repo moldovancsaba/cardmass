@@ -181,17 +181,6 @@ export default function BusinessCanvas() {
   }, [])
 
   const commonBubbles = { minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }
-  const businessOptions: Array<{ value: Card['status']; label: string }> = [
-    { value: 'bmc:key_partners', label: titles.kp },
-    { value: 'bmc:key_activities', label: titles.ka },
-    { value: 'bmc:key_resources', label: titles.kr },
-    { value: 'bmc:value_propositions', label: titles.vp },
-    { value: 'bmc:customer_relationships', label: titles.cr },
-    { value: 'bmc:channels', label: titles.ch },
-    { value: 'bmc:customer_segments', label: titles.cs },
-    { value: 'bmc:cost_structure', label: titles.cost },
-    { value: 'bmc:revenue_streams', label: titles.rev },
-  ]
   const TopGrid = () => (
     <div className="grid grid-cols-5 grid-rows-2 gap-4 h-full min-h-0">
       <div className="row-span-2">
@@ -203,7 +192,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {kp.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_partners', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_partners'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_partners', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -216,7 +205,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {ka.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_activities', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_activities'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_activities', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -229,7 +218,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {vp.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:value_propositions', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:value_propositions'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:value_propositions', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -242,7 +231,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {cr.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_relationships', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_relationships'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_relationships', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -255,7 +244,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {cs.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_segments', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:customer_segments'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:customer_segments', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -268,7 +257,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {kr.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_resources', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:key_resources'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:key_resources', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -281,7 +270,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {ch.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:channels', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:channels'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:channels', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -299,7 +288,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {cost.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:cost_structure', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:cost_structure'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:cost_structure', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>
@@ -312,7 +301,7 @@ export default function BusinessCanvas() {
           onContainerDrop={handleDrop}
         >
           {rev.map((c, idx) => (
-            <BoardCardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:revenue_streams', ...commonBubbles }} hideBadges={true} statusOptions={businessOptions} />
+<BoardCardItem key={c.id} card={c} index={idx} status={'bmc:revenue_streams'} onHoverIndex={setDropTarget} onDragFlag={setDragging} onUpdate={updateCard} onArchive={archiveCard} onDelete={deleteCard} bubbleContext={{ kind: 'bmc:revenue_streams', ...commonBubbles }} hideBadges={true} />
           ))}
         </BoardColumn>
       </div>

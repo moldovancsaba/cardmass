@@ -416,7 +416,7 @@ function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, c
   )
 }
 
-export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag, statusOptions, hideBadges = false, extraChips }: {
+export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, bubbleContext, onHoverIndex, onDragFlag, hideBadges = false, extraChips }: {
   card: Card
   index: number
   status: Card['status']
@@ -426,7 +426,6 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
   bubbleContext: { kind: Card['status']; minAge: number; maxAge: number; minRot: number; maxRot: number }
   onHoverIndex: (t: { status: Card['status'], index: number | null }) => void
   onDragFlag: (d: { id: string; from: Card['status'] } | null) => void
-  statusOptions?: Array<{ value: Card['status']; label: string }>
   hideBadges?: boolean
   extraChips?: string[]
 }) {
@@ -462,13 +461,6 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
   // Rotten: least (green) -> most (brown)
   const rotColor = useMemo(() => interpolateColor(rotStart, rotEnd, rotT), [rotStart, rotEnd, rotT])
 
-  const defaultStatusOptions: Array<{ value: Card['status']; label: string }> = [
-    { value: 'delegate', label: 'delegate' },
-    { value: 'decide', label: 'decide' },
-    { value: 'do', label: 'do' },
-    { value: 'decline', label: 'decline' },
-  ]
-  const options = statusOptions ?? defaultStatusOptions
 
   return (
     <div
@@ -564,17 +556,6 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
           )}
         </div>
         <div className="flex items-center gap-2">
-          <select
-            value={card.status}
-            onChange={async (e) => {
-              await onUpdate(card.id, { status: e.target.value as Card['status'] })
-            }}
-            className="border border-gray-300 rounded px-1 py-0.5 text-xs bg-white text-black"
-          >
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
           <button
             onClick={async () => { await onArchive(card.id) }}
             className="text-gray-700 hover:underline"
