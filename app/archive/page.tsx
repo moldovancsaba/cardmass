@@ -5,12 +5,10 @@ import { fetchJSON } from '@/lib/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
 import { daysBetweenUtc } from '@/lib/date'
-import FooterNav from '@/components/FooterNav'
 import { interpolateColor } from '@/lib/color'
-import { useRouter } from 'next/navigation'
+import FooterNav from '@/components/FooterNav'
 
 export default function ArchivePage() {
-  const router = useRouter()
   return (
     <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
       <div className="flex-1 xl:overflow-hidden">

@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react'
 import { fetchJSON } from '@/lib/client'
 
 import FooterNav from "@/components/FooterNav"
-import { useRouter } from 'next/navigation'
 
 export default function AdminPage() {
-  const router = useRouter()
   return (
     <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
       <div className="flex-1 xl:overflow-hidden">
