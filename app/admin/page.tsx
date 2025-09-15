@@ -38,10 +38,18 @@ function SettingsForm() {
     status_decide: string
     status_do: string
     status_decline: string
+    status_delegate_black: boolean
+    status_decide_black: boolean
+    status_do_black: boolean
+    status_decline_black: boolean
     axis_important: string
     axis_not_important: string
     axis_urgent: string
     axis_not_urgent: string
+    axis_important_black: boolean
+    axis_not_important_black: boolean
+    axis_urgent_black: boolean
+    axis_not_urgent_black: boolean
     biz_key_partners: string
     biz_key_activities: string
     biz_key_resources: string
@@ -51,6 +59,15 @@ function SettingsForm() {
     biz_customer_segments: string
     biz_cost_structure: string
     biz_revenue_streams: string
+    biz_key_partners_black: boolean
+    biz_key_activities_black: boolean
+    biz_key_resources_black: boolean
+    biz_value_propositions_black: boolean
+    biz_customer_relationships_black: boolean
+    biz_channels_black: boolean
+    biz_customer_segments_black: boolean
+    biz_cost_structure_black: boolean
+    biz_revenue_streams_black: boolean
   }
 
   const [form, setForm] = useState<FormState>({
@@ -65,11 +82,19 @@ function SettingsForm() {
     status_decide: '#fde68a',
     status_do: '#86efac',
     status_decline: '#fca5a5',
+    status_delegate_black: true,
+    status_decide_black: true,
+    status_do_black: true,
+    status_decline_black: true,
     // Matrix axis colors
     axis_important: '#93c5fd',
     axis_not_important: '#bfdbfe',
     axis_urgent: '#fca5a5',
     axis_not_urgent: '#fecaca',
+    axis_important_black: true,
+    axis_not_important_black: true,
+    axis_urgent_black: true,
+    axis_not_urgent_black: true,
     // Business hashtag colors
     biz_key_partners: '#e5e7eb',
     biz_key_activities: '#e5e7eb',
@@ -80,6 +105,15 @@ function SettingsForm() {
     biz_customer_segments: '#e5e7eb',
     biz_cost_structure: '#e5e7eb',
     biz_revenue_streams: '#e5e7eb',
+    biz_key_partners_black: true,
+    biz_key_activities_black: true,
+    biz_key_resources_black: true,
+    biz_value_propositions_black: true,
+    biz_customer_relationships_black: true,
+    biz_channels_black: true,
+    biz_customer_segments_black: true,
+    biz_cost_structure_black: true,
+    biz_revenue_streams_black: true,
   })
 
   useEffect(() => {
@@ -87,31 +121,32 @@ function SettingsForm() {
     type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
     fetchJSON<S>('/api/settings').then((s) => {
       if (cancelled) return
-      setForm({
-        age_oldest: s.colors?.age?.oldest ?? '#0a3d91',
-        age_newest: s.colors?.age?.newest ?? '#9ecbff',
-        rotten_least: s.colors?.rotten?.least ?? '#2ecc71',
-        rotten_most: s.colors?.rotten?.most ?? '#8e5b3a',
-        archive_oldest: s.colors?.archive?.oldest ?? '#6b7280',
-        archive_newest: s.colors?.archive?.newest ?? '#d1d5db',
-        status_delegate: s.colors?.status?.delegate ?? '#93c5fd',
-        status_decide: s.colors?.status?.decide ?? '#fde68a',
-        status_do: s.colors?.status?.do ?? '#86efac',
-        status_decline: s.colors?.status?.decline ?? '#fca5a5',
-        axis_important: s.colors?.matrixAxis?.important ?? '#93c5fd',
-        axis_not_important: s.colors?.matrixAxis?.not_important ?? '#bfdbfe',
-        axis_urgent: s.colors?.matrixAxis?.urgent ?? '#fca5a5',
-        axis_not_urgent: s.colors?.matrixAxis?.not_urgent ?? '#fecaca',
-        biz_key_partners: s.colors?.businessBadges?.key_partners ?? '#e5e7eb',
-        biz_key_activities: s.colors?.businessBadges?.key_activities ?? '#e5e7eb',
-        biz_key_resources: s.colors?.businessBadges?.key_resources ?? '#e5e7eb',
-        biz_value_propositions: s.colors?.businessBadges?.value_propositions ?? '#e5e7eb',
-        biz_customer_relationships: s.colors?.businessBadges?.customer_relationships ?? '#e5e7eb',
-        biz_channels: s.colors?.businessBadges?.channels ?? '#e5e7eb',
-        biz_customer_segments: s.colors?.businessBadges?.customer_segments ?? '#e5e7eb',
-        biz_cost_structure: s.colors?.businessBadges?.cost_structure ?? '#e5e7eb',
-        biz_revenue_streams: s.colors?.businessBadges?.revenue_streams ?? '#e5e7eb',
-      })
+      setForm((prev) => ({
+        ...prev,
+        age_oldest: s.colors?.age?.oldest ?? prev.age_oldest,
+        age_newest: s.colors?.age?.newest ?? prev.age_newest,
+        rotten_least: s.colors?.rotten?.least ?? prev.rotten_least,
+        rotten_most: s.colors?.rotten?.most ?? prev.rotten_most,
+        archive_oldest: s.colors?.archive?.oldest ?? prev.archive_oldest,
+        archive_newest: s.colors?.archive?.newest ?? prev.archive_newest,
+        status_delegate: s.colors?.status?.delegate ?? prev.status_delegate,
+        status_decide: s.colors?.status?.decide ?? prev.status_decide,
+        status_do: s.colors?.status?.do ?? prev.status_do,
+        status_decline: s.colors?.status?.decline ?? prev.status_decline,
+        axis_important: s.colors?.matrixAxis?.important ?? prev.axis_important,
+        axis_not_important: s.colors?.matrixAxis?.not_important ?? prev.axis_not_important,
+        axis_urgent: s.colors?.matrixAxis?.urgent ?? prev.axis_urgent,
+        axis_not_urgent: s.colors?.matrixAxis?.not_urgent ?? prev.axis_not_urgent,
+        biz_key_partners: s.colors?.businessBadges?.key_partners ?? prev.biz_key_partners,
+        biz_key_activities: s.colors?.businessBadges?.key_activities ?? prev.biz_key_activities,
+        biz_key_resources: s.colors?.businessBadges?.key_resources ?? prev.biz_key_resources,
+        biz_value_propositions: s.colors?.businessBadges?.value_propositions ?? prev.biz_value_propositions,
+        biz_customer_relationships: s.colors?.businessBadges?.customer_relationships ?? prev.biz_customer_relationships,
+        biz_channels: s.colors?.businessBadges?.channels ?? prev.biz_channels,
+        biz_customer_segments: s.colors?.businessBadges?.customer_segments ?? prev.biz_customer_segments,
+        biz_cost_structure: s.colors?.businessBadges?.cost_structure ?? prev.biz_cost_structure,
+        biz_revenue_streams: s.colors?.businessBadges?.revenue_streams ?? prev.biz_revenue_streams,
+      }))
       setLoading(false)
     }).catch(() => setLoading(false))
     return () => { cancelled = true }
@@ -188,68 +223,97 @@ function SettingsForm() {
           </label>
         </div>
       </fieldset>
-      <fieldset className="border border-gray-300 rounded p-3">
-        <legend className="text-sm font-mono">Matrix axis hashtag colors</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          <label className="flex items-center gap-2">#important
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_important} onChange={(e) => setForm(f => ({...f, axis_important: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_important }}>#important</span>
-          </label>
-          <label className="flex items-center gap-2">#not-important
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_not_important} onChange={(e) => setForm(f => ({...f, axis_not_important: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_not_important }}>#not-important</span>
-          </label>
-          <label className="flex items-center gap-2">#urgent
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_urgent} onChange={(e) => setForm(f => ({...f, axis_urgent: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_urgent }}>#urgent</span>
-          </label>
-          <label className="flex items-center gap-2">#not-urgent
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_not_urgent} onChange={(e) => setForm(f => ({...f, axis_not_urgent: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.axis_not_urgent }}>#not-urgent</span>
-          </label>
-        </div>
-      </fieldset>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Matrix axis hashtag colors</legend>
+          <div className="space-y-2 mt-2">
+            {(() => {
+              const rows: Array<[keyof FormState, keyof FormState, string]> = [
+                ['axis_important','axis_important_black','#important'],
+                ['axis_not_important','axis_not_important_black','#not-important'],
+                ['axis_urgent','axis_urgent_black','#urgent'],
+                ['axis_not_urgent','axis_not_urgent_black','#not-urgent'],
+              ]
+              return rows.map(([colorKey, textKey, label]) => {
+                const id = `picker_${String(colorKey)}`
+                const value = form[colorKey] as string
+                const black = (form[textKey] as boolean) ?? true
+                return (
+                  <div key={String(colorKey)} className="flex items-center gap-2">
+                    <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
+                    <span
+                      role="button"
+                      className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                      style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
+                      onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
+                    >{label}</span>
+                    <input id={id} type="color" style={{ display: 'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                  </div>
+                )
+              })
+            })()}
+          </div>
+        </fieldset>
 
-      <fieldset className="border border-gray-300 rounded p-3">
-        <legend className="text-sm font-mono">Kanban hashtag colors</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          <label className="flex items-center gap-2">#delegate
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_delegate} onChange={(e) => setForm(f => ({...f, status_delegate: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_delegate }}>#delegate</span>
-          </label>
-          <label className="flex items-center gap-2">#decide
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_decide} onChange={(e) => setForm(f => ({...f, status_decide: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_decide }}>#decide</span>
-          </label>
-          <label className="flex items-center gap-2">#do
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_do} onChange={(e) => setForm(f => ({...f, status_do: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_do }}>#do</span>
-          </label>
-          <label className="flex items-center gap-2">#decline
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.status_decline} onChange={(e) => setForm(f => ({...f, status_decline: e.target.value}))}/>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: form.status_decline }}>#decline</span>
-          </label>
-        </div>
-      </fieldset>
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Kanban hashtag colors</legend>
+          <div className="space-y-2 mt-2">
+            {(() => {
+              const rows: Array<[keyof FormState, keyof FormState, string]> = [
+                ['status_delegate','status_delegate_black','#delegate'],
+                ['status_decide','status_decide_black','#decide'],
+                ['status_do','status_do_black','#do'],
+                ['status_decline','status_decline_black','#decline'],
+              ]
+              return rows.map(([colorKey, textKey, label]) => {
+                const id = `picker_${String(colorKey)}`
+                const value = form[colorKey] as string
+                const black = (form[textKey] as boolean) ?? true
+                return (
+                  <div key={String(colorKey)} className="flex items-center gap-2">
+                    <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
+                    <span
+                      role="button"
+                      className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                      style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
+                      onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
+                    >{label}</span>
+                    <input id={id} type="color" style={{ display: 'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                  </div>
+                )
+              })
+            })()}
+          </div>
+        </fieldset>
 
-      <fieldset className="border border-gray-300 rounded p-3">
-        <legend className="text-sm font-mono">Business hashtag colors</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          {([
-            ['key_partners','KeyPartners'], ['key_activities','KeyActivities'], ['key_resources','KeyResources'], ['value_propositions','ValuePropositions'],
-            ['customer_relationships','CustomerRelationships'], ['channels','Channels'], ['customer_segments','CustomerSegments'], ['cost_structure','Cost'], ['revenue_streams','RevenueStream']
-          ] as Array<[string, string]>).map(([k,hashtag]) => {
-            const key = `biz_${k}` as keyof FormState
-            const value = form[key] as string
-            return (
-              <label key={k} className="flex items-center gap-2">#{hashtag}
-                <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={value} onChange={(e) => setForm(f => ({...f, [key]: e.target.value } as FormState))}/>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: value }}>#{hashtag}</span>
-              </label>
-            )
-          })}
-        </div>
-      </fieldset>
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Business hashtag colors</legend>
+          <div className="space-y-2 mt-2">
+            {([
+              ['key_partners','KeyPartners'], ['key_activities','KeyActivities'], ['key_resources','KeyResources'], ['value_propositions','ValuePropositions'],
+              ['customer_relationships','CustomerRelationships'], ['channels','Channels'], ['customer_segments','CustomerSegments'], ['cost_structure','Cost'], ['revenue_streams','RevenueStream']
+            ] as Array<[string, string]>).map(([k,hashtag]) => {
+              const colorKey = `biz_${k}` as keyof FormState
+              const textKey = `biz_${k}_black` as keyof FormState
+              const id = `picker_${k}`
+              const value = form[colorKey] as string
+              const black = (form[textKey] as boolean) ?? true
+              return (
+                <div key={k} className="flex items-center gap-2">
+                  <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
+                  <span
+                    role="button"
+                    className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                    style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
+                    onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
+                  >#{hashtag}</span>
+                  <input id={id} type="color" style={{ display: 'none' }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                </div>
+              )
+            })}
+          </div>
+        </fieldset>
+      </div>
       <button
         onClick={save}
         disabled={saving}
