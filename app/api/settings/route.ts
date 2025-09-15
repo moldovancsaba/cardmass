@@ -52,7 +52,7 @@ export async function PATCH(req: Request) {
   }>
 
   // Build a $set doc with only provided dotted fields to avoid conflicts
-  const setDoc: Record<string, string> = {}
+  const setDoc: Record<string, string | boolean> = {}
   if (typeof b.colors?.age?.oldest === 'string') setDoc['colors.age.oldest'] = b.colors!.age!.oldest!
   if (typeof b.colors?.age?.newest === 'string') setDoc['colors.age.newest'] = b.colors!.age!.newest!
   if (typeof b.colors?.rotten?.least === 'string') setDoc['colors.rotten.least'] = b.colors!.rotten!.least!
