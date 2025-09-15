@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { fetchJSON } from '@/lib/client'
 
-import BottomBar from "@/components/BottomBar"
+import FooterNav from "@/components/FooterNav"
 import { useRouter } from 'next/navigation'
 
 export default function AdminPage() {
@@ -19,20 +19,7 @@ export default function AdminPage() {
         </div>
       </div>
       <div className="pt-2 xl:pt-2">
-        <BottomBar
-          disabled
-          view="kanban"
-          showToggle={false}
-          showArchive={true}
-          showKanban={true}
-          showMatrix={true}
-          showBusiness={true}
-          showAdmin={false}
-          onArchiveNav={() => router.push('/archive')}
-          onKanbanNav={() => router.push('/kanban')}
-          onMatrixNav={() => router.push('/matrix')}
-          onBusinessNav={() => router.push('/business')}
-        />
+        <FooterNav />
       </div>
     </main>
   )
