@@ -10,6 +10,18 @@ export interface SettingsDoc extends mongoose.Document {
     age: { oldest: string; newest: string }
     rotten: { least: string; most: string }
     archive: { oldest: string; newest: string }
+    status: { delegate: string; decide: string; do: string; decline: string }
+    businessBadges: {
+      key_partners: string
+      key_activities: string
+      key_resources: string
+      value_propositions: string
+      customer_relationships: string
+      channels: string
+      customer_segments: string
+      cost_structure: string
+      revenue_streams: string
+    }
   }
   business: {
     key_partners: string
@@ -41,6 +53,23 @@ const SettingsSchema = new Schema<SettingsDoc>(
       archive: {
         oldest: { type: String, required: true, default: '#6b7280' }, // gray-600
         newest: { type: String, required: true, default: '#d1d5db' }, // gray-300
+      },
+      status: {
+        delegate: { type: String, required: true, default: '#93c5fd' },
+        decide: { type: String, required: true, default: '#fde68a' },
+        do: { type: String, required: true, default: '#86efac' },
+        decline: { type: String, required: true, default: '#fca5a5' },
+      },
+      businessBadges: {
+        key_partners: { type: String, required: true, default: '#e5e7eb' },
+        key_activities: { type: String, required: true, default: '#e5e7eb' },
+        key_resources: { type: String, required: true, default: '#e5e7eb' },
+        value_propositions: { type: String, required: true, default: '#e5e7eb' },
+        customer_relationships: { type: String, required: true, default: '#e5e7eb' },
+        channels: { type: String, required: true, default: '#e5e7eb' },
+        customer_segments: { type: String, required: true, default: '#e5e7eb' },
+        cost_structure: { type: String, required: true, default: '#e5e7eb' },
+        revenue_streams: { type: String, required: true, default: '#e5e7eb' },
       },
     },
     business: {
