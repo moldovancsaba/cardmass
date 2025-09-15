@@ -5,7 +5,7 @@ import { fetchJSON } from '@/lib/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
 import { daysBetweenUtc } from '@/lib/date'
-import BottomBar from '@/components/BottomBar'
+import FooterNav from '@/components/FooterNav'
 import { interpolateColor } from '@/lib/color'
 import { useRouter } from 'next/navigation'
 
@@ -17,20 +17,7 @@ export default function ArchivePage() {
         <ArchiveGrid />
       </div>
       <div className="pt-2 xl:pt-2">
-        <BottomBar
-          disabled
-          view="kanban"
-          showToggle={false}
-          showArchive={false}
-          showKanban={true}
-          showMatrix={true}
-          showBusiness={true}
-          showAdmin={true}
-          onKanbanNav={() => router.push('/kanban')}
-          onMatrixNav={() => router.push('/matrix')}
-          onBusinessNav={() => router.push('/business')}
-          onAdminNav={() => router.push('/admin')}
-        />
+        <FooterNav />
       </div>
     </main>
   )
