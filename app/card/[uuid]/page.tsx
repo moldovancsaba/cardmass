@@ -11,19 +11,23 @@ export const dynamic = 'force-dynamic'
 type PublicShare = { uuid: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
 type PublicCard = { id: string; uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
 
-function CardBox({ titleChips, chipBgColors, text, timingChips, meta }: { titleChips: string[]; chipBgColors?: (string | undefined)[]; text: string; timingChips?: { text: string; color: string }[]; meta: string[] }) {
+import { useSettings } from '@/lib/settings'
+function CardBox({ titleChips, chipBgColors, chipTextColors, text, timingChips, meta }: { titleChips: string[]; chipBgColors?: (string | undefined)[]; chipTextColors?: (string | undefined)[]; text: string; timingChips?: { text: string; color: string }[]; meta: string[] }) {
+  const settings = useSettings()
+  const ageBlack = settings?.colors?.textContrast?.ranges?.age ?? true
+  const rottenBlack = settings?.colors?.textContrast?.ranges?.rotten ?? true
   return (
     <div className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm max-w-2xl w-full">
       <div className="text-sm font-mono text-gray-700 mb-2 flex gap-2 flex-wrap">
         {titleChips.map((chip, i) => (
-          <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: chipBgColors?.[i] ?? '#e5e7eb' }}>{chip}</span>
+          <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: chipBgColors?.[i] ?? '#e5e7eb', color: chipTextColors?.[i] ?? '#000' }}>{chip}</span>
         ))}
       </div>
       <div className="text-base whitespace-pre-wrap text-black">{text}</div>
       {Array.isArray(timingChips) && timingChips.length > 0 && (
         <div className="mt-3 text-[10px] font-mono flex gap-2 flex-wrap">
           {timingChips.map((c, i) => (
-            <span key={i} className="px-2 py-0.5 rounded-full text-gray-800" style={{ backgroundColor: c.color }}>{c.text}</span>
+            <span key={i} className="px-2 py-0.5 rounded-full" style={{ backgroundColor: c.color, color: (i === 0 ? ageBlack : rottenBlack) ? '#000' : '#fff' }}>{c.text}</span>
           ))}
         </div>
       )}
@@ -91,6 +95,20 @@ export default async function CardPublicPage({ params }: { params: Promise<{ uui
         const bizMap: Record<string, string> = (settings?.colors?.businessBadges ?? {}) as Record<string, string>
         return bizMap[mapped]
       })
+      const chipTextColors: (string | undefined)[] = titleChips.map((chip) => {
+        const raw = chip.replace('#','')
+        const lower = raw.toLowerCase()
+        type Txt = { status?: Record<string, boolean>; businessBadges?: Record<string, boolean> }
+        const txt = (settings?.colors as unknown as { textContrast?: Txt })?.textContrast
+        if (lower === 'delegate' || lower === 'decide' || lower === 'do' || lower === 'decline') {
+          const b = txt?.status?.[lower] ?? true
+          return b ? '#000' : '#fff'
+        }
+        const snake = raw.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/\s+/g,'_').toLowerCase()
+        const mapped = snake === 'cost' ? 'cost_structure' : (snake === 'revenue_stream' ? 'revenue_streams' : snake)
+        const b = txt?.businessBadges?.[mapped] ?? true
+        return b ? '#000' : '#fff'
+      })
 
       const timingChips = [
         { text: `#Created ${daysOld} days ago`, color: ageColor },
@@ -101,7 +119,7 @@ export default async function CardPublicPage({ params }: { params: Promise<{ uui
       return (
         <main className="p-4 bg-white text-black min-h-screen flex flex-col">
           <div className="flex-1 flex items-center justify-center">
-            <CardBox titleChips={titleChips} chipBgColors={chipBgColors} text={share.text} timingChips={timingChips} meta={meta} />
+            <CardBox titleChips={titleChips} chipBgColors={chipBgColors} chipTextColors={chipTextColors} text={share.text} timingChips={timingChips} meta={meta} />
           </div>
           <div className="pt-2">
             <FooterNav />

@@ -519,18 +519,24 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
       <div className="mt-2 flex items-center justify-between text-xs text-gray-700">
         <div className="flex items-center gap-2 flex-wrap">
           {Array.isArray(extraChips) && extraChips.map((chip, i) => {
-            // Decide chip background by type: status or business bucket.
+            // Decide chip background by type: status, axis, or business bucket; and apply text color from textContrast.
             const chipRaw = chip.replace('#','')
             const sKey = chipRaw.toLowerCase()
             const statusColors: Record<string, string> = (settings?.colors?.status ?? {}) as Record<string, string>
             const bizMap: Record<string, string> = (settings?.colors?.businessBadges ?? {}) as Record<string, string>
             const axisMap: Record<string, string> = (settings?.colors?.matrixAxis ?? {}) as Record<string, string>
+            const txt = settings?.colors?.textContrast
             let bg = '#e5e7eb'
+            let fg = '#000'
             if (sKey === 'delegate' || sKey === 'decide' || sKey === 'do' || sKey === 'decline') {
               bg = statusColors[sKey] || bg
+              const b = txt?.status?.[sKey as keyof NonNullable<typeof txt>['status']] ?? true
+              fg = b ? '#000' : '#fff'
             } else if (sKey === 'urgent' || sKey === 'not-urgent' || sKey === 'important' || sKey === 'not-important') {
               const axisKey = sKey.replace('-', '_')
               bg = axisMap[axisKey] || bg
+              const b = txt?.matrixAxis?.[axisKey as keyof NonNullable<typeof txt>['matrixAxis']] ?? true
+              fg = b ? '#000' : '#fff'
             } else {
               // Convert PascalCase/CamelCase to snake_case
               const snake = chipRaw
@@ -539,17 +545,19 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
                 .toLowerCase()
               const mapped = snake === 'cost' ? 'cost_structure' : (snake === 'revenue_stream' ? 'revenue_streams' : snake)
               bg = bizMap[mapped] || bg
+              const b = txt?.businessBadges?.[mapped as keyof NonNullable<typeof txt>['businessBadges']] ?? true
+              fg = b ? '#000' : '#fff'
             }
             return (
-              <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono text-gray-800" style={{ backgroundColor: bg }}>{chip}</span>
+              <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>{chip}</span>
             )
           })}
           {!hideBadges && (
             <>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor }}>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: ageColor, color: (settings?.colors?.textContrast?.ranges?.age ?? true) ? '#000' : '#fff' }}>
                 #Created {daysOld} days ago
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotColor }}>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: rotColor, color: (settings?.colors?.textContrast?.ranges?.rotten ?? true) ? '#000' : '#fff' }}>
                 #rotten for {rottenDays} days
               </span>
             </>
