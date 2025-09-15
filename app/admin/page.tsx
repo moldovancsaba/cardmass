@@ -34,6 +34,9 @@ function SettingsForm() {
     rotten_most: string
     archive_oldest: string
     archive_newest: string
+    age_black: boolean
+    rotten_black: boolean
+    archive_black: boolean
     status_delegate: string
     status_decide: string
     status_do: string
@@ -77,6 +80,9 @@ function SettingsForm() {
     rotten_most: '#8e5b3a',
     archive_oldest: '#6b7280',
     archive_newest: '#d1d5db',
+    age_black: true,
+    rotten_black: true,
+    archive_black: true,
     // Status hashtag colors (kanban/matrix)
     status_delegate: '#93c5fd',
     status_decide: '#fde68a',
@@ -190,39 +196,74 @@ function SettingsForm() {
 
   return (
     <div className="space-y-4 max-w-xl">
-      <fieldset className="border border-gray-300 rounded p-3">
-        <legend className="text-sm font-mono">Age bubble colors (oldest → newest)</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          <label className="flex items-center gap-2">Oldest
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
-          </label>
-          <label className="flex items-center gap-2">Newest
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
-          </label>
-        </div>
-      </fieldset>
-      <fieldset className="border border-gray-300 rounded p-3">
-        <legend className="text-sm font-mono">Rotten bubble colors (least → most)</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          <label className="flex items-center gap-2">Least rotten
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
-          </label>
-          <label className="flex items-center gap-2">Most rotten
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
-          </label>
-        </div>
-      </fieldset>
-      <fieldset className="border border-gray-300 rounded p-3">
-        <legend className="text-sm font-mono">Archive badge colors (oldest → newest)</legend>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-          <label className="flex items-center gap-2">Oldest
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
-          </label>
-          <label className="flex items-center gap-2">Newest
-            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
-          </label>
-        </div>
-      </fieldset>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Age gradient</legend>
+          <div className="space-y-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={form.age_black} onChange={(e) => setForm(f => ({...f, age_black: e.target.checked}))} />
+              <span
+                role="button"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                style={{ backgroundColor: form.age_oldest, color: form.age_black ? '#000' : '#fff' }}
+                onClick={() => { const el = document.getElementById('picker_age_oldest') as HTMLInputElement | null; el?.click() }}
+              >#Oldest</span>
+              <input id="picker_age_oldest" type="color" style={{ display: 'none' }} value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
+              <span
+                role="button"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                style={{ backgroundColor: form.age_newest, color: form.age_black ? '#000' : '#fff' }}
+                onClick={() => { const el = document.getElementById('picker_age_newest') as HTMLInputElement | null; el?.click() }}
+              >#Newest</span>
+              <input id="picker_age_newest" type="color" style={{ display: 'none' }} value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Rotten gradient</legend>
+          <div className="space-y-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={form.rotten_black} onChange={(e) => setForm(f => ({...f, rotten_black: e.target.checked}))} />
+              <span
+                role="button"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                style={{ backgroundColor: form.rotten_least, color: form.rotten_black ? '#000' : '#fff' }}
+                onClick={() => { const el = document.getElementById('picker_rotten_least') as HTMLInputElement | null; el?.click() }}
+              >#Least</span>
+              <input id="picker_rotten_least" type="color" style={{ display: 'none' }} value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
+              <span
+                role="button"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                style={{ backgroundColor: form.rotten_most, color: form.rotten_black ? '#000' : '#fff' }}
+                onClick={() => { const el = document.getElementById('picker_rotten_most') as HTMLInputElement | null; el?.click() }}
+              >#Most</span>
+              <input id="picker_rotten_most" type="color" style={{ display: 'none' }} value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Archive gradient</legend>
+          <div className="space-y-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" checked={form.archive_black} onChange={(e) => setForm(f => ({...f, archive_black: e.target.checked}))} />
+              <span
+                role="button"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                style={{ backgroundColor: form.archive_oldest, color: form.archive_black ? '#000' : '#fff' }}
+                onClick={() => { const el = document.getElementById('picker_archive_oldest') as HTMLInputElement | null; el?.click() }}
+              >#Oldest</span>
+              <input id="picker_archive_oldest" type="color" style={{ display: 'none' }} value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
+              <span
+                role="button"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
+                style={{ backgroundColor: form.archive_newest, color: form.archive_black ? '#000' : '#fff' }}
+                onClick={() => { const el = document.getElementById('picker_archive_newest') as HTMLInputElement | null; el?.click() }}
+              >#Newest</span>
+              <input id="picker_archive_newest" type="color" style={{ display: 'none' }} value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
+            </div>
+          </div>
+        </fieldset>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Matrix axis hashtag colors</legend>
