@@ -249,20 +249,22 @@ function SettingsForm() {
           <div className="space-y-2 mt-2">
             <div className="flex items-center gap-2">
               <input type="checkbox" checked={form.age_black} onChange={(e) => setForm(f => ({...f, age_black: e.target.checked}))} />
+              <button type="button" aria-label="Pick color for #Oldest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.age_oldest }} onClick={() => { const el = document.getElementById('picker_age_oldest') as HTMLInputElement | null; el?.click() }} />
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.age_oldest, color: form.age_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_age_oldest') as HTMLInputElement | null; el?.click() }}
               >#Oldest</span>
-<input id="picker_age_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
+              <input id="picker_age_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
+              <button type="button" aria-label="Pick color for #Newest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.age_newest }} onClick={() => { const el = document.getElementById('picker_age_newest') as HTMLInputElement | null; el?.click() }} />
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.age_newest, color: form.age_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_age_newest') as HTMLInputElement | null; el?.click() }}
               >#Newest</span>
-<input id="picker_age_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
+              <input id="picker_age_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
             </div>
           </div>
         </fieldset>
@@ -271,20 +273,22 @@ function SettingsForm() {
           <div className="space-y-2 mt-2">
             <div className="flex items-center gap-2">
               <input type="checkbox" checked={form.rotten_black} onChange={(e) => setForm(f => ({...f, rotten_black: e.target.checked}))} />
+              <button type="button" aria-label="Pick color for #Least" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.rotten_least }} onClick={() => { const el = document.getElementById('picker_rotten_least') as HTMLInputElement | null; el?.click() }} />
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.rotten_least, color: form.rotten_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_rotten_least') as HTMLInputElement | null; el?.click() }}
               >#Least</span>
-<input id="picker_rotten_least" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
+              <input id="picker_rotten_least" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
+              <button type="button" aria-label="Pick color for #Most" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.rotten_most }} onClick={() => { const el = document.getElementById('picker_rotten_most') as HTMLInputElement | null; el?.click() }} />
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.rotten_most, color: form.rotten_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_rotten_most') as HTMLInputElement | null; el?.click() }}
               >#Most</span>
-<input id="picker_rotten_most" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
+              <input id="picker_rotten_most" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
             </div>
           </div>
         </fieldset>
@@ -293,20 +297,22 @@ function SettingsForm() {
           <div className="space-y-2 mt-2">
             <div className="flex items-center gap-2">
               <input type="checkbox" checked={form.archive_black} onChange={(e) => setForm(f => ({...f, archive_black: e.target.checked}))} />
+              <button type="button" aria-label="Pick color for #Oldest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.archive_oldest }} onClick={() => { const el = document.getElementById('picker_archive_oldest') as HTMLInputElement | null; el?.click() }} />
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.archive_oldest, color: form.archive_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_archive_oldest') as HTMLInputElement | null; el?.click() }}
               >#Oldest</span>
-<input id="picker_archive_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
+              <input id="picker_archive_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
+              <button type="button" aria-label="Pick color for #Newest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.archive_newest }} onClick={() => { const el = document.getElementById('picker_archive_newest') as HTMLInputElement | null; el?.click() }} />
               <span
                 role="button"
                 className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                 style={{ backgroundColor: form.archive_newest, color: form.archive_black ? '#000' : '#fff' }}
                 onClick={() => { const el = document.getElementById('picker_archive_newest') as HTMLInputElement | null; el?.click() }}
               >#Newest</span>
-<input id="picker_archive_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
+              <input id="picker_archive_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
             </div>
           </div>
         </fieldset>
@@ -329,13 +335,14 @@ function SettingsForm() {
                 return (
                   <div key={String(colorKey)} className="flex items-center gap-2">
                     <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
+                    <button type="button" aria-label={`Pick color for ${label}`} className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: value }} onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }} />
                     <span
                       role="button"
                       className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                       style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
                       onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
                     >{label}</span>
-<input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                    <input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
                   </div>
                 )
               })
@@ -389,13 +396,14 @@ function SettingsForm() {
               return (
                 <div key={k} className="flex items-center gap-2">
                   <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
+                  <button type="button" aria-label={`Pick color for #${hashtag}`} className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: value }} onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }} />
                   <span
                     role="button"
                     className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer"
                     style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}
                     onClick={() => { const el = document.getElementById(id) as HTMLInputElement | null; el?.click() }}
                   >#{hashtag}</span>
-<input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                  <input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
                 </div>
               )
             })}
