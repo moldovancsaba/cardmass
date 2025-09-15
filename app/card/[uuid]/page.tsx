@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 
 export const revalidate = 0
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 type PublicCard = { uuid?: string; text: string; status: string; business?: string; createdAt: string; updatedAt: string }
 
