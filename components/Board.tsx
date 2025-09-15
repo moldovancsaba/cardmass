@@ -569,12 +569,12 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
           <button
             onClick={async () => {
               try {
-                // Ensure UUID exists by fetching card by ID (API will backfill if missing)
-                const res = await fetch(`/api/cards/${card.id}`, { cache: 'no-store' })
+                // Create or reuse a public share snapshot and open it
+                const res = await fetch(`/api/public/shares`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cardId: card.id }) })
                 if (!res.ok) return
-                const c = await res.json() as { uuid?: string }
-                if (!c?.uuid) return
-                const url = `${window.location.origin}/card/${c.uuid}`
+                const { uuid } = await res.json() as { uuid?: string }
+                if (!uuid) return
+                const url = `${window.location.origin}/card/${uuid}`
                 window.open(url, '_blank', 'noopener,noreferrer')
               } catch {}
             }}
