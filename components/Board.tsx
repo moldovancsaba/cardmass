@@ -253,7 +253,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'do', ...stats.todo }}
                 onDragFlag={setDragging}
-extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`, '#urgent', '#important']}
               />
             ))}
           </Rect>
@@ -276,7 +276,7 @@ extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivitie
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'decide', ...stats.backlog }}
                 onDragFlag={setDragging}
-extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`]}
+                extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, '#urgent', '#not-important']}
               />
             ))}
           </Rect>
@@ -298,8 +298,8 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
                 onArchive={archiveCard}
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'delegate', ...stats.roadmap }}
-                onDragFlag={setDragging}
-                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+                onDragFlag={() => setDragging({ id: c.id, from: 'delegate' })}
+                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`, '#not-urgent', '#important']}
               />
             ))}
           </Rect>
@@ -321,23 +321,23 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
                 onArchive={archiveCard}
                 onHoverIndex={setDropTarget}
                 bubbleContext={{ kind: 'decline', ...stats.decline }}
-                onDragFlag={setDragging}
-                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`]}
+                onDragFlag={() => setDragging({ id: c.id, from: 'decline' })}
+                extraChips={[`#${(c as unknown as { business?: 'ValuePropositions'|'KeyActivities'|'KeyResources' }).business || 'ValuePropositions'}`, '#not-urgent', '#not-important']}
               />
             ))}
           </Rect>
-          {/* Axis labels */}
+          {/* Axis labels as hashtags */}
           <div className="hidden md:block absolute left-2 top-1/4 -translate-y-1/2 z-10 pointer-events-none">
-            <div className="-rotate-90 origin-left text-sm font-mono text-black">Important</div>
+            <div className="-rotate-90 origin-left text-sm font-mono text-black">#important</div>
           </div>
           <div className="hidden md:block absolute left-2 top-3/4 -translate-y-1/2 z-10 pointer-events-none">
-            <div className="-rotate-90 origin-left text-sm font-mono text-black">Not Important</div>
+            <div className="-rotate-90 origin-left text-sm font-mono text-black">#not-important</div>
           </div>
           <div className="hidden md:block absolute left-1/4 top-2 -translate-x-1/2 z-10 pointer-events-none">
-            <div className="text-sm font-mono text-black">Urgent</div>
+            <div className="text-sm font-mono text-black">#urgent</div>
           </div>
           <div className="hidden md:block absolute left-3/4 top-2 -translate-x-1/2 z-10 pointer-events-none">
-            <div className="text-sm font-mono text-black">Not-Urgent</div>
+            <div className="text-sm font-mono text-black">#not-urgent</div>
           </div>
         </div>
       )}
@@ -532,9 +532,13 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
             const sKey = chipRaw.toLowerCase()
             const statusColors: Record<string, string> = (settings?.colors?.status ?? {}) as Record<string, string>
             const bizMap: Record<string, string> = (settings?.colors?.businessBadges ?? {}) as Record<string, string>
+            const axisMap: Record<string, string> = (settings?.colors?.matrixAxis ?? {}) as Record<string, string>
             let bg = '#e5e7eb'
             if (sKey === 'delegate' || sKey === 'decide' || sKey === 'do' || sKey === 'decline') {
               bg = statusColors[sKey] || bg
+            } else if (sKey === 'urgent' || sKey === 'not-urgent' || sKey === 'important' || sKey === 'not-important') {
+              const axisKey = sKey.replace('-', '_')
+              bg = axisMap[axisKey] || bg
             } else {
               // Convert PascalCase/CamelCase to snake_case
               const snake = chipRaw

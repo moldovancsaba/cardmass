@@ -25,6 +25,7 @@ export async function PATCH(req: Request) {
       rotten?: { least?: string; most?: string }
       archive?: { oldest?: string; newest?: string }
       status?: { delegate?: string; decide?: string; do?: string; decline?: string }
+      matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }
       businessBadges?: {
         key_partners?: string
         key_activities?: string
@@ -62,6 +63,10 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.status?.decide === 'string') setDoc['colors.status.decide'] = b.colors!.status!.decide!
   if (typeof b.colors?.status?.do === 'string') setDoc['colors.status.do'] = b.colors!.status!.do!
   if (typeof b.colors?.status?.decline === 'string') setDoc['colors.status.decline'] = b.colors!.status!.decline!
+  if (typeof b.colors?.matrixAxis?.important === 'string') setDoc['colors.matrixAxis.important'] = b.colors!.matrixAxis!.important!
+  if (typeof b.colors?.matrixAxis?.not_important === 'string') setDoc['colors.matrixAxis.not_important'] = b.colors!.matrixAxis!.not_important!
+  if (typeof b.colors?.matrixAxis?.urgent === 'string') setDoc['colors.matrixAxis.urgent'] = b.colors!.matrixAxis!.urgent!
+  if (typeof b.colors?.matrixAxis?.not_urgent === 'string') setDoc['colors.matrixAxis.not_urgent'] = b.colors!.matrixAxis!.not_urgent!
   if (typeof b.colors?.businessBadges?.key_partners === 'string') setDoc['colors.businessBadges.key_partners'] = b.colors!.businessBadges!.key_partners!
   if (typeof b.colors?.businessBadges?.key_activities === 'string') setDoc['colors.businessBadges.key_activities'] = b.colors!.businessBadges!.key_activities!
   if (typeof b.colors?.businessBadges?.key_resources === 'string') setDoc['colors.businessBadges.key_resources'] = b.colors!.businessBadges!.key_resources!

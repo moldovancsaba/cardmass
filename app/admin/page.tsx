@@ -38,6 +38,10 @@ function SettingsForm() {
     status_decide: string
     status_do: string
     status_decline: string
+    axis_important: string
+    axis_not_important: string
+    axis_urgent: string
+    axis_not_urgent: string
     biz_key_partners: string
     biz_key_activities: string
     biz_key_resources: string
@@ -61,6 +65,11 @@ function SettingsForm() {
     status_decide: '#fde68a',
     status_do: '#86efac',
     status_decline: '#fca5a5',
+    // Matrix axis colors
+    axis_important: '#93c5fd',
+    axis_not_important: '#bfdbfe',
+    axis_urgent: '#fca5a5',
+    axis_not_urgent: '#fecaca',
     // Business hashtag colors
     biz_key_partners: '#e5e7eb',
     biz_key_activities: '#e5e7eb',
@@ -75,7 +84,7 @@ function SettingsForm() {
 
   useEffect(() => {
     let cancelled = false
-    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
+    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
     fetchJSON<S>('/api/settings').then((s) => {
       if (cancelled) return
       setForm({
@@ -89,6 +98,10 @@ function SettingsForm() {
         status_decide: s.colors?.status?.decide ?? '#fde68a',
         status_do: s.colors?.status?.do ?? '#86efac',
         status_decline: s.colors?.status?.decline ?? '#fca5a5',
+        axis_important: s.colors?.matrixAxis?.important ?? '#93c5fd',
+        axis_not_important: s.colors?.matrixAxis?.not_important ?? '#bfdbfe',
+        axis_urgent: s.colors?.matrixAxis?.urgent ?? '#fca5a5',
+        axis_not_urgent: s.colors?.matrixAxis?.not_urgent ?? '#fecaca',
         biz_key_partners: s.colors?.businessBadges?.key_partners ?? '#e5e7eb',
         biz_key_activities: s.colors?.businessBadges?.key_activities ?? '#e5e7eb',
         biz_key_resources: s.colors?.businessBadges?.key_resources ?? '#e5e7eb',
@@ -115,6 +128,7 @@ function SettingsForm() {
             rotten: { least: form.rotten_least, most: form.rotten_most },
             archive: { oldest: form.archive_oldest, newest: form.archive_newest },
             status: { delegate: form.status_delegate, decide: form.status_decide, do: form.status_do, decline: form.status_decline },
+            matrixAxis: { important: form.axis_important, not_important: form.axis_not_important, urgent: form.axis_urgent, not_urgent: form.axis_not_urgent },
             businessBadges: {
               key_partners: form.biz_key_partners,
               key_activities: form.biz_key_activities,
@@ -174,6 +188,24 @@ function SettingsForm() {
           </label>
         </div>
       </fieldset>
+      <fieldset className="border border-gray-300 rounded p-3">
+        <legend className="text-sm font-mono">Matrix axis hashtag colors</legend>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+          <label className="flex items-center gap-2">#important
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_important} onChange={(e) => setForm(f => ({...f, axis_important: e.target.value}))}/>
+          </label>
+          <label className="flex items-center gap-2">#not-important
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_not_important} onChange={(e) => setForm(f => ({...f, axis_not_important: e.target.value}))}/>
+          </label>
+          <label className="flex items-center gap-2">#urgent
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_urgent} onChange={(e) => setForm(f => ({...f, axis_urgent: e.target.value}))}/>
+          </label>
+          <label className="flex items-center gap-2">#not-urgent
+            <input className="flex-1 border border-gray-300 rounded px-2 py-1 bg-white text-black" type="color" value={form.axis_not_urgent} onChange={(e) => setForm(f => ({...f, axis_not_urgent: e.target.value}))}/>
+          </label>
+        </div>
+      </fieldset>
+
       <fieldset className="border border-gray-300 rounded p-3">
         <legend className="text-sm font-mono">Kanban hashtag colors</legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
