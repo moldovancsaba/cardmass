@@ -570,7 +570,7 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
             onClick={async () => {
               try {
                 // Ensure UUID exists by fetching card by ID (API will backfill if missing)
-                const res = await fetch(`/api/cards/${card.id}`)
+                const res = await fetch(`/api/cards/${card.id}`, { cache: 'no-store' })
                 if (!res.ok) return
                 const c = await res.json() as { uuid?: string }
                 if (!c?.uuid) return
