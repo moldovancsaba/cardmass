@@ -11,6 +11,7 @@ export interface SettingsDoc extends mongoose.Document {
     rotten: { least: string; most: string }
     archive: { oldest: string; newest: string }
     status: { delegate: string; decide: string; do: string; decline: string }
+    matrixAxis: { important: string; not_important: string; urgent: string; not_urgent: string }
     businessBadges: {
       key_partners: string
       key_activities: string
@@ -59,6 +60,12 @@ const SettingsSchema = new Schema<SettingsDoc>(
         decide: { type: String, required: true, default: '#fde68a' },
         do: { type: String, required: true, default: '#86efac' },
         decline: { type: String, required: true, default: '#fca5a5' },
+      },
+      matrixAxis: {
+        important: { type: String, required: true, default: '#93c5fd' },
+        not_important: { type: String, required: true, default: '#bfdbfe' },
+        urgent: { type: String, required: true, default: '#fca5a5' },
+        not_urgent: { type: String, required: true, default: '#fecaca' },
       },
       businessBadges: {
         key_partners: { type: String, required: true, default: '#e5e7eb' },

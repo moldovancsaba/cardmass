@@ -10,6 +10,7 @@ type Settings = {
     rotten: { least: string; most: string }
     archive?: { oldest?: string; newest?: string }
     status?: { delegate?: string; decide?: string; do?: string; decline?: string }
+    matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }
     businessBadges?: {
       key_partners?: string
       key_activities?: string
@@ -40,6 +41,7 @@ const defaultSettings: Settings = {
     age: { oldest: '#0a3d91', newest: '#9ecbff' },
     rotten: { least: '#2ecc71', most: '#8e5b3a' },
     status: { delegate: '#93c5fd', decide: '#fde68a', do: '#86efac', decline: '#fca5a5' },
+    matrixAxis: { important: '#93c5fd', not_important: '#bfdbfe', urgent: '#fca5a5', not_urgent: '#fecaca' },
     businessBadges: {
       key_partners: '#e5e7eb', key_activities: '#e5e7eb', key_resources: '#e5e7eb', value_propositions: '#e5e7eb',
       customer_relationships: '#e5e7eb', channels: '#e5e7eb', customer_segments: '#e5e7eb', cost_structure: '#e5e7eb', revenue_streams: '#e5e7eb'
