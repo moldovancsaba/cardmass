@@ -87,16 +87,6 @@ const SettingsSchema = new Schema<SettingsDoc>(
         urgent: { type: String, required: true, default: '#fca5a5' },
         not_urgent: { type: String, required: true, default: '#fecaca' },
       },
-      // New color group for /proof layout; labels match the seven containers.
-      proof: {
-        persona: { type: String, required: true, default: '#e5e7eb' },
-        proposal: { type: String, required: true, default: '#e5e7eb' },
-        outcome: { type: String, required: true, default: '#e5e7eb' },
-        benefit: { type: String, required: true, default: '#e5e7eb' },
-        backlog: { type: String, required: true, default: '#e5e7eb' },
-        journey: { type: String, required: true, default: '#e5e7eb' },
-        validation: { type: String, required: true, default: '#e5e7eb' },
-      },
       businessBadges: {
         key_partners: { type: String, required: true, default: '#e5e7eb' },
         key_activities: { type: String, required: true, default: '#e5e7eb' },
@@ -143,16 +133,6 @@ const SettingsSchema = new Schema<SettingsDoc>(
           rotten: { type: Boolean, default: true },
           archive: { type: Boolean, default: true },
         },
-        // Text contrast for proof chips in /proof layout
-        proof: {
-          persona: { type: Boolean, default: true },
-          proposal: { type: Boolean, default: true },
-          outcome: { type: Boolean, default: true },
-          benefit: { type: Boolean, default: true },
-          backlog: { type: Boolean, default: true },
-          journey: { type: Boolean, default: true },
-          validation: { type: Boolean, default: true },
-        }
       },
     },
     business: {

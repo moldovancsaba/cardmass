@@ -1,4 +1,7 @@
 
+## [v3.0.4] — 2025-09-17T17:47:26.323Z
+- (update notes here)
+
 ## [v3.0.3] — 2025-09-17T17:32:02.008Z
 - (update notes here)
 
@@ -7,22 +10,6 @@
 
 ## [v3.0.1] — 2025-09-17T11:52:44.369Z
 - (update notes here)
-
-## [v3.0.0] — 2025-09-17T11:38:03.355Z
-- Major: Rebuilt /proof as a 3x3 grid extended from matrix
-  - Rows: [#Persona,#Proposal,#Outcome] / [#Benefit,#decide,#Decline] / [#Journey,#Validation,#Cost]
-  - DnD parity with /matrix and /kanban (neighbor-averaging order, per-item insertion)
-- Cross-layout rules
-  - /business #Cost appears in /proof #Cost (color/contrast reused from business)
-  - /matrix #decide appears in /proof #decide
-  - #decline is hidden from /business and remains visible on /matrix and /proof only
-  - New/unmatched cards default to Backlog until moved
-- API/Model
-  - Card: added proof buckets 'decide' and 'decline'; ensured index {proof, proofOrder}
-  - /api/cards: proof filter includes decide/decline; POST defaults proof to Backlog (or Cost when business=Cost); PATCH syncs proof with status/business rules
-  - /api/cards/[id]: awaited params to comply with Next.js 15 Dynamic APIs
-- Admin/Settings
-  - Proof color group excludes Cost (Cost uses business cost color); added coverage for new proof buckets where applicable
 
 ## [v2.10.22] — 2025-09-17T10:38:23.079Z
 - (update notes here)

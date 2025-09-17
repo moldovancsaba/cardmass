@@ -1,11 +1,6 @@
-import ProofUniversal from '@/components/ProofUniversal'
+import { notFound } from 'next/navigation'
 
 export default function ProofPage() {
-  return (
-    <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
-      <div className="flex-1 xl:overflow-hidden">
-        <ProofUniversal />
-      </div>
-    </main>
-  )
+  // Route removed on request. Return 404.
+  notFound()
 }

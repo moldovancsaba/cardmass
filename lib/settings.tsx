@@ -11,16 +11,6 @@ type Settings = {
     archive?: { oldest?: string; newest?: string }
     status?: { delegate?: string; decide?: string; do?: string; decline?: string }
     matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }
-    // New: proof color group for /proof layout
-    proof?: {
-      persona?: string
-      proposal?: string
-      outcome?: string
-      benefit?: string
-      backlog?: string
-      journey?: string
-      validation?: string
-    }
     businessBadges?: {
       key_partners?: string
       key_activities?: string
@@ -36,16 +26,6 @@ type Settings = {
     textContrast?: {
       status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }
       matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }
-      // New: textContrast for proof chips
-      proof?: {
-        persona?: boolean
-        proposal?: boolean
-        outcome?: boolean
-        benefit?: boolean
-        backlog?: boolean
-        journey?: boolean
-        validation?: boolean
-      }
       businessBadges?: {
         key_partners?: boolean
         key_activities?: boolean
@@ -80,7 +60,6 @@ const defaultSettings: Settings = {
     rotten: { least: '#2ecc71', most: '#8e5b3a' },
     status: { delegate: '#93c5fd', decide: '#fde68a', do: '#86efac', decline: '#fca5a5' },
     matrixAxis: { important: '#93c5fd', not_important: '#bfdbfe', urgent: '#fca5a5', not_urgent: '#fecaca' },
-    proof: { persona: '#e5e7eb', proposal: '#e5e7eb', outcome: '#e5e7eb', benefit: '#e5e7eb', backlog: '#e5e7eb', journey: '#e5e7eb', validation: '#e5e7eb' },
     businessBadges: {
       key_partners: '#e5e7eb', key_activities: '#e5e7eb', key_resources: '#e5e7eb', value_propositions: '#e5e7eb',
       customer_relationships: '#e5e7eb', channels: '#e5e7eb', customer_segments: '#e5e7eb', cost_structure: '#e5e7eb', revenue_streams: '#e5e7eb'
@@ -93,7 +72,6 @@ const defaultSettings: Settings = {
         key_partners: true, key_activities: true, key_resources: true, value_propositions: true,
         customer_relationships: true, channels: true, customer_segments: true, cost_structure: true, revenue_streams: true,
       },
-      proof: { persona: true, proposal: true, outcome: true, benefit: true, backlog: true, journey: true, validation: true },
       labels: { archive: true },
       ranges: { age: true, rotten: true, archive: true },
     }
