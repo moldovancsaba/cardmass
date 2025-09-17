@@ -57,21 +57,6 @@ function SettingsForm() {
     axis_not_important_black: boolean
     axis_urgent_black: boolean
     axis_not_urgent_black: boolean
-    // Proof hashtag colors
-    proof_persona?: string
-    proof_proposal?: string
-    proof_outcome?: string
-    proof_benefit?: string
-    proof_journey?: string
-    proof_validation?: string
-    proof_backlog?: string
-    proof_persona_black?: boolean
-    proof_proposal_black?: boolean
-    proof_outcome_black?: boolean
-    proof_benefit_black?: boolean
-    proof_backlog_black?: boolean
-    proof_journey_black?: boolean
-    proof_validation_black?: boolean
     // Business hashtag colors
     biz_key_partners: string
     biz_key_activities: string
@@ -150,14 +135,6 @@ function SettingsForm() {
       if (cancelled) return
       setForm((prev) => ({
         ...prev,
-        // proof colors
-        proof_persona: s.colors?.proof?.persona ?? prev.proof_persona,
-        proof_proposal: s.colors?.proof?.proposal ?? prev.proof_proposal,
-        proof_outcome: s.colors?.proof?.outcome ?? prev.proof_outcome,
-        proof_benefit: s.colors?.proof?.benefit ?? prev.proof_benefit,
-        proof_journey: s.colors?.proof?.journey ?? prev.proof_journey,
-        proof_validation: s.colors?.proof?.validation ?? prev.proof_validation,
-        proof_backlog: s.colors?.proof?.backlog ?? prev.proof_backlog,
         age_oldest: s.colors?.age?.oldest ?? prev.age_oldest,
         age_newest: s.colors?.age?.newest ?? prev.age_newest,
         rotten_least: s.colors?.rotten?.least ?? prev.rotten_least,
@@ -183,14 +160,6 @@ function SettingsForm() {
         biz_revenue_streams: s.colors?.businessBadges?.revenue_streams ?? prev.biz_revenue_streams,
         // load text contrast
         status_delegate_black: s.colors?.textContrast?.status?.delegate ?? prev.status_delegate_black,
-        // proof contrast
-        proof_persona_black: s.colors?.textContrast?.proof?.persona ?? prev.proof_persona_black,
-        proof_proposal_black: s.colors?.textContrast?.proof?.proposal ?? prev.proof_proposal_black,
-        proof_outcome_black: s.colors?.textContrast?.proof?.outcome ?? prev.proof_outcome_black,
-        proof_benefit_black: s.colors?.textContrast?.proof?.benefit ?? prev.proof_benefit_black,
-        proof_backlog_black: s.colors?.textContrast?.proof?.backlog ?? prev.proof_backlog_black,
-        proof_journey_black: s.colors?.textContrast?.proof?.journey ?? prev.proof_journey_black,
-        proof_validation_black: s.colors?.textContrast?.proof?.validation ?? prev.proof_validation_black,
         status_decide_black: s.colors?.textContrast?.status?.decide ?? prev.status_decide_black,
         status_do_black: s.colors?.textContrast?.status?.do ?? prev.status_do_black,
         status_decline_black: s.colors?.textContrast?.status?.decline ?? prev.status_decline_black,
@@ -242,15 +211,6 @@ function SettingsForm() {
               cost_structure: form.biz_cost_structure,
               revenue_streams: form.biz_revenue_streams,
             },
-            proof: {
-              persona: form.proof_persona,
-              proposal: form.proof_proposal,
-              outcome: form.proof_outcome,
-              benefit: form.proof_benefit,
-              backlog: form.proof_backlog,
-              journey: form.proof_journey,
-              validation: form.proof_validation,
-            },
             labels: { archive: form.label_archive },
             textContrast: {
               status: {
@@ -264,15 +224,6 @@ function SettingsForm() {
                 not_important: form.axis_not_important_black,
                 urgent: form.axis_urgent_black,
                 not_urgent: form.axis_not_urgent_black,
-              },
-              proof: {
-                persona: form.proof_persona_black,
-                proposal: form.proof_proposal_black,
-                outcome: form.proof_outcome_black,
-                benefit: form.proof_benefit_black,
-                backlog: form.proof_backlog_black,
-                journey: form.proof_journey_black,
-                validation: form.proof_validation_black,
               },
               labels: { archive: form.label_archive_black },
               businessBadges: {
@@ -403,34 +354,6 @@ function SettingsForm() {
           </div>
         </fieldset>
 
-        <fieldset className="border border-gray-300 rounded p-3">
-          <legend className="text-sm font-mono">Proof hashtag colors</legend>
-          <div className="space-y-3 mt-3">
-            {([
-              ['persona','#Persona'],
-              ['proposal','#Proposal'],
-              ['outcome','#Outcome'],
-              ['benefit','#Benefit'],
-              ['backlog','#Backlog'],
-              ['journey','#Journey'],
-              ['validation','#Validation'],
-            ] as Array<[string,string]>).map(([key,label]) => {
-              type ProofColorKey = 'proof_persona'|'proof_proposal'|'proof_outcome'|'proof_benefit'|'proof_backlog'|'proof_journey'|'proof_validation'
-              type ProofBlackKey = 'proof_persona_black'|'proof_proposal_black'|'proof_outcome_black'|'proof_benefit_black'|'proof_backlog_black'|'proof_journey_black'|'proof_validation_black'
-              const colorKey = (`proof_${key}`) as ProofColorKey
-              const textKey = (`proof_${key}_black`) as ProofBlackKey
-              const value = (form as Record<string, unknown>)[colorKey] as string | undefined
-              const black = ((form as Record<string, unknown>)[textKey] as boolean | undefined) ?? true
-              return (
-                <div key={key} className="flex items-center gap-3 flex-wrap">
-                  <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as unknown as FormState))} />
-                  <label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: value || '#e5e7eb', color: black ? '#000' : '#fff' }}>{label}</label>
-                  <input type="color" value={value || '#e5e7eb'} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as unknown as FormState))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
-                </div>
-              )
-            })}
-          </div>
-        </fieldset>
 
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Business hashtag colors</legend>

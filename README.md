@@ -1,6 +1,6 @@
 # Cardmass — 3-column card chat
 
-Version: v3.0.3
+Version: v3.0.4
 
 Overview
 Cardmass is a minimal board with multiple layouts:

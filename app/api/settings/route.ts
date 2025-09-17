@@ -87,13 +87,6 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.matrixAxis?.not_important === 'string') setDoc['colors.matrixAxis.not_important'] = b.colors!.matrixAxis!.not_important!
   if (typeof b.colors?.matrixAxis?.urgent === 'string') setDoc['colors.matrixAxis.urgent'] = b.colors!.matrixAxis!.urgent!
   if (typeof b.colors?.matrixAxis?.not_urgent === 'string') setDoc['colors.matrixAxis.not_urgent'] = b.colors!.matrixAxis!.not_urgent!
-  if (typeof b.colors?.proof?.persona === 'string') setDoc['colors.proof.persona'] = b.colors!.proof!.persona!
-  if (typeof b.colors?.proof?.proposal === 'string') setDoc['colors.proof.proposal'] = b.colors!.proof!.proposal!
-  if (typeof b.colors?.proof?.outcome === 'string') setDoc['colors.proof.outcome'] = b.colors!.proof!.outcome!
-  if (typeof b.colors?.proof?.benefit === 'string') setDoc['colors.proof.benefit'] = b.colors!.proof!.benefit!
-  if (typeof b.colors?.proof?.backlog === 'string') setDoc['colors.proof.backlog'] = b.colors!.proof!.backlog!
-  if (typeof b.colors?.proof?.journey === 'string') setDoc['colors.proof.journey'] = b.colors!.proof!.journey!
-  if (typeof b.colors?.proof?.validation === 'string') setDoc['colors.proof.validation'] = b.colors!.proof!.validation!
   if (typeof b.colors?.businessBadges?.key_partners === 'string') setDoc['colors.businessBadges.key_partners'] = b.colors!.businessBadges!.key_partners!
   if (typeof b.colors?.businessBadges?.key_activities === 'string') setDoc['colors.businessBadges.key_activities'] = b.colors!.businessBadges!.key_activities!
   if (typeof b.colors?.businessBadges?.key_resources === 'string') setDoc['colors.businessBadges.key_resources'] = b.colors!.businessBadges!.key_resources!
@@ -121,13 +114,6 @@ export async function PATCH(req: Request) {
   if (typeof b.colors?.textContrast?.businessBadges?.customer_segments === 'boolean') setDoc['colors.textContrast.businessBadges.customer_segments'] = b.colors!.textContrast!.businessBadges!.customer_segments!
   if (typeof b.colors?.textContrast?.businessBadges?.cost_structure === 'boolean') setDoc['colors.textContrast.businessBadges.cost_structure'] = b.colors!.textContrast!.businessBadges!.cost_structure!
   if (typeof b.colors?.textContrast?.businessBadges?.revenue_streams === 'boolean') setDoc['colors.textContrast.businessBadges.revenue_streams'] = b.colors!.textContrast!.businessBadges!.revenue_streams!
-  if (typeof b.colors?.textContrast?.proof?.persona === 'boolean') setDoc['colors.textContrast.proof.persona'] = b.colors!.textContrast!.proof!.persona!
-  if (typeof b.colors?.textContrast?.proof?.proposal === 'boolean') setDoc['colors.textContrast.proof.proposal'] = b.colors!.textContrast!.proof!.proposal!
-  if (typeof b.colors?.textContrast?.proof?.outcome === 'boolean') setDoc['colors.textContrast.proof.outcome'] = b.colors!.textContrast!.proof!.outcome!
-  if (typeof b.colors?.textContrast?.proof?.benefit === 'boolean') setDoc['colors.textContrast.proof.benefit'] = b.colors!.textContrast!.proof!.benefit!
-  if (typeof b.colors?.textContrast?.proof?.backlog === 'boolean') setDoc['colors.textContrast.proof.backlog'] = b.colors!.textContrast!.proof!.backlog!
-  if (typeof b.colors?.textContrast?.proof?.journey === 'boolean') setDoc['colors.textContrast.proof.journey'] = b.colors!.textContrast!.proof!.journey!
-  if (typeof b.colors?.textContrast?.proof?.validation === 'boolean') setDoc['colors.textContrast.proof.validation'] = b.colors!.textContrast!.proof!.validation!
   if (typeof b.colors?.textContrast?.labels?.archive === 'boolean') setDoc['colors.textContrast.labels.archive'] = b.colors!.textContrast!.labels!.archive!
   if (typeof b.colors?.textContrast?.ranges?.age === 'boolean') setDoc['colors.textContrast.ranges.age'] = b.colors!.textContrast!.ranges!.age!
   if (typeof b.colors?.textContrast?.ranges?.rotten === 'boolean') setDoc['colors.textContrast.ranges.rotten'] = b.colors!.textContrast!.ranges!.rotten!
