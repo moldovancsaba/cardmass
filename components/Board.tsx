@@ -9,7 +9,7 @@ import { interpolateColor, withAlpha } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
 import BottomBar from '@/components/BottomBar'
 
-export default function Board({ initialView = 'kanban', axisHidden = false, titleOverrides = {} as Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>> }: { initialView?: 'kanban' | 'matrix', axisHidden?: boolean, titleOverrides?: Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>> }) {
+export default function Board({ initialView = 'kanban', axisHidden = false, titleOverrides = {} as Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>>, createDefaultStatus = 'decide' }: { initialView?: 'kanban' | 'matrix', axisHidden?: boolean, titleOverrides?: Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>>, createDefaultStatus?: Card['status'] }) {
   const router = useRouter()
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
@@ -110,10 +110,10 @@ export default function Board({ initialView = 'kanban', axisHidden = false, titl
   const createCard = useCallback(async (text: string) => {
     const created = await fetchJSON<Card>(`/api/cards`, {
       method: 'POST',
-      body: JSON.stringify({ text, status: 'decide' }),
+      body: JSON.stringify({ text, status: createDefaultStatus }),
     })
     setBacklog((prev) => insertSorted([created, ...prev]))
-  }, [insertSorted])
+  }, [insertSorted, createDefaultStatus])
 
   const updateCard = useCallback(async (id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => {
     const updated = await fetchJSON<Card>(`/api/cards/${id}`, {
@@ -246,6 +246,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             isActive={dropTarget?.status === 'do'}
             onContainerDragOver={onContainerDragOver}
             onContainerDrop={handleDrop}
+            axisHidden={axisHidden}
           >
             {todo.map((c, idx) => (
               <CardItem
@@ -269,6 +270,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             isActive={dropTarget?.status === 'decide'}
             onContainerDragOver={onContainerDragOver}
             onContainerDrop={handleDrop}
+            axisHidden={axisHidden}
           >
             {backlog.map((c, idx) => (
               <CardItem
@@ -292,6 +294,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             isActive={dropTarget?.status === 'delegate'}
             onContainerDragOver={onContainerDragOver}
             onContainerDrop={handleDrop}
+            axisHidden={axisHidden}
           >
             {roadmap.map((c, idx) => (
               <CardItem
@@ -315,6 +318,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             isActive={dropTarget?.status === 'decline'}
             onContainerDragOver={onContainerDragOver}
             onContainerDrop={handleDrop}
+            axisHidden={axisHidden}
           >
             {decline.map((c, idx) => (
               <CardItem
@@ -475,15 +479,15 @@ className={`flex flex-col xl:h-full xl:min-h-0 md:min-h-0 border rounded-lg p-3 
 }
 
 
-function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, children }: {
+function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, children, axisHidden = false }: {
   title: string
   status: 'delegate' | 'decide' | 'do' | 'decline'
   isActive: boolean
   onContainerDragOver: (s: 'delegate'|'decide'|'do'|'decline') => void
   onContainerDrop: (s: 'delegate'|'decide'|'do'|'decline') => void
   children: React.ReactNode
+  axisHidden?: boolean
 }) {
-  const axisHiddenLocal = false as boolean
   const settings = useSettings()
   return (
     <div
@@ -500,7 +504,7 @@ className={`border rounded-lg p-3 xl:h-full xl:min-h-0 md:min-h-0 flex flex-col 
     >
       {(() => {
         // Inside-rect vertical axis chips for left column: top = #important, bottom = #not-important
-        if (!axisHiddenLocal && (status === 'do' || status === 'delegate')) {
+        if (!axisHidden && (status === 'do' || status === 'delegate')) {
           const axisKey = status === 'do' ? 'important' : 'not_important'
           const label = status === 'do' ? '#important' : '#not-important'
           const bg = (settings?.colors?.matrixAxis as Record<string,string> | undefined)?.[axisKey] || (axisKey === 'important' ? '#93c5fd' : '#bfdbfe')
