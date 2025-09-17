@@ -113,7 +113,7 @@ export default function ProofBoard() {
   }, [dragging, dropTarget, persona, proposal, journey, backlog, computeOrder, updateCard])
 
   const createCard = useCallback(async (text: string) => {
-    const created = await fetchJSON<Card>(`/api/cards`, { method: 'POST', body: JSON.stringify({ text, proof: 'Backlog' }) }) as unknown as C
+    const created = await fetchJSON<Card>(`/api/cards`, { method: 'POST', body: JSON.stringify({ text, status: 'decide', proof: 'Backlog' }) }) as unknown as C
     setBacklog(prev => insertSorted([created as C, ...prev as unknown as C[]]))
   }, [insertSorted])
 
@@ -151,72 +151,84 @@ export default function ProofBoard() {
   }
 
   return (
-    <div className="relative flex flex-col xl:h-full">
-      <div className="flex-1 xl:overflow-hidden xl:min-h-0 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ProofColumn title="#persona" bucket={'Persona'}>
-          {persona.map((c, idx) => (
-            <BoardCardItem
-              key={c.id}
-              index={idx}
-              status={c.status}
-              card={c}
-              onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
-              onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setPersona(p => p.filter(x => x.id !== id)) }}
-              onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setPersona(p => p.filter(x => x.id !== id)) }}
-              onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Persona', index: t.index })}
-              bubbleContext={{ kind: c.status, ...stats }}
-              onDragFlag={() => setDragging({ id: c.id, from: 'Persona' })}
-            />
-          ))}
-        </ProofColumn>
-        <ProofColumn title="#proposal" bucket={'Proposal'}>
-          {proposal.map((c, idx) => (
-            <BoardCardItem
-              key={c.id}
-              index={idx}
-              status={c.status}
-              card={c}
-              onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
-              onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setProposal(p => p.filter(x => x.id !== id)) }}
-              onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setProposal(p => p.filter(x => x.id !== id)) }}
-              onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Proposal', index: t.index })}
-              bubbleContext={{ kind: c.status, ...stats }}
-              onDragFlag={() => setDragging({ id: c.id, from: 'Proposal' })}
-            />
-          ))}
-        </ProofColumn>
-        <ProofColumn title="#journey" bucket={'Journey'}>
-          {journey.map((c, idx) => (
-            <BoardCardItem
-              key={c.id}
-              index={idx}
-              status={c.status}
-              card={c}
-              onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
-              onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setJourney(p => p.filter(x => x.id !== id)) }}
-              onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setJourney(p => p.filter(x => x.id !== id)) }}
-              onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Journey', index: t.index })}
-              bubbleContext={{ kind: c.status, ...stats }}
-              onDragFlag={() => setDragging({ id: c.id, from: 'Journey' })}
-            />
-          ))}
-        </ProofColumn>
-        <ProofColumn title="#backlog" bucket={'Backlog'}>
-          {backlog.map((c, idx) => (
-            <BoardCardItem
-              key={c.id}
-              index={idx}
-              status={c.status}
-              card={c}
-              onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
-              onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setBacklog(p => p.filter(x => x.id !== id)) }}
-              onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setBacklog(p => p.filter(x => x.id !== id)) }}
-              onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Backlog', index: t.index })}
-              bubbleContext={{ kind: c.status, ...stats }}
-              onDragFlag={() => setDragging({ id: c.id, from: 'Backlog' })}
-            />
-          ))}
-        </ProofColumn>
+    <div className="relative flex flex-col xl:h-full xl:min-h-0">
+      <div className="flex-1 xl:overflow-hidden xl:min-h-0 grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 gap-4">
+        <div className="min-h-0">
+          <ProofColumn title="#persona" bucket={'Persona'}>
+            {persona.map((c, idx) => (
+              <BoardCardItem
+                key={c.id}
+                index={idx}
+                status={c.status}
+                card={c}
+                onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
+                onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setPersona(p => p.filter(x => x.id !== id)) }}
+                onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setPersona(p => p.filter(x => x.id !== id)) }}
+                onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Persona', index: t.index })}
+                bubbleContext={{ kind: c.status, ...stats }}
+                onDragFlag={() => setDragging({ id: c.id, from: 'Persona' })}
+                extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
+              />
+            ))}
+          </ProofColumn>
+        </div>
+        <div className="min-h-0">
+          <ProofColumn title="#proposal" bucket={'Proposal'}>
+            {proposal.map((c, idx) => (
+              <BoardCardItem
+                key={c.id}
+                index={idx}
+                status={c.status}
+                card={c}
+                onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
+                onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setProposal(p => p.filter(x => x.id !== id)) }}
+                onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setProposal(p => p.filter(x => x.id !== id)) }}
+                onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Proposal', index: t.index })}
+                bubbleContext={{ kind: c.status, ...stats }}
+                onDragFlag={() => setDragging({ id: c.id, from: 'Proposal' })}
+                extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
+              />
+            ))}
+          </ProofColumn>
+        </div>
+        <div className="min-h-0">
+          <ProofColumn title="#journey" bucket={'Journey'}>
+            {journey.map((c, idx) => (
+              <BoardCardItem
+                key={c.id}
+                index={idx}
+                status={c.status}
+                card={c}
+                onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
+                onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setJourney(p => p.filter(x => x.id !== id)) }}
+                onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setJourney(p => p.filter(x => x.id !== id)) }}
+                onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Journey', index: t.index })}
+                bubbleContext={{ kind: c.status, ...stats }}
+                onDragFlag={() => setDragging({ id: c.id, from: 'Journey' })}
+                extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
+              />
+            ))}
+          </ProofColumn>
+        </div>
+        <div className="min-h-0">
+          <ProofColumn title="#backlog" bucket={'Backlog'}>
+            {backlog.map((c, idx) => (
+              <BoardCardItem
+                key={c.id}
+                index={idx}
+                status={c.status}
+                card={c}
+                onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)}
+                onDelete={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'DELETE' }); setBacklog(p => p.filter(x => x.id !== id)) }}
+                onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setBacklog(p => p.filter(x => x.id !== id)) }}
+                onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Backlog', index: t.index })}
+                bubbleContext={{ kind: c.status, ...stats }}
+                onDragFlag={() => setDragging({ id: c.id, from: 'Backlog' })}
+                extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
+              />
+            ))}
+          </ProofColumn>
+        </div>
       </div>
 
       <BottomBar
