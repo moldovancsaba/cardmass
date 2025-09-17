@@ -131,7 +131,7 @@ export default function ProofBoard() {
       <div
         className={`border rounded-lg p-3 xl:h-full xl:min-h-0 flex flex-col text-black ${dropTarget?.bucket === bucket ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
         style={{ backgroundColor: withAlpha(bg, 0.3) }}
-        onDragOver={(e) => { e.preventDefault(); onContainerDragOver(bucket) }}
+        onDragOver={(e) => { e.preventDefault(); try { ((e as unknown as DragEvent).dataTransfer as DataTransfer).dropEffect = 'move' } catch {}; onContainerDragOver(bucket) }}
         onDragEnter={() => onContainerDragOver(bucket)}
         onDrop={(e) => { e.preventDefault(); handleDrop(bucket) }}
       >
@@ -166,7 +166,7 @@ export default function ProofBoard() {
                 onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setPersona(p => p.filter(x => x.id !== id)) }}
                 onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Persona', index: t.index })}
                 bubbleContext={{ kind: c.status, ...stats }}
-                onDragFlag={() => setDragging({ id: c.id, from: 'Persona' })}
+              onDragFlag={(d) => setDragging(d ? { id: (d as unknown as { id: string }).id, from: 'Persona' } : null)}
                 extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
               />
             ))}
@@ -185,7 +185,7 @@ export default function ProofBoard() {
                 onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setProposal(p => p.filter(x => x.id !== id)) }}
                 onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Proposal', index: t.index })}
                 bubbleContext={{ kind: c.status, ...stats }}
-                onDragFlag={() => setDragging({ id: c.id, from: 'Proposal' })}
+              onDragFlag={(d) => setDragging(d ? { id: (d as unknown as { id: string }).id, from: 'Proposal' } : null)}
                 extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
               />
             ))}
@@ -204,7 +204,7 @@ export default function ProofBoard() {
                 onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setJourney(p => p.filter(x => x.id !== id)) }}
                 onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Journey', index: t.index })}
                 bubbleContext={{ kind: c.status, ...stats }}
-                onDragFlag={() => setDragging({ id: c.id, from: 'Journey' })}
+              onDragFlag={(d) => setDragging(d ? { id: (d as unknown as { id: string }).id, from: 'Journey' } : null)}
                 extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
               />
             ))}
@@ -223,7 +223,7 @@ export default function ProofBoard() {
                 onArchive={async (id: string) => { await fetchJSON(`/api/cards/${id}`, { method: 'PATCH', body: JSON.stringify({ archived: true }) }); setBacklog(p => p.filter(x => x.id !== id)) }}
                 onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Backlog', index: t.index })}
                 bubbleContext={{ kind: c.status, ...stats }}
-                onDragFlag={() => setDragging({ id: c.id, from: 'Backlog' })}
+              onDragFlag={(d) => setDragging(d ? { id: (d as unknown as { id: string }).id, from: 'Backlog' } : null)}
                 extraChips={[`#${c.status}`, `#${(c as unknown as { business?: Card['business'] }).business || 'ValuePropositions'}`, `#${((c as unknown as { proof?: PB }).proof || 'Backlog').toLowerCase()}`]}
               />
             ))}
