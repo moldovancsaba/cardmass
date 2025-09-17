@@ -667,8 +667,15 @@ export function CardItem({ card, index, status, onUpdate, onDelete, onArchive, b
               bg = axisMap[axisKey] || bg
               const b = txt?.matrixAxis?.[axisKey as keyof NonNullable<typeof txt>['matrixAxis']] ?? true
               fg = b ? '#000' : '#fff'
+            } else if (sKey === 'persona' || sKey === 'proposal' || sKey === 'journey' || sKey === 'backlog' || sKey === 'outcome' || sKey === 'benefit' || sKey === 'validation' || sKey === 'cost') {
+              // Proof buckets coloring from settings.colors.proof
+              const proofColors: Record<string, string> = (settings?.colors?.proof ?? {}) as Record<string, string>
+              const proofTxt = (settings?.colors?.textContrast?.proof ?? {}) as Record<string, boolean>
+              bg = proofColors[sKey] || '#e5e7eb'
+              const b = proofTxt?.[sKey] ?? true
+              fg = b ? '#000' : '#fff'
             } else {
-              // Convert PascalCase/CamelCase to snake_case
+              // Convert PascalCase/CamelCase to snake_case and map to business badges
               const snake = chipRaw
                 .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
                 .replace(/\s+/g, '_')
