@@ -8,7 +8,6 @@ We will log planning and delivery decisions here during Warp AI sessions.
 - 2025-09-13T17:29:00.000Z — Implemented UI: Board/CardItem native DnD with guarded editing; container highlight; compute neighbor-averaged order. Matrix shows decline; Kanban hides decline.
 - 2025-09-13T17:29:30.000Z — Archive includes decline; migration script added (scripts/migrate-add-order.mjs); README/ARCHITECTURE updated.
 - 2025-09-15T12:23:56.000Z — Plan: Add colored timing chips on single-card page using global normalization and settings-based gradients; introduce admin-configurable hashtag background colors for kanban/matrix statuses and business buckets; remove Business Canvas Titles section from admin; change “open” to same-window navigation; update ROADMAP and TASKLIST accordingly.
-- 2025-09-17T12:02:23.000Z — Plan: Fix /proof DnD to exactly mirror /matrix’s working logic. Actions: reuse Board.CardItem semantics for per-item hover/insert; robust proofOrder compute to avoid NaN; keep Backlog as intake; maintain mapping (business Cost→proof Cost; status decide→proof decide; hide decline on /business). Also standardize any non-ISO timestamps to ISO 8601 with milliseconds (UTC).
 
 We will log planning and delivery decisions here during Warp AI sessions.
 

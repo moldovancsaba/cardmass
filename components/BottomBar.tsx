@@ -11,18 +11,16 @@ type Props = {
   onKanbanNav?: () => void
   onMatrixNav?: () => void
   onBusinessNav?: () => void
-  onProofNav?: () => void
   onAdminNav?: () => void
   showToggle?: boolean
   showArchive?: boolean
   showKanban?: boolean
   showMatrix?: boolean
   showBusiness?: boolean
-  showProof?: boolean
   showAdmin?: boolean
 }
 
-export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, onBusinessNav, onProofNav, onAdminNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false, showBusiness = false, showProof = false, showAdmin = false }: Props) {
+export default function BottomBar({ disabled = false, view = 'kanban', onCreate, onToggle, onArchiveNav, onKanbanNav, onMatrixNav, onBusinessNav, onAdminNav, showToggle = true, showArchive = true, showKanban = false, showMatrix = false, showBusiness = false, showAdmin = false }: Props) {
   const [value, setValue] = useState('')
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -65,11 +63,6 @@ export default function BottomBar({ disabled = false, view = 'kanban', onCreate,
         {showBusiness && (
           <button onClick={() => onBusinessNav && onBusinessNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
             business
-          </button>
-        )}
-        {showProof && (
-          <button onClick={() => onProofNav && onProofNav()} className="border border-gray-300 rounded px-3 py-1 text-sm bg-white text-black">
-            proof
           </button>
         )}
         {showArchive && (
