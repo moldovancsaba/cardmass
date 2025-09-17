@@ -16,8 +16,9 @@ const allowedStatuses = [
 // GET /api/cards/[id]
 export async function GET(_req: Request, context: unknown) {
   await connectToDatabase()
-  const { params } = (context ?? {}) as { params?: { id?: string } }
-  const id = params?.id
+  const { params } = (context ?? {}) as { params?: Promise<{ id?: string }> }
+  const awaited = await params
+  const id = awaited?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
   const doc = await Card.findById(id)
   if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -35,9 +36,9 @@ export async function PATCH(req: Request, context: unknown) {
   await connectToDatabase()
   let bodyUnknown: unknown
   try { bodyUnknown = await req.json() } catch { bodyUnknown = {} }
-  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; order?: number; archived?: boolean; business?: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder?: number }
+  const body = (bodyUnknown ?? {}) as { text?: string; status?: string; order?: number; archived?: boolean; business?: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder?: number; proof?: 'Persona'|'Proposal'|'Outcome'|'Benefit'|'Journey'|'Validation'|'Cost'; proofOrder?: number }
 
-  const update: Partial<{ text: string; status: Status; order: number; archived: boolean; archivedAt: Date | null; business: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder: number }> = {}
+  const update: Partial<{ text: string; status: Status; order: number; archived: boolean; archivedAt: Date | null; business: 'KeyPartners'|'KeyActivities'|'KeyResources'|'ValuePropositions'|'CustomerRelationships'|'Channels'|'CustomerSegments'|'Cost'|'RevenueStream'; businessOrder: number; proof: 'Persona'|'Proposal'|'Outcome'|'Benefit'|'decide'|'decline'|'Journey'|'Validation'|'Cost'; proofOrder: number }> = {}
   if (typeof body.text === 'string') {
     const t = body.text.trim()
     if (!t) return NextResponse.json({ error: 'Text cannot be empty' }, { status: 400 })
@@ -45,6 +46,7 @@ export async function PATCH(req: Request, context: unknown) {
   }
   let needsTopPlacement = false
   let needsTopBizPlacement = false
+  let needsTopProofPlacement = false
   if (typeof body.status === 'string') {
     if (!(allowedStatuses as readonly string[]).includes(body.status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
@@ -52,6 +54,10 @@ export async function PATCH(req: Request, context: unknown) {
     update.status = body.status as Status
     if (typeof body.order !== 'number') {
       needsTopPlacement = true
+    }
+    // Sync proof with status for decide/decline when not explicitly set
+    if (!body.proof && (body.status === 'decide' || body.status === 'decline')) {
+      update.proof = body.status as unknown as 'decide'|'decline'
     }
   }
   if (typeof body.business === 'string') {
@@ -62,12 +68,28 @@ export async function PATCH(req: Request, context: unknown) {
     if (typeof body.businessOrder !== 'number') {
       needsTopBizPlacement = true
     }
+    // Keep proof Cost in sync with business Cost
+    if (update.business === 'Cost' && !body.proof) {
+      update.proof = 'Cost'
+    }
+  }
+  if (typeof body.proof === 'string') {
+    if (!['Persona','Proposal','Outcome','Benefit','decide','decline','Backlog','Journey','Validation','Cost'].includes(body.proof)) {
+      return NextResponse.json({ error: 'Invalid proof' }, { status: 400 })
+    }
+    update.proof = body.proof
+    if (typeof body.proofOrder !== 'number') {
+      needsTopProofPlacement = true
+    }
   }
   if (typeof body.order === 'number' && Number.isFinite(body.order)) {
     update.order = body.order
   }
   if (typeof body.businessOrder === 'number' && Number.isFinite(body.businessOrder)) {
     update.businessOrder = body.businessOrder
+  }
+  if (typeof body.proofOrder === 'number' && Number.isFinite(body.proofOrder)) {
+    update.proofOrder = body.proofOrder
   }
   // Archiving sets archived=true and archivedAt now
   if (typeof body.archived === 'boolean') {
@@ -79,8 +101,9 @@ export async function PATCH(req: Request, context: unknown) {
       update.archivedAt = null
     }
   }
-  const { params } = (context ?? {}) as { params?: { id?: string } }
-  const id = params?.id
+  const { params } = (context ?? {}) as { params?: Promise<{ id?: string }> }
+  const awaited = await params
+  const id = awaited?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
   // If status changed without explicit order, place at the top of the target status (non-archived).
@@ -93,6 +116,12 @@ export async function PATCH(req: Request, context: unknown) {
     const topBiz = await Card.findOne({ business: update.business, archived: { $ne: true } }).sort({ businessOrder: 1 })
     const topBizOrder = (topBiz && (topBiz as unknown as { businessOrder?: number }).businessOrder)
     update.businessOrder = typeof topBizOrder === 'number' ? (topBizOrder as number) - 1 : 0
+  }
+  // If proof changed without explicit proofOrder, place at the top of the target proof bucket.
+  if (needsTopProofPlacement && update.proof) {
+    const topProof = await Card.findOne({ proof: update.proof, archived: { $ne: true } }).sort({ proofOrder: 1 })
+    const topProofOrder = (topProof && (topProof as unknown as { proofOrder?: number }).proofOrder)
+    update.proofOrder = typeof topProofOrder === 'number' ? (topProofOrder as number) - 1 : 0
   }
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: 'No valid fields provided' }, { status: 400 })
@@ -113,8 +142,9 @@ export async function PATCH(req: Request, context: unknown) {
 
 export async function DELETE(_req: Request, context: unknown) {
   await connectToDatabase()
-  const { params } = (context ?? {}) as { params?: { id?: string } }
-  const id = params?.id
+  const { params } = (context ?? {}) as { params?: Promise<{ id?: string }> }
+  const awaited = await params
+  const id = awaited?.id
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
   const res = await Card.findByIdAndDelete(id)
   if (!res) return NextResponse.json({ error: 'Not found' }, { status: 404 })

@@ -27,6 +27,7 @@ function SettingsForm() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
+
   type FormState = {
     age_oldest: string
     age_newest: string
@@ -37,6 +38,9 @@ function SettingsForm() {
     age_black: boolean
     rotten_black: boolean
     archive_black: boolean
+    label_archive: string
+    label_archive_black: boolean
+    // Status hashtag colors (kanban/matrix)
     status_delegate: string
     status_decide: string
     status_do: string
@@ -53,6 +57,22 @@ function SettingsForm() {
     axis_not_important_black: boolean
     axis_urgent_black: boolean
     axis_not_urgent_black: boolean
+    // Proof hashtag colors
+    proof_persona?: string
+    proof_proposal?: string
+    proof_outcome?: string
+    proof_benefit?: string
+    proof_journey?: string
+    proof_validation?: string
+    proof_backlog?: string
+    proof_persona_black?: boolean
+    proof_proposal_black?: boolean
+    proof_outcome_black?: boolean
+    proof_benefit_black?: boolean
+    proof_backlog_black?: boolean
+    proof_journey_black?: boolean
+    proof_validation_black?: boolean
+    // Business hashtag colors
     biz_key_partners: string
     biz_key_activities: string
     biz_key_resources: string
@@ -72,7 +92,6 @@ function SettingsForm() {
     biz_cost_structure_black: boolean
     biz_revenue_streams_black: boolean
   }
-
   const [form, setForm] = useState<FormState>({
     age_oldest: '#0a3d91',
     age_newest: '#9ecbff',
@@ -83,6 +102,8 @@ function SettingsForm() {
     age_black: true,
     rotten_black: true,
     archive_black: true,
+    label_archive: '#e5e7eb',
+    label_archive_black: true,
     // Status hashtag colors (kanban/matrix)
     status_delegate: '#93c5fd',
     status_decide: '#fde68a',
@@ -124,11 +145,19 @@ function SettingsForm() {
 
   useEffect(() => {
     let cancelled = false
-    type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string }, textContrast?: { status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }, matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }, businessBadges?: { key_partners?: boolean; key_activities?: boolean; key_resources?: boolean; value_propositions?: boolean; customer_relationships?: boolean; channels?: boolean; customer_segments?: boolean; cost_structure?: boolean; revenue_streams?: boolean }, ranges?: { age?: boolean; rotten?: boolean; archive?: boolean } } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
+  type S = { colors?: { age?: { oldest?: string; newest?: string }, rotten?: { least?: string; most?: string }, archive?: { oldest?: string; newest?: string }, status?: { delegate?: string; decide?: string; do?: string; decline?: string }, matrixAxis?: { important?: string; not_important?: string; urgent?: string; not_urgent?: string }, proof?: { persona?: string; proposal?: string; outcome?: string; benefit?: string; backlog?: string; journey?: string; validation?: string }, businessBadges?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string }, labels?: { archive?: string }, textContrast?: { status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }, matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }, proof?: { persona?: boolean; proposal?: boolean; outcome?: boolean; benefit?: boolean; backlog?: boolean; journey?: boolean; validation?: boolean }, businessBadges?: { key_partners?: boolean; key_activities?: boolean; key_resources?: boolean; value_propositions?: boolean; customer_relationships?: boolean; channels?: boolean; customer_segments?: boolean; cost_structure?: boolean; revenue_streams?: boolean }, labels?: { archive?: boolean }, ranges?: { age?: boolean; rotten?: boolean; archive?: boolean } } }, business?: { key_partners?: string; key_activities?: string; key_resources?: string; value_propositions?: string; customer_relationships?: string; channels?: string; customer_segments?: string; cost_structure?: string; revenue_streams?: string } }
     fetchJSON<S>('/api/settings').then((s) => {
       if (cancelled) return
       setForm((prev) => ({
         ...prev,
+        // proof colors
+        proof_persona: s.colors?.proof?.persona ?? prev.proof_persona,
+        proof_proposal: s.colors?.proof?.proposal ?? prev.proof_proposal,
+        proof_outcome: s.colors?.proof?.outcome ?? prev.proof_outcome,
+        proof_benefit: s.colors?.proof?.benefit ?? prev.proof_benefit,
+        proof_journey: s.colors?.proof?.journey ?? prev.proof_journey,
+        proof_validation: s.colors?.proof?.validation ?? prev.proof_validation,
+        proof_backlog: s.colors?.proof?.backlog ?? prev.proof_backlog,
         age_oldest: s.colors?.age?.oldest ?? prev.age_oldest,
         age_newest: s.colors?.age?.newest ?? prev.age_newest,
         rotten_least: s.colors?.rotten?.least ?? prev.rotten_least,
@@ -154,6 +183,14 @@ function SettingsForm() {
         biz_revenue_streams: s.colors?.businessBadges?.revenue_streams ?? prev.biz_revenue_streams,
         // load text contrast
         status_delegate_black: s.colors?.textContrast?.status?.delegate ?? prev.status_delegate_black,
+        // proof contrast
+        proof_persona_black: s.colors?.textContrast?.proof?.persona ?? prev.proof_persona_black,
+        proof_proposal_black: s.colors?.textContrast?.proof?.proposal ?? prev.proof_proposal_black,
+        proof_outcome_black: s.colors?.textContrast?.proof?.outcome ?? prev.proof_outcome_black,
+        proof_benefit_black: s.colors?.textContrast?.proof?.benefit ?? prev.proof_benefit_black,
+        proof_backlog_black: s.colors?.textContrast?.proof?.backlog ?? prev.proof_backlog_black,
+        proof_journey_black: s.colors?.textContrast?.proof?.journey ?? prev.proof_journey_black,
+        proof_validation_black: s.colors?.textContrast?.proof?.validation ?? prev.proof_validation_black,
         status_decide_black: s.colors?.textContrast?.status?.decide ?? prev.status_decide_black,
         status_do_black: s.colors?.textContrast?.status?.do ?? prev.status_do_black,
         status_decline_black: s.colors?.textContrast?.status?.decline ?? prev.status_decline_black,
@@ -170,6 +207,9 @@ function SettingsForm() {
         biz_customer_segments_black: s.colors?.textContrast?.businessBadges?.customer_segments ?? prev.biz_customer_segments_black,
         biz_cost_structure_black: s.colors?.textContrast?.businessBadges?.cost_structure ?? prev.biz_cost_structure_black,
         biz_revenue_streams_black: s.colors?.textContrast?.businessBadges?.revenue_streams ?? prev.biz_revenue_streams_black,
+        // labels
+        label_archive: s.colors?.labels?.archive ?? prev.label_archive,
+        label_archive_black: s.colors?.textContrast?.labels?.archive ?? prev.label_archive_black,
         age_black: s.colors?.textContrast?.ranges?.age ?? prev.age_black,
         rotten_black: s.colors?.textContrast?.ranges?.rotten ?? prev.rotten_black,
         archive_black: s.colors?.textContrast?.ranges?.archive ?? prev.archive_black,
@@ -202,6 +242,16 @@ function SettingsForm() {
               cost_structure: form.biz_cost_structure,
               revenue_streams: form.biz_revenue_streams,
             },
+            proof: {
+              persona: form.proof_persona,
+              proposal: form.proof_proposal,
+              outcome: form.proof_outcome,
+              benefit: form.proof_benefit,
+              backlog: form.proof_backlog,
+              journey: form.proof_journey,
+              validation: form.proof_validation,
+            },
+            labels: { archive: form.label_archive },
             textContrast: {
               status: {
                 delegate: form.status_delegate_black,
@@ -215,6 +265,16 @@ function SettingsForm() {
                 urgent: form.axis_urgent_black,
                 not_urgent: form.axis_not_urgent_black,
               },
+              proof: {
+                persona: form.proof_persona_black,
+                proposal: form.proof_proposal_black,
+                outcome: form.proof_outcome_black,
+                benefit: form.proof_benefit_black,
+                backlog: form.proof_backlog_black,
+                journey: form.proof_journey_black,
+                validation: form.proof_validation_black,
+              },
+              labels: { archive: form.label_archive_black },
               businessBadges: {
                 key_partners: form.biz_key_partners_black,
                 key_activities: form.biz_key_activities_black,
@@ -242,55 +302,49 @@ function SettingsForm() {
   if (loading) return <div>Loading…</div>
 
   return (
-    <div className="space-y-4 max-w-xl">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="space-y-6 max-w-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Age gradient</legend>
-          <div className="space-y-2 mt-2">
-            <div className="flex items-center gap-2">
+          <div className="space-y-3 mt-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <input type="checkbox" checked={form.age_black} onChange={(e) => setForm(f => ({...f, age_black: e.target.checked}))} />
-<label htmlFor="picker_age_oldest" aria-label="Pick color for #Oldest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.age_oldest }}></label>
-<label htmlFor="picker_age_oldest" className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: form.age_oldest, color: form.age_black ? '#000' : '#fff' }}>#Oldest</label>
-              <input id="picker_age_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))}/>
-<label htmlFor="picker_age_newest" aria-label="Pick color for #Newest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.age_newest }}></label>
-<label htmlFor="picker_age_newest" className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: form.age_newest, color: form.age_black ? '#000' : '#fff' }}>#Newest</label>
-              <input id="picker_age_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))}/>
+<label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.age_oldest, color: form.age_black ? '#000' : '#fff' }}>#Oldest</label>
+              <input type="color" value={form.age_oldest} onChange={(e) => setForm(f => ({...f, age_oldest: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
+<label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.age_newest, color: form.age_black ? '#000' : '#fff' }}>#Newest</label>
+              <input type="color" value={form.age_newest} onChange={(e) => setForm(f => ({...f, age_newest: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
             </div>
           </div>
         </fieldset>
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Rotten gradient</legend>
-          <div className="space-y-2 mt-2">
-            <div className="flex items-center gap-2">
+          <div className="space-y-3 mt-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <input type="checkbox" checked={form.rotten_black} onChange={(e) => setForm(f => ({...f, rotten_black: e.target.checked}))} />
-<label htmlFor="picker_rotten_least" aria-label="Pick color for #Least" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.rotten_least }}></label>
-<label htmlFor="picker_rotten_least" className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: form.rotten_least, color: form.rotten_black ? '#000' : '#fff' }}>#Least</label>
-              <input id="picker_rotten_least" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))}/>
-<label htmlFor="picker_rotten_most" aria-label="Pick color for #Most" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.rotten_most }}></label>
-<label htmlFor="picker_rotten_most" className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: form.rotten_most, color: form.rotten_black ? '#000' : '#fff' }}>#Most</label>
-              <input id="picker_rotten_most" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))}/>
+<label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.rotten_least, color: form.rotten_black ? '#000' : '#fff' }}>#Least</label>
+              <input type="color" value={form.rotten_least} onChange={(e) => setForm(f => ({...f, rotten_least: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
+<label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.rotten_most, color: form.rotten_black ? '#000' : '#fff' }}>#Most</label>
+              <input type="color" value={form.rotten_most} onChange={(e) => setForm(f => ({...f, rotten_most: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
             </div>
           </div>
         </fieldset>
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Archive gradient</legend>
-          <div className="space-y-2 mt-2">
-            <div className="flex items-center gap-2">
+          <div className="space-y-3 mt-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <input type="checkbox" checked={form.archive_black} onChange={(e) => setForm(f => ({...f, archive_black: e.target.checked}))} />
-<label htmlFor="picker_archive_oldest" aria-label="Pick color for #Oldest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.archive_oldest }}></label>
-<label htmlFor="picker_archive_oldest" className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: form.archive_oldest, color: form.archive_black ? '#000' : '#fff' }}>#Oldest</label>
-              <input id="picker_archive_oldest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))}/>
-<label htmlFor="picker_archive_newest" aria-label="Pick color for #Newest" className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: form.archive_newest }}></label>
-<label htmlFor="picker_archive_newest" className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: form.archive_newest, color: form.archive_black ? '#000' : '#fff' }}>#Newest</label>
-              <input id="picker_archive_newest" type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))}/>
+<label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.archive_oldest, color: form.archive_black ? '#000' : '#fff' }}>#Oldest</label>
+              <input type="color" value={form.archive_oldest} onChange={(e) => setForm(f => ({...f, archive_oldest: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
+<label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.archive_newest, color: form.archive_black ? '#000' : '#fff' }}>#Newest</label>
+              <input type="color" value={form.archive_newest} onChange={(e) => setForm(f => ({...f, archive_newest: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
             </div>
           </div>
         </fieldset>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Matrix axis hashtag colors</legend>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-3 mt-3">
             {(() => {
               const rows: Array<[keyof FormState, keyof FormState, string]> = [
                 ['axis_important','axis_important_black','#important'],
@@ -299,15 +353,13 @@ function SettingsForm() {
                 ['axis_not_urgent','axis_not_urgent_black','#not-urgent'],
               ]
               return rows.map(([colorKey, textKey, label]) => {
-                const id = `picker_${String(colorKey)}`
                 const value = form[colorKey] as string
                 const black = (form[textKey] as boolean) ?? true
                 return (
-                  <div key={String(colorKey)} className="flex items-center gap-2">
+                  <div key={String(colorKey)} className="flex items-center gap-3 flex-wrap">
                     <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
-<label htmlFor={id} aria-label={`Pick color for ${label}`} className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: value }}></label>
-<label htmlFor={id} className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}>{label}</label>
-                    <input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                    <label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}>{label}</label>
+                    <input type="color" value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
                   </div>
                 )
               })
@@ -317,7 +369,7 @@ function SettingsForm() {
 
         <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Kanban hashtag colors</legend>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-3 mt-3">
             {(() => {
               const rows: Array<[keyof FormState, keyof FormState, string]> = [
                 ['status_delegate','status_delegate_black','#delegate'],
@@ -326,14 +378,13 @@ function SettingsForm() {
                 ['status_decline','status_decline_black','#decline'],
               ]
               return rows.map(([colorKey, textKey, label]) => {
-                const id = `picker_${String(colorKey)}`
                 const value = form[colorKey] as string
                 const black = (form[textKey] as boolean) ?? true
                 return (
-                  <div key={String(colorKey)} className="flex items-center gap-2">
+                  <div key={String(colorKey)} className="flex items-center gap-3 flex-wrap">
                     <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
-<label htmlFor={id} className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}>{label}</label>
-<input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                    <label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}>{label}</label>
+                    <input type="color" value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
                   </div>
                 )
               })
@@ -342,23 +393,61 @@ function SettingsForm() {
         </fieldset>
 
         <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Page labels</legend>
+          <div className="space-y-3 mt-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <input type="checkbox" checked={form.label_archive_black} onChange={(e) => setForm(f => ({...f, label_archive_black: e.target.checked}))} />
+              <label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: form.label_archive, color: form.label_archive_black ? '#000' : '#fff' }}>#archive</label>
+              <input type="color" value={form.label_archive} onChange={(e) => setForm(f => ({...f, label_archive: e.target.value}))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset className="border border-gray-300 rounded p-3">
+          <legend className="text-sm font-mono">Proof hashtag colors</legend>
+          <div className="space-y-3 mt-3">
+            {([
+              ['persona','#Persona'],
+              ['proposal','#Proposal'],
+              ['outcome','#Outcome'],
+              ['benefit','#Benefit'],
+              ['backlog','#Backlog'],
+              ['journey','#Journey'],
+              ['validation','#Validation'],
+            ] as Array<[string,string]>).map(([key,label]) => {
+              type ProofColorKey = 'proof_persona'|'proof_proposal'|'proof_outcome'|'proof_benefit'|'proof_backlog'|'proof_journey'|'proof_validation'
+              type ProofBlackKey = 'proof_persona_black'|'proof_proposal_black'|'proof_outcome_black'|'proof_benefit_black'|'proof_backlog_black'|'proof_journey_black'|'proof_validation_black'
+              const colorKey = (`proof_${key}`) as ProofColorKey
+              const textKey = (`proof_${key}_black`) as ProofBlackKey
+              const value = (form as Record<string, unknown>)[colorKey] as string | undefined
+              const black = ((form as Record<string, unknown>)[textKey] as boolean | undefined) ?? true
+              return (
+                <div key={key} className="flex items-center gap-3 flex-wrap">
+                  <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as unknown as FormState))} />
+                  <label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: value || '#e5e7eb', color: black ? '#000' : '#fff' }}>{label}</label>
+                  <input type="color" value={value || '#e5e7eb'} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as unknown as FormState))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
+                </div>
+              )
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset className="border border-gray-300 rounded p-3">
           <legend className="text-sm font-mono">Business hashtag colors</legend>
-          <div className="space-y-2 mt-2">
+          <div className="space-y-3 mt-3">
             {([
               ['key_partners','KeyPartners'], ['key_activities','KeyActivities'], ['key_resources','KeyResources'], ['value_propositions','ValuePropositions'],
               ['customer_relationships','CustomerRelationships'], ['channels','Channels'], ['customer_segments','CustomerSegments'], ['cost_structure','Cost'], ['revenue_streams','RevenueStream']
             ] as Array<[string, string]>).map(([k,hashtag]) => {
               const colorKey = `biz_${k}` as keyof FormState
               const textKey = `biz_${k}_black` as keyof FormState
-              const id = `picker_${k}`
               const value = form[colorKey] as string
               const black = (form[textKey] as boolean) ?? true
               return (
-                <div key={k} className="flex items-center gap-2">
+                <div key={k} className="flex items-center gap-3 flex-wrap">
                   <input type="checkbox" checked={black} onChange={(e) => setForm(f => ({...f, [textKey]: e.target.checked } as FormState))} />
-<label htmlFor={id} aria-label={`Pick color for #${hashtag}`} className="inline-block w-3 h-3 rounded-full border border-gray-400 cursor-pointer" style={{ backgroundColor: value }}></label>
-<label htmlFor={id} className="px-2 py-0.5 rounded-full text-[10px] font-mono cursor-pointer" style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}>#{hashtag}</label>
-                  <input id={id} type="color" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))}/>
+                  <label className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: value, color: black ? '#000' : '#fff' }}>#{hashtag}</label>
+                  <input type="color" value={value} onChange={(e) => setForm(f => ({...f, [colorKey]: e.target.value } as FormState))} className="w-8 h-6 p-0 border border-gray-300 rounded" />
                 </div>
               )
             })}
