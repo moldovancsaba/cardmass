@@ -246,11 +246,13 @@ function chipsForCard(card: Card) {
         onKanbanNav={() => router.push('/kanban')}
         onMatrixNav={() => router.push('/matrix')}
         onBusinessNav={() => router.push('/business')}
+        onProofNav={() => router.push('/proof')}
         showToggle={false}
         showArchive={true}
         showKanban={true}
         showMatrix={true}
         showBusiness={false}
+        showProof={true}
         showAdmin={true}
         onAdminNav={() => router.push('/admin')}
       />

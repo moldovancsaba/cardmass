@@ -9,7 +9,7 @@ import { interpolateColor, withAlpha } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
 import BottomBar from '@/components/BottomBar'
 
-export default function Board({ initialView = 'kanban' }: { initialView?: 'kanban' | 'matrix' }) {
+export default function Board({ initialView = 'kanban', axisHidden = false, titleOverrides = {} as Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>> }: { initialView?: 'kanban' | 'matrix', axisHidden?: boolean, titleOverrides?: Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>> }) {
   const router = useRouter()
   const [roadmap, setRoadmap] = useState<Card[]>([])
   const [backlog, setBacklog] = useState<Card[]>([])
@@ -17,6 +17,11 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   const [decline, setDecline] = useState<Card[]>([])
   const [view] = useState<'kanban' | 'matrix'>(initialView)
   const settings = useSettings()
+
+  const getTitle = useCallback((s: 'do'|'decide'|'delegate'|'decline') => {
+    const t = titleOverrides?.[s]
+    return t || `#${s}`
+  }, [titleOverrides])
 
   type Status = Card['status']
 
@@ -236,7 +241,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-full xl:min-h-0 gap-4 relative items-stretch">
           <Rect
-            title="#do"
+            title={getTitle('do')}
             status="do"
             isActive={dropTarget?.status === 'do'}
             onContainerDragOver={onContainerDragOver}
@@ -259,7 +264,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             ))}
           </Rect>
           <Rect
-            title="#decide"
+            title={getTitle('decide')}
             status="decide"
             isActive={dropTarget?.status === 'decide'}
             onContainerDragOver={onContainerDragOver}
@@ -282,7 +287,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             ))}
           </Rect>
           <Rect
-            title="#delegate"
+            title={getTitle('delegate')}
             status="delegate"
             isActive={dropTarget?.status === 'delegate'}
             onContainerDragOver={onContainerDragOver}
@@ -305,7 +310,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
             ))}
           </Rect>
           <Rect
-            title="#decline"
+            title={getTitle('decline')}
             status="decline"
             isActive={dropTarget?.status === 'decline'}
             onContainerDragOver={onContainerDragOver}
@@ -327,50 +332,54 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
               />
             ))}
           </Rect>
-          <div className="hidden md:block absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-            {(() => {
-              const bg = settings?.colors?.matrixAxis?.important || '#93c5fd'
-              const b = settings?.colors?.textContrast?.matrixAxis?.important ?? true
-              const fg = b ? '#000' : '#fff'
-              return (
-                <div className="-rotate-90 origin-center">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#important</span>
-                </div>
-              )
-            })()}
-          </div>
-          <div className="hidden md:block absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-            {(() => {
-              const bg = settings?.colors?.matrixAxis?.not_important || '#bfdbfe'
-              const b = settings?.colors?.textContrast?.matrixAxis?.not_important ?? true
-              const fg = b ? '#000' : '#fff'
-              return (
-                <div className="-rotate-90 origin-center">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#not-important</span>
-                </div>
-              )
-            })()}
-          </div>
-          <div className="hidden md:block absolute left-1/4 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-            {(() => {
-              const bg = settings?.colors?.matrixAxis?.urgent || '#fca5a5'
-              const b = settings?.colors?.textContrast?.matrixAxis?.urgent ?? true
-              const fg = b ? '#000' : '#fff'
-              return (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#urgent</span>
-              )
-            })()}
-          </div>
-          <div className="hidden md:block absolute left-3/4 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-            {(() => {
-              const bg = settings?.colors?.matrixAxis?.not_urgent || '#fecaca'
-              const b = settings?.colors?.textContrast?.matrixAxis?.not_urgent ?? true
-              const fg = b ? '#000' : '#fff'
-              return (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#not-urgent</span>
-              )
-            })()}
-          </div>
+          {!axisHidden && (
+            <>
+              <div className="hidden md:block absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                {(() => {
+                  const bg = settings?.colors?.matrixAxis?.important || '#93c5fd'
+                  const b = settings?.colors?.textContrast?.matrixAxis?.important ?? true
+                  const fg = b ? '#000' : '#fff'
+                  return (
+                    <div className="-rotate-90 origin-center">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#important</span>
+                    </div>
+                  )
+                })()}
+              </div>
+              <div className="hidden md:block absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                {(() => {
+                  const bg = settings?.colors?.matrixAxis?.not_important || '#bfdbfe'
+                  const b = settings?.colors?.textContrast?.matrixAxis?.not_important ?? true
+                  const fg = b ? '#000' : '#fff'
+                  return (
+                    <div className="-rotate-90 origin-center">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#not-important</span>
+                    </div>
+                  )
+                })()}
+              </div>
+              <div className="hidden md:block absolute left-1/4 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                {(() => {
+                  const bg = settings?.colors?.matrixAxis?.urgent || '#fca5a5'
+                  const b = settings?.colors?.textContrast?.matrixAxis?.urgent ?? true
+                  const fg = b ? '#000' : '#fff'
+                  return (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#urgent</span>
+                  )
+                })()}
+              </div>
+              <div className="hidden md:block absolute left-3/4 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                {(() => {
+                  const bg = settings?.colors?.matrixAxis?.not_urgent || '#fecaca'
+                  const b = settings?.colors?.textContrast?.matrixAxis?.not_urgent ?? true
+                  const fg = b ? '#000' : '#fff'
+                  return (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#not-urgent</span>
+                  )
+                })()}
+              </div>
+            </>
+          )}
         </div>
       )}
       </div>
@@ -384,10 +393,12 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
         onKanbanNav={() => router.push('/kanban')}
         onMatrixNav={() => router.push('/matrix')}
         onBusinessNav={() => router.push('/business')}
+        onProofNav={() => router.push('/proof')}
         onAdminNav={() => router.push('/admin')}
         showKanban={false}
         showMatrix={false}
         showBusiness={true}
+        showProof={true}
         showArchive={true}
         showAdmin={true}
         showToggle={true}
@@ -472,6 +483,7 @@ function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, c
   onContainerDrop: (s: 'delegate'|'decide'|'do'|'decline') => void
   children: React.ReactNode
 }) {
+  const axisHiddenLocal = false as boolean
   const settings = useSettings()
   return (
     <div
@@ -488,7 +500,7 @@ className={`border rounded-lg p-3 xl:h-full xl:min-h-0 md:min-h-0 flex flex-col 
     >
       {(() => {
         // Inside-rect vertical axis chips for left column: top = #important, bottom = #not-important
-        if (status === 'do' || status === 'delegate') {
+        if (!axisHiddenLocal && (status === 'do' || status === 'delegate')) {
           const axisKey = status === 'do' ? 'important' : 'not_important'
           const label = status === 'do' ? '#important' : '#not-important'
           const bg = (settings?.colors?.matrixAxis as Record<string,string> | undefined)?.[axisKey] || (axisKey === 'important' ? '#93c5fd' : '#bfdbfe')
