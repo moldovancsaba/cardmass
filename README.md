@@ -6,7 +6,6 @@ Overview
 Cardmass is a minimal board with multiple layouts:
 - Kanban: #delegate, #decide, #do
 - Matrix (Eisenhower): #do, #decide, #delegate, #decline (decline is only shown here)
-- Proof: 3x3 grid — Row1 [#Persona, #Proposal, #Outcome], Row2 [#Benefit, #decide, #Decline], Row3 [#Journey, #Validation, #Cost]. New cards default to Backlog (hidden holding area) until moved.
 
 Native HTML5 drag-and-drop lets you move cards across columns/rectangles and reorder within them. Each card is persisted in MongoDB Atlas with createdAt and updatedAt timestamps. The UI shows “Created X days ago” and “rotten for Y days” derived from those timestamps.
 
