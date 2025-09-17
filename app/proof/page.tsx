@@ -1,9 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { fetchJSON } from '@/lib/client'
 import { useRouter } from 'next/navigation'
 import BottomBar from '@/components/BottomBar'
+import { Column as BoardColumn, CardItem as BoardCardItem } from '@/components/Board'
 import type { Card } from '@/types/card'
 import type { ProofBucket } from '@/types/proof'
 import { useSettings } from '@/lib/settings'
@@ -99,6 +100,8 @@ export default function ProofPage() {
 
   useEffect(() => { load() }, [load])
 
+  const stats = useMemo(() => ({ minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }), [])
+
   type C = Card & { proof?: ProofBucket; proofOrder?: number }
   const byProofOrder = useCallback((a: C, b: C) => {
     const aoNum = Number.isFinite(a.proofOrder ?? NaN) ? (a.proofOrder as number) : Number.MAX_SAFE_INTEGER
@@ -109,13 +112,28 @@ export default function ProofPage() {
   const insertSorted = useCallback((arr: C[]) => { const next = [...arr]; next.sort(byProofOrder); return next }, [byProofOrder])
 
   const computeOrder = useCallback((list: C[], dropIndex: number) => {
+    // Ensure we always compute a finite insertion order, even if some items are missing proofOrder (e.g., synced from status only)
+    const coerce = (val: unknown, idx: number) => {
+      const n = typeof val === 'number' ? val : NaN
+      return Number.isFinite(n) ? n : idx * 2 // monotonically increasing placeholder
+    }
     const prev = list[dropIndex - 1] || null
     const next = list[dropIndex] || null
-    const prevO = prev?.proofOrder ?? null
-    const nextO = next?.proofOrder ?? null
-    if (prev && next && prevO! < nextO!) return (prevO! + nextO!) / 2
-    if (!prev && next) return nextO! - 1
-    if (prev && !next) return prevO! + 1
+    if (prev && next) {
+      const prevO = coerce(prev.proofOrder, dropIndex - 1)
+      const nextO = coerce(next.proofOrder, dropIndex)
+      if (prevO < nextO) return (prevO + nextO) / 2
+      // If out of order due to placeholder collisions, spread them slightly
+      return prevO + 1
+    }
+    if (!prev && next) {
+      const nextO = coerce(next.proofOrder, dropIndex)
+      return nextO - 1
+    }
+    if (prev && !next) {
+      const prevO = coerce(prev.proofOrder, dropIndex - 1)
+      return prevO + 1
+    }
     return 0
   }, [])
 
@@ -314,39 +332,57 @@ export default function ProofPage() {
         <div className="hidden xl:grid gap-4 h-full min-h-0" style={{ gridTemplateRows: '1fr 1.2fr 1fr' }}>
           {/* Top row: Persona | Proposal | Outcome */}
           <div className="grid grid-cols-3 gap-4 min-h-0">
-            <ProofColumn title="Persona" bucket="Persona">
-              {persona.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Persona" />))}
-            </ProofColumn>
-            <ProofColumn title="Proposal" bucket="Proposal">
-              {proposal.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Proposal" />))}
-            </ProofColumn>
-            <ProofColumn title="Outcome" bucket="Outcome">
-              {outcome.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Outcome" />))}
-            </ProofColumn>
+            <BoardColumn title="#Persona" status={"bmc:key_partners" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Persona'} onContainerDragOver={() => onContainerDragOver('Persona' as ProofBucket)} onContainerDrop={() => handleDrop('Persona' as ProofBucket)}>
+              {persona.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Persona' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Persona' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
+            <BoardColumn title="#Proposal" status={"bmc:key_activities" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Proposal'} onContainerDragOver={() => onContainerDragOver('Proposal' as ProofBucket)} onContainerDrop={() => handleDrop('Proposal' as ProofBucket)}>
+              {proposal.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Proposal' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Proposal' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
+            <BoardColumn title="#Outcome" status={"bmc:key_resources" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Outcome'} onContainerDragOver={() => onContainerDragOver('Outcome' as ProofBucket)} onContainerDrop={() => handleDrop('Outcome' as ProofBucket)}>
+              {outcome.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Outcome' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Outcome' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
           </div>
           {/* Middle row: Benefit | decide | Decline */}
           <div className="grid grid-cols-3 gap-4 min-h-0">
-            <ProofColumn title="Benefit" bucket="Benefit">
-              {benefit.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Benefit" />))}
-            </ProofColumn>
-            <ProofColumn title="decide" bucket={'decide' as ProofBucket}>
-              {decide.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket={'decide' as ProofBucket} />))}
-            </ProofColumn>
-            <ProofColumn title="Decline" bucket={'decline' as ProofBucket}>
-              {decline.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket={'decline' as ProofBucket} />))}
-            </ProofColumn>
+            <BoardColumn title="#Benefit" status={"bmc:value_propositions" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Benefit'} onContainerDragOver={() => onContainerDragOver('Benefit' as ProofBucket)} onContainerDrop={() => handleDrop('Benefit' as ProofBucket)}>
+              {benefit.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Benefit' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Benefit' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
+            <BoardColumn title="#decide" status={"decide" as unknown as Card['status']} isActive={dropTarget?.bucket === 'decide'} onContainerDragOver={() => onContainerDragOver('decide' as ProofBucket)} onContainerDrop={() => handleDrop('decide' as ProofBucket)}>
+              {decide.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'decide' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'decide' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
+            <BoardColumn title="#Decline" status={"decline" as unknown as Card['status']} isActive={dropTarget?.bucket === 'decline'} onContainerDragOver={() => onContainerDragOver('decline' as ProofBucket)} onContainerDrop={() => handleDrop('decline' as ProofBucket)}>
+              {decline.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'decline' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'decline' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
           </div>
           {/* Bottom row: Journey | Validation | Cost */}
           <div className="grid grid-cols-3 gap-4 min-h-0">
-            <ProofColumn title="Journey" bucket="Journey">
-              {journey.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Journey" />))}
-            </ProofColumn>
-            <ProofColumn title="Validation" bucket="Validation">
-              {validation.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Validation" />))}
-            </ProofColumn>
-            <ProofColumn title="Cost" bucket="Cost">
-              {cost.map((c, idx) => (<CardItem key={c.id} card={c} index={idx} bucket="Cost" />))}
-            </ProofColumn>
+            <BoardColumn title="#Journey" status={"bmc:customer_relationships" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Journey'} onContainerDragOver={() => onContainerDragOver('Journey' as ProofBucket)} onContainerDrop={() => handleDrop('Journey' as ProofBucket)}>
+              {journey.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Journey' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Journey' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
+            <BoardColumn title="#Validation" status={"bmc:channels" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Validation'} onContainerDragOver={() => onContainerDragOver('Validation' as ProofBucket)} onContainerDrop={() => handleDrop('Validation' as ProofBucket)}>
+              {validation.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Validation' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Validation' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
+            <BoardColumn title="#Cost" status={"bmc:cost_structure" as unknown as Card['status']} isActive={dropTarget?.bucket === 'Cost'} onContainerDragOver={() => onContainerDragOver('Cost' as ProofBucket)} onContainerDrop={() => handleDrop('Cost' as ProofBucket)}>
+              {cost.map((c, idx) => (
+<BoardCardItem key={c.id} index={idx} status={c.status} card={c} onUpdate={(id: string, data: Partial<Pick<Card, 'text' | 'status' | 'order'>>) => updateCard(id, data)} onDelete={deleteCard} onArchive={archiveCard} onHoverIndex={(t: { status: Card['status']; index: number | null }) => setDropTarget({ bucket: 'Cost' as ProofBucket, index: t.index })} bubbleContext={{ kind: c.status, ...stats }} onDragFlag={(d: { id: string; from: Card['status'] } | null) => setDragging(d ? { id: c.id, from: 'Cost' as ProofBucket } : null)} />
+              ))}
+            </BoardColumn>
           </div>
         </div>
           {/* Below xl: stacked */}

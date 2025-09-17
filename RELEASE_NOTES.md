@@ -1,4 +1,7 @@
 
+## [v3.0.1] — 2025-09-17T11:52:44.369Z
+- (update notes here)
+
 ## [v3.0.0] — 2025-09-17T11:38:03.355Z
 - Major: Rebuilt /proof as a 3x3 grid extended from matrix
   - Rows: [#Persona,#Proposal,#Outcome] / [#Benefit,#decide,#Decline] / [#Journey,#Validation,#Cost]
