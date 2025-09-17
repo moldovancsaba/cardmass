@@ -5,7 +5,7 @@ import { fetchJSON } from '@/lib/client'
 import { useEffect, useMemo, useState } from 'react'
 import { useSettings } from '@/lib/settings'
 import { daysBetweenUtc } from '@/lib/date'
-import { interpolateColor } from '@/lib/color'
+import { interpolateColor, withAlpha } from '@/lib/color'
 import FooterNav from '@/components/FooterNav'
 
 export default function ArchivePage() {
@@ -55,7 +55,9 @@ function ArchiveGrid() {
 
   return (
     <div className="border border-gray-300 rounded-lg p-3 h-full md:min-h-0 flex flex-col text-black bg-white">
-      <div className="text-sm font-mono text-black mb-2">#archive</div>
+      <div className="mb-2">
+        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: (settings?.colors?.labels?.archive || '#e5e7eb'), color: ((settings?.colors?.textContrast?.labels?.archive ?? true) ? '#000' : '#fff') }}>#archive</span>
+      </div>
       <div className="flex-1 overflow-auto pr-1">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((c, idx) => (
@@ -72,10 +74,12 @@ function ArchivedCard({ card, archOldest, archNewest, index, total }: { card: AC
   // Interpolate color based on relative position (newest -> oldest)
   const t = total > 1 ? index / (total - 1) : 1
   const bg = interpolateColor(archOldest, archNewest, t)
+  const settings = useSettings()
+  const archiveBlack = settings?.colors?.textContrast?.ranges?.archive ?? true
   return (
-    <div className="border border-gray-300 rounded-md p-3 bg-white text-black">
+    <div className="border border-gray-300 rounded-md p-3 text-black" style={{ backgroundColor: withAlpha(bg, 0.3) }}>
       <div className="whitespace-pre-wrap text-sm mb-2">{card.text}</div>
-      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg }}>
+      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: archiveBlack ? '#000' : '#fff' }}>
         #archived {daysAgo} days ago
       </span>
     </div>

@@ -32,3 +32,9 @@ export function interpolateColor(startHex: string, endHex: string, t: number): s
   const mix = (x: number, y: number) => x + (y - x) * clamped
   return rgbToHex({ r: mix(a.r, b.r), g: mix(a.g, b.g), b: mix(a.b, b.b) })
 }
+
+export function withAlpha(hex: string, alpha: number): string {
+  const { r, g, b } = hexToRgb(hex)
+  const a = Math.max(0, Math.min(1, alpha))
+  return `rgba(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)}, ${a})`
+}

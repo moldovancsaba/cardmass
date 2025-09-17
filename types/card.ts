@@ -11,6 +11,9 @@ export type Card = {
   // Business classification for /business layout
   business?: 'KeyPartners' | 'KeyActivities' | 'KeyResources' | 'ValuePropositions' | 'CustomerRelationships' | 'Channels' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
   businessOrder?: number
+  // Proof classification for /proof layout (3x3 grid + Backlog)
+  proof?: 'Persona' | 'Proposal' | 'Outcome' | 'Benefit' | 'decide' | 'decline' | 'Backlog' | 'Journey' | 'Validation' | 'Cost'
+  proofOrder?: number
   archived?: boolean
   archivedAt?: string
   createdAt: string // ISO 8601 with milliseconds UTC

@@ -1,0 +1,11 @@
+export type ProofBucket =
+  | 'Persona'
+  | 'Proposal'
+  | 'Outcome'
+  | 'Benefit'
+  | 'decide'
+  | 'decline'
+  | 'Backlog'
+  | 'Journey'
+  | 'Validation'
+  | 'Cost'

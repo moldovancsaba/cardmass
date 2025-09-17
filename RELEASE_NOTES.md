@@ -1,4 +1,90 @@
 
+## [v3.0.0] — 2025-09-17T11:38:03.355Z
+- Major: Rebuilt /proof as a 3x3 grid extended from matrix
+  - Rows: [#Persona,#Proposal,#Outcome] / [#Benefit,#decide,#Decline] / [#Journey,#Validation,#Cost]
+  - DnD parity with /matrix and /kanban (neighbor-averaging order, per-item insertion)
+- Cross-layout rules
+  - /business #Cost appears in /proof #Cost (color/contrast reused from business)
+  - /matrix #decide appears in /proof #decide
+  - #decline is hidden from /business and remains visible on /matrix and /proof only
+  - New/unmatched cards default to Backlog until moved
+- API/Model
+  - Card: added proof buckets 'decide' and 'decline'; ensured index {proof, proofOrder}
+  - /api/cards: proof filter includes decide/decline; POST defaults proof to Backlog (or Cost when business=Cost); PATCH syncs proof with status/business rules
+  - /api/cards/[id]: awaited params to comply with Next.js 15 Dynamic APIs
+- Admin/Settings
+  - Proof color group excludes Cost (Cost uses business cost color); added coverage for new proof buckets where applicable
+
+## [v2.10.22] — 2025-09-17T10:38:23.079Z
+- (update notes here)
+
+## [v2.10.21] — 2025-09-16T19:36:14.602Z
+- (update notes here)
+
+## [v2.10.20] — 2025-09-16T19:26:19.295Z
+- (update notes here)
+
+## [v2.10.19] — 2025-09-16T18:56:43.301Z
+- (update notes here)
+
+## [v2.10.18] — 2025-09-16T18:16:22.909Z
+- Feature: New /proof layout with eight droppable containers (Persona, Proposal, Outcome, Benefit, Backlog, Journey, Validation, Cost)
+- Data: Added proof and proofOrder fields to Card model with index { proof, proofOrder }
+- API: /api/cards supports ?proof=… filter (incl. Backlog), proof-based ordering; POST accepts proof and defaults to Backlog; PATCH id supports proof/proofOrder
+- Settings: Added colors.proof (no cost, uses business cost color) and colors.textContrast.proof; client defaults wired; admin UI supports proof colors including Backlog
+- UI: Proof diamond layout on xl screens; stacked on smaller; BottomBar includes a “proof” nav button option
+
+## [v2.10.17] — 2025-09-16T17:24:09.549Z
+- (update notes here)
+
+## [v2.10.16] — 2025-09-16T17:15:26.492Z
+- (update notes here)
+
+## [v2.10.15] — 2025-09-16T13:52:50.909Z
+- (update notes here)
+
+## [v2.10.14] — 2025-09-16T13:46:40.769Z
+- (update notes here)
+
+## [v2.10.13] — 2025-09-16T13:17:39.447Z
+- (update notes here)
+
+## [v2.10.12] — 2025-09-16T12:48:38.991Z
+- (update notes here)
+
+## [v2.10.11] — 2025-09-16T12:45:28.409Z
+- (update notes here)
+
+## [v2.10.10] — 2025-09-16T12:12:54.423Z
+- (update notes here)
+
+## [v2.10.9] — 2025-09-16T11:57:12.165Z
+- (update notes here)
+
+## [v2.10.8] — 2025-09-16T11:34:52.888Z
+- (update notes here)
+
+## [v2.10.7] — 2025-09-16T11:16:17.851Z
+- (update notes here)
+
+## [v2.10.6] — 2025-09-16T11:10:47.184Z
+- (update notes here)
+
+## [v2.10.5] — 2025-09-16T10:46:46.122Z
+- (update notes here)
+
+## [v2.10.4] — 2025-09-16T10:30:50.105Z
+- (update notes here)
+
+## [v2.10.3] — 2025-09-16T09:38:47.433Z
+- (update notes here)
+
+## [v2.10.2] — 2025-09-16T09:25:42.815Z
+- (update notes here)
+
+## [v2.10.1] — 2025-09-16T09:06:49.488Z
+- (update notes here)
+
 ## [v2.10.0] — 2025-09-15T12:47:23.695Z
 - (update notes here)
 

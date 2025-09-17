@@ -14,6 +14,12 @@
 - Client
   - components/Board.tsx: manages kanban and matrix views; orchestrates CRUD, native HTML5 drag-and-drop, and layout
     - Kanban shows delegate/decide/do; Matrix shows do/decide/delegate/decline (decline hidden in Kanban)
+  - app/proof/page.tsx: 3x3 grid extended from matrix:
+    - Row1 [#Persona, #Proposal, #Outcome]
+    - Row2 [#Benefit, #decide, #Decline]
+    - Row3 [#Journey, #Validation, #Cost]
+    - DnD parity with /matrix (native HTML5, neighbor-averaging)
+    - Backlog: hidden holding area where new/unmapped cards land until moved
     - Dragging cards supports cross-container moves and intra-container reordering
   - components/BottomBar.tsx: centralized communication/navigation bar; identical across pages
   - app/{kanban,matrix,archive,admin}/page.tsx: each uses a consistent wrapper (xl:h-screen xl:overflow-hidden) with inner flex-1 xl:overflow-hidden content area

@@ -18,6 +18,10 @@ export interface CardDoc extends mongoose.Document {
   order: number // relative position within its status group; lower comes first
   business: 'KeyPartners' | 'KeyActivities' | 'KeyResources' | 'ValuePropositions' | 'CustomerRelationships' | 'Channels' | 'CustomerSegments' | 'Cost' | 'RevenueStream'
   businessOrder: number
+  // Proof layout classification and ordering. We mirror the approach used for 'business'
+  // to keep drag-and-drop stable without reindexing, enabling future cross-layout mapping.
+  proof?: 'Persona' | 'Proposal' | 'Outcome' | 'Benefit' | 'Journey' | 'Validation' | 'Cost'
+  proofOrder?: number
   archived?: boolean
   archivedAt?: Date
   createdAt: Date
@@ -47,6 +51,10 @@ const CardSchema = new Schema<CardDoc>(
     // Business classification used for /business layout; default all cards to ValuePropositions.
     business: { type: String, enum: ['KeyPartners', 'KeyActivities', 'KeyResources', 'ValuePropositions', 'CustomerRelationships', 'Channels', 'CustomerSegments', 'Cost', 'RevenueStream'], default: 'ValuePropositions', index: true },
     businessOrder: { type: Number, required: true, default: 0, index: true },
+    // Proof classification used for /proof layout; default all CREATIONS from /proof to Benefit.
+    // Existing cards created elsewhere will have this undefined until first used in /proof.
+    proof: { type: String, enum: ['Persona', 'Proposal', 'Outcome', 'Benefit', 'decide', 'decline', 'Backlog', 'Journey', 'Validation', 'Cost'], default: undefined, index: true },
+    proofOrder: { type: Number, default: 0, index: true },
     archived: { type: Boolean, default: false, index: true },
     archivedAt: { type: Date, default: null },
   },
@@ -58,6 +66,7 @@ CardSchema.index({ updatedAt: -1 })
 CardSchema.index({ archivedAt: -1 })
 CardSchema.index({ status: 1, order: 1 })
 CardSchema.index({ business: 1, businessOrder: 1 })
+CardSchema.index({ proof: 1, proofOrder: 1 })
 // Unique sparse index so existing docs without uuid don't break; migration will backfill.
 CardSchema.index({ uuid: 1 }, { unique: true, sparse: true })
 

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Card } from '@/types/card'
 import { fetchJSON } from '@/lib/client'
 import { daysBetweenUtc } from '@/lib/date'
-import { interpolateColor } from '@/lib/color'
+import { interpolateColor, withAlpha } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
 import BottomBar from '@/components/BottomBar'
 
@@ -16,6 +16,7 @@ export default function Board({ initialView = 'kanban' }: { initialView?: 'kanba
   const [todo, setTodo] = useState<Card[]>([])
   const [decline, setDecline] = useState<Card[]>([])
   const [view] = useState<'kanban' | 'matrix'>(initialView)
+  const settings = useSettings()
 
   type Status = Card['status']
 
@@ -233,7 +234,7 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
           </Column>
         </div>
       ) : (
-        <div className="xl:pl-16 xl:pt-8 grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-full xl:min-h-0 gap-4 relative items-stretch">
+        <div className="grid grid-cols-1 xl:grid-cols-2 xl:grid-rows-2 xl:h-full xl:min-h-0 gap-4 relative items-stretch">
           <Rect
             title="#do"
             status="do"
@@ -326,18 +327,49 @@ extraChips={[`#${(c as unknown as { business?: Card['business'] }).business || '
               />
             ))}
           </Rect>
-          {/* Axis labels as hashtags */}
-          <div className="hidden md:block absolute left-2 top-1/4 -translate-y-1/2 z-10 pointer-events-none">
-            <div className="-rotate-90 origin-left text-sm font-mono text-black">#important</div>
+          <div className="hidden md:block absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+            {(() => {
+              const bg = settings?.colors?.matrixAxis?.important || '#93c5fd'
+              const b = settings?.colors?.textContrast?.matrixAxis?.important ?? true
+              const fg = b ? '#000' : '#fff'
+              return (
+                <div className="-rotate-90 origin-center">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#important</span>
+                </div>
+              )
+            })()}
           </div>
-          <div className="hidden md:block absolute left-2 top-3/4 -translate-y-1/2 z-10 pointer-events-none">
-            <div className="-rotate-90 origin-left text-sm font-mono text-black">#not-important</div>
+          <div className="hidden md:block absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+            {(() => {
+              const bg = settings?.colors?.matrixAxis?.not_important || '#bfdbfe'
+              const b = settings?.colors?.textContrast?.matrixAxis?.not_important ?? true
+              const fg = b ? '#000' : '#fff'
+              return (
+                <div className="-rotate-90 origin-center">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#not-important</span>
+                </div>
+              )
+            })()}
           </div>
-          <div className="hidden md:block absolute left-1/4 top-2 -translate-x-1/2 z-10 pointer-events-none">
-            <div className="text-sm font-mono text-black">#urgent</div>
+          <div className="hidden md:block absolute left-1/4 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+            {(() => {
+              const bg = settings?.colors?.matrixAxis?.urgent || '#fca5a5'
+              const b = settings?.colors?.textContrast?.matrixAxis?.urgent ?? true
+              const fg = b ? '#000' : '#fff'
+              return (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#urgent</span>
+              )
+            })()}
           </div>
-          <div className="hidden md:block absolute left-3/4 top-2 -translate-x-1/2 z-10 pointer-events-none">
-            <div className="text-sm font-mono text-black">#not-urgent</div>
+          <div className="hidden md:block absolute left-3/4 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+            {(() => {
+              const bg = settings?.colors?.matrixAxis?.not_urgent || '#fecaca'
+              const b = settings?.colors?.textContrast?.matrixAxis?.not_urgent ?? true
+              const fg = b ? '#000' : '#fff'
+              return (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>#not-urgent</span>
+              )
+            })()}
           </div>
         </div>
       )}
@@ -372,14 +404,53 @@ export function Column({ title, status, isActive, onContainerDragOver, onContain
   onContainerDrop: (s: Card['status']) => void
   children: React.ReactNode
 }) {
+  const settings = useSettings()
   return (
     <div
-      className={`flex flex-col xl:h-full xl:min-h-0 md:min-h-0 border rounded-lg p-3 text-black bg-white ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
+className={`flex flex-col xl:h-full xl:min-h-0 md:min-h-0 border rounded-lg p-3 text-black ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
+      style={{ backgroundColor: (() => {
+        const s = String(status)
+        if (s.startsWith('bmc:')) {
+          const key = s.slice(4)
+          const bb = settings?.colors?.businessBadges as Record<string, string> | undefined
+          const col = (bb?.[key]) || '#ffffff'
+          return withAlpha(col, 0.3)
+        }
+        const sc = settings?.colors?.status as Record<string, string> | undefined
+        const col = sc?.[status] || '#ffffff'
+        return withAlpha(col, 0.3)
+      })() }}
       onDragOver={(e) => { e.preventDefault(); try { ((e as unknown as DragEvent).dataTransfer as DataTransfer).dropEffect = 'move' } catch {}; onContainerDragOver(status) }}
       onDragEnter={() => onContainerDragOver(status)}
       onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
     >
-      <div className="text-sm font-mono text-black mb-2">{title}</div>
+      <div className="mb-2">
+        {(() => {
+          // Render column title as a colored chip based on status/business bucket
+          let bg = '#e5e7eb'
+          let fg = '#000'
+          const s = status as string
+          const txt = settings?.colors?.textContrast
+          if (s.startsWith('bmc:')) {
+            const key = s.slice(4)
+            const bb = settings?.colors?.businessBadges as Record<string, string> | undefined
+            const bbTxt = txt?.businessBadges as Record<string, boolean> | undefined
+            bg = (bb?.[key]) || bg
+            const b = bbTxt?.[key]
+            fg = (b ?? true) ? '#000' : '#fff'
+          } else {
+            const sk = s as 'delegate'|'decide'|'do'|'decline'
+            const sc = settings?.colors?.status as Record<string, string> | undefined
+            const stTxt = txt?.status as Record<string, boolean> | undefined
+            bg = (sc?.[sk]) || bg
+            const b = stTxt?.[sk]
+            fg = (b ?? true) ? '#000' : '#fff'
+          }
+          return (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>{title}</span>
+          )
+        })()}
+      </div>
       <div
         className="flex-1 space-y-2 overflow-auto pr-1"
         onDragOver={(e) => { e.preventDefault(); try { ((e as unknown as DragEvent).dataTransfer as DataTransfer).dropEffect = 'move' } catch {}; onContainerDragOver(status) }}
@@ -401,14 +472,57 @@ function Rect({ title, status, isActive, onContainerDragOver, onContainerDrop, c
   onContainerDrop: (s: 'delegate'|'decide'|'do'|'decline') => void
   children: React.ReactNode
 }) {
+  const settings = useSettings()
   return (
     <div
-      className={`border rounded-lg p-3 xl:h-full xl:min-h-0 md:min-h-0 flex flex-col text-black bg-white ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'}`}
+className={`border rounded-lg p-3 xl:h-full xl:min-h-0 md:min-h-0 flex flex-col text-black ${isActive ? 'border-indigo-400 ring-2 ring-indigo-300' : 'border-gray-300'} relative`}
+      style={{ backgroundColor: (() => {
+        const sc = settings?.colors?.status as Record<string, string> | undefined
+        const col = sc?.[status] || '#ffffff'
+        // 30% transparency
+        return withAlpha(col, 0.3)
+      })() }}
       onDragOver={(e) => { e.preventDefault(); onContainerDragOver(status) }}
       onDragEnter={() => onContainerDragOver(status)}
       onDrop={(e) => { e.preventDefault(); onContainerDrop(status) }}
     >
-      <div className="text-sm font-mono text-black mb-2">{title}</div>
+      {(() => {
+        // Inside-rect vertical axis chips for left column: top = #important, bottom = #not-important
+        if (status === 'do' || status === 'delegate') {
+          const axisKey = status === 'do' ? 'important' : 'not_important'
+          const label = status === 'do' ? '#important' : '#not-important'
+          const bg = (settings?.colors?.matrixAxis as Record<string,string> | undefined)?.[axisKey] || (axisKey === 'important' ? '#93c5fd' : '#bfdbfe')
+          const b = (settings?.colors?.textContrast?.matrixAxis as Record<string, boolean> | undefined)?.[axisKey] ?? true
+          const fg = b ? '#000' : '#fff'
+          return (
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 pl-0">
+              <div className="-rotate-90 origin-left -translate-x-1/2">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>{label}</span>
+              </div>
+            </div>
+          )
+        }
+        return null
+      })()}
+      <div className="mb-2 flex flex-col gap-1 items-start">
+        <div className="flex items-center gap-2">
+          {(() => {
+            // Render quadrant title as a colored chip based on status
+            let bg = '#e5e7eb'
+            let fg = '#000'
+            const s = status as string
+            const txt = settings?.colors?.textContrast
+            const sc = settings?.colors?.status as Record<string, string> | undefined
+            const stTxt = txt?.status as Record<string, boolean> | undefined
+            bg = (sc?.[s]) || bg
+            const b = stTxt?.[s]
+            fg = (b ?? true) ? '#000' : '#fff'
+            return (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono" style={{ backgroundColor: bg, color: fg }}>{title}</span>
+            )
+          })()}
+        </div>
+      </div>
       <div className="flex-1 space-y-2 overflow-auto pr-1">
         {children}
       </div>

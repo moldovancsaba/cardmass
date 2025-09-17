@@ -23,6 +23,9 @@ export interface SettingsDoc extends mongoose.Document {
       cost_structure: string
       revenue_streams: string
     }
+    labels?: {
+      archive: string
+    }
     textContrast?: {
       status?: { delegate?: boolean; decide?: boolean; do?: boolean; decline?: boolean }
       matrixAxis?: { important?: boolean; not_important?: boolean; urgent?: boolean; not_urgent?: boolean }
@@ -37,6 +40,7 @@ export interface SettingsDoc extends mongoose.Document {
         cost_structure?: boolean
         revenue_streams?: boolean
       }
+      labels?: { archive?: boolean }
       ranges?: { age?: boolean; rotten?: boolean; archive?: boolean }
     }
   }
@@ -83,6 +87,16 @@ const SettingsSchema = new Schema<SettingsDoc>(
         urgent: { type: String, required: true, default: '#fca5a5' },
         not_urgent: { type: String, required: true, default: '#fecaca' },
       },
+      // New color group for /proof layout; labels match the seven containers.
+      proof: {
+        persona: { type: String, required: true, default: '#e5e7eb' },
+        proposal: { type: String, required: true, default: '#e5e7eb' },
+        outcome: { type: String, required: true, default: '#e5e7eb' },
+        benefit: { type: String, required: true, default: '#e5e7eb' },
+        backlog: { type: String, required: true, default: '#e5e7eb' },
+        journey: { type: String, required: true, default: '#e5e7eb' },
+        validation: { type: String, required: true, default: '#e5e7eb' },
+      },
       businessBadges: {
         key_partners: { type: String, required: true, default: '#e5e7eb' },
         key_activities: { type: String, required: true, default: '#e5e7eb' },
@@ -93,6 +107,9 @@ const SettingsSchema = new Schema<SettingsDoc>(
         customer_segments: { type: String, required: true, default: '#e5e7eb' },
         cost_structure: { type: String, required: true, default: '#e5e7eb' },
         revenue_streams: { type: String, required: true, default: '#e5e7eb' },
+      },
+      labels: {
+        archive: { type: String, required: true, default: '#e5e7eb' },
       },
       textContrast: {
         status: {
@@ -118,10 +135,23 @@ const SettingsSchema = new Schema<SettingsDoc>(
           cost_structure: { type: Boolean, default: true },
           revenue_streams: { type: Boolean, default: true },
         },
+        labels: {
+          archive: { type: Boolean, default: true },
+        },
         ranges: {
           age: { type: Boolean, default: true },
           rotten: { type: Boolean, default: true },
           archive: { type: Boolean, default: true },
+        },
+        // Text contrast for proof chips in /proof layout
+        proof: {
+          persona: { type: Boolean, default: true },
+          proposal: { type: Boolean, default: true },
+          outcome: { type: Boolean, default: true },
+          benefit: { type: Boolean, default: true },
+          backlog: { type: Boolean, default: true },
+          journey: { type: Boolean, default: true },
+          validation: { type: Boolean, default: true },
         }
       },
     },

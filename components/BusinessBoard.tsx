@@ -45,15 +45,17 @@ export default function BusinessBoard() {
       fetchJSON<Card[]>(`/api/cards?business=Cost`),
       fetchJSON<Card[]>(`/api/cards?business=RevenueStream`),
     ])
-    setKp(a)
-    setKa(b)
-    setKr(c)
-    setVp(d)
-    setRel(e)
-    setCh(f)
-    setSeg(g)
-    setCost(h)
-    setRev(i)
+    // Hide declined cards from business view per rule
+    const filt = (arr: Card[]) => arr.filter(c => c.status !== 'decline')
+    setKp(filt(a))
+    setKa(filt(b))
+    setKr(filt(c))
+    setVp(filt(d))
+    setRel(filt(e))
+    setCh(filt(f))
+    setSeg(filt(g))
+    setCost(filt(h))
+    setRev(filt(i))
   }, [])
   useEffect(() => { load() }, [load])
 
@@ -91,6 +93,8 @@ export default function BusinessBoard() {
     setCost(p => p.filter(c => c.id !== id))
     setRev(p => p.filter(c => c.id !== id))
     // insert back according to updated.business
+    // If declined, hide from business view
+    if (updated.status === 'decline') return
     const biz = (updated as unknown as { business?: B }).business || 'ValuePropositions'
     if (biz === 'KeyPartners') setKp(a => insertSorted([...a, updated]))
     if (biz === 'KeyActivities') setKa(a => insertSorted([...a, updated]))
