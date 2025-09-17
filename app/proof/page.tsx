@@ -1,10 +1,10 @@
-import Board from '@/components/Board'
+import ProofBoard from '@/components/ProofBoard'
 
 export default function ProofPage() {
   return (
     <main className="p-4 bg-white text-black flex flex-col xl:h-screen xl:overflow-hidden">
       <div className="flex-1 xl:overflow-hidden">
-        <Board initialView="matrix" />
+        <ProofBoard />
       </div>
     </main>
   )
