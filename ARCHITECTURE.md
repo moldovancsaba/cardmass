@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: v3.1.0
-Generated: 2025-09-20T15:45:39.720Z
+Version: v3.2.0
+Generated: 2025-09-20T16:14:59.417Z
 
 1. Glossary (universal references)
 - card: a single element that has content (the thing you drag, edit, archive).
