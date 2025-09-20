@@ -1,26 +1,33 @@
-# Cardmass — 3-column card chat
+# cardmass
 
-Version: v3.0.4
+Version: 0.2.0
 
-Overview
-Cardmass is a minimal board with multiple layouts:
-- Kanban: #delegate, #decide, #do
-- Matrix (Eisenhower): #do, #decide, #delegate, #decline (decline is only shown here)
+Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
-Native HTML5 drag-and-drop lets you move cards across columns/rectangles and reorder within them. Each card is persisted in MongoDB Atlas with createdAt and updatedAt timestamps. The UI shows “Created X days ago” and “rotten for Y days” derived from those timestamps.
+Links
+- ARCHITECTURE.md — glossary, data model, and file map
+- ROADMAP.md — forward-looking plan (grouped by milestone)
+- TASKLIST.md — active tasks with owners and expected dates
+- RELEASE_NOTES.md — completed releases
+- LEARNINGS.md — decisions and migration notes
 
 Quickstart
-1) Copy .env.local.example to .env.local and set MONGODB_URI
-2) npm run dev (predev bumps PATCH automatically)
-3) Open http://localhost:3000
+1) Install dependencies
+   - npm install
+2) Set up environment
+   - .env.local must include MONGODB_URI and (optionally) MONGODB_DBNAME
+3) Run development server
+   - npm run dev (http://localhost:4000)
 
-Migration (one-time, adds 'order' to existing cards)
-- Dry run: node scripts/migrate-add-order.mjs --dry
-- Execute: node scripts/migrate-add-order.mjs
+Core concepts (universal references)
+- card: single element with content; drag, edit, archive
+- area: labeled territory on a board; placement label per board
+- board: a page that has areas around the same initiative
+- slug: the board name (unique)
+- hashtag: label derived from placements on other boards (display-only)
+- spock: virtual inbox area for unplaced cards on that board; never persisted
 
-Documentation
-- ROADMAP.md
-- TASKLIST.md
-- RELEASE_NOTES.md
-- ARCHITECTURE.md
-- LEARNINGS.md
+Notes
+- No tests (MVP policy)
+- No breadcrumbs (Navigation policy)
+- Version is surfaced via NEXT_PUBLIC_APP_VERSION for metadata alignment; it is not shown in the UI navigation

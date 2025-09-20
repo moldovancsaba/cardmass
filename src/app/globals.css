@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* Force clear, high-contrast defaults regardless of OS theme. */
+:root {
+  --cm-bg: #ffffff;
+  --cm-ink: #0f172a; /* slate-900 */
+}
+
+@theme inline {
+  --color-brand: #0ea5e9; /* sky-500 */
+  --color-ink: var(--cm-ink);
+}
+
+html, body, :root { height: 100%; }
+body {
+  background: var(--cm-bg);
+  color: var(--cm-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+a { color: #0369a1; } /* sky-700 */
+a:hover { color: #0ea5e9; } /* sky-500 */
