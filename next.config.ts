@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version as string,
   },
+  async redirects() {
+    return [
+      { source: "/matrix", destination: "/kanban", permanent: true },
+      { source: "/business", destination: "/kanban", permanent: true },
+      { source: "/archive", destination: "/kanban", permanent: true },
+      { source: "/proof", destination: "/kanban", permanent: true },
+    ]
+  },
 };
 
 export default nextConfig;
