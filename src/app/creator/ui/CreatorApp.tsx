@@ -322,6 +322,32 @@ export default function CreatorApp() {
 
         {/* Column 2 */}
         <div className="flex flex-col gap-2 p-3 border border-black/10 rounded">
+          {/* New: Area editor (select existing, edit label/color, apply) */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium">Select defined label</label>
+            <select
+              className="border border-black/20 rounded px-2 py-1"
+              value={brushAreaId || ''}
+              onChange={e => {
+                const id = e.target.value || null
+                setBrushAreaId(id)
+                if (!id) return
+                const a = store.areas.find(x => x.id === id)
+                if (a) {
+                  setCurrentLabel(a.label)
+                  setCurrentColor(a.color)
+                  // Load tiles into selection for editing (replace selection)
+                  setSelection(new Set(a.tiles))
+                }
+              }}
+            >
+              <option value="">(none)</option>
+              {store.areas.map(a => (
+                <option key={a.id} value={a.id}>{a.label}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium">label</label>
             <input
@@ -347,11 +373,65 @@ export default function CreatorApp() {
               #{slugify(currentLabel || "label")}
             </span>
           </div>
+
+          {/* Apply locally: update selected area fields and (optionally) its tiles with current selection */}
           <button
             className="h-8 px-3 rounded bg-emerald-600 text-white disabled:opacity-50"
+            disabled={!currentLabel.trim() || !brushAreaId}
+            onClick={() => {
+              if (!brushAreaId) return
+              const label = currentLabel.trim()
+              setStore(s => {
+                const idx = s.areas.findIndex(a => a.id === brushAreaId)
+                if (idx === -1) return s
+                const updated = [...s.areas]
+                const prev = updated[idx]
+                updated[idx] = { ...prev, label, color: currentColor, tiles: Array.from(selection) }
+                return { ...s, areas: updated }
+              })
+            }}
+          >apply (local)</button>
+
+          {/* Apply & save: PATCH server to rename/update area; propagates hashtag/label to cards */}
+          <button
+            className="h-8 px-3 rounded bg-blue-600 text-white disabled:opacity-50"
+            disabled={!currentLabel.trim() || !brushAreaId || !store.slug.trim()}
+            onClick={async () => {
+              const label = currentLabel.trim()
+              const slug = (store.slug || '').trim()
+              if (!brushAreaId || !slug) return
+              const prev = store.areas.find(a => a.id === brushAreaId)
+              if (!prev) return
+              try {
+                const res = await fetch(`/api/boards/${encodeURIComponent(slug)}`, {
+                  method: 'PATCH',
+                  headers: { 'content-type': 'application/json' },
+                  body: JSON.stringify({ oldLabel: prev.label, label, color: currentColor, tiles: Array.from(selection) }),
+                })
+                const data = await res.json()
+                if (!res.ok) throw new Error(data?.error || 'Update failed')
+                // Reflect server-updated area locally (by label match)
+                setStore(s => {
+                  const idx = s.areas.findIndex(a => a.id === brushAreaId)
+                  if (idx === -1) return s
+                  const updated = [...s.areas]
+                  updated[idx] = { ...updated[idx], label, color: currentColor, tiles: Array.from(selection) }
+                  return { ...s, areas: updated }
+                })
+                alert(`Updated area '${prev.label}' → '${label}'. Cards updated: ${data.updatedCards ?? 0}`)
+              } catch (e: unknown) {
+                const msg = e instanceof Error ? e.message : 'Update failed'
+                alert(msg)
+              }
+            }}
+          >apply & save</button>
+
+          {/* Legacy add-area (create new label from selection) */}
+          <button
+            className="h-8 px-3 rounded bg-neutral-700 text-white disabled:opacity-50"
             disabled={!currentLabel.trim() || selection.size === 0}
             onClick={commitArea}
-          >apply</button>
+          >add new label from selection</button>
         </div>
 
         {/* Column 3 */}
