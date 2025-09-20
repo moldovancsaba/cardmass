@@ -1,6 +1,6 @@
 {
   "name": "cardmass",
-  "version": "3.0.4",
+  "version": "3.1.0",
   "private": true,
   "scripts": {
     "bump:patch": "npm version patch --no-git-tag-version && node scripts/sync-version.mjs",
@@ -30,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+"typescript": "5.4.5",
+    "mongoose": "^8.3.2"
   }
 }

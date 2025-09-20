@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.2.0
+Version: v3.1.0
 
-Updated: 2025-09-20T14:08:35.000Z
+Updated: 2025-09-20T15:45:39.720Z
 
 ## Milestone: N-dimensional card placements
 - Priority: High

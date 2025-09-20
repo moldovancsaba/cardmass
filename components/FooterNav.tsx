@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
-import BottomBar from '@/components/BottomBar'
+import BottomBar from './BottomBar'
 
 export default function FooterNav() {
   const router = useRouter()

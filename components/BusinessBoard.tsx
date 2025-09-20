@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { fetchJSON } from '@/lib/client'
 import type { Card } from '@/types/card'
-import BottomBar from '@/components/BottomBar'
+import BottomBar from './BottomBar'
 import { Column as BoardColumn, CardItem as BoardCardItem } from '@/components/Board'
 
 // BusinessBoard: simplified 3-column board copied from Kanban behavior

@@ -7,7 +7,7 @@ import { fetchJSON } from '@/lib/client'
 import { daysBetweenUtc } from '@/lib/date'
 import { interpolateColor, withAlpha } from '@/lib/color'
 import { useSettings } from '@/lib/settings'
-import BottomBar from '@/components/BottomBar'
+import BottomBar from './BottomBar'
 
 export default function Board({ initialView = 'kanban', axisHidden = false, titleOverrides = {} as Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>>, createDefaultStatus = 'decide' }: { initialView?: 'kanban' | 'matrix', axisHidden?: boolean, titleOverrides?: Partial<Record<'do' | 'decide' | 'delegate' | 'decline', string>>, createDefaultStatus?: Card['status'] }) {
   const router = useRouter()
