@@ -58,11 +58,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
       if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 })
       const ba = (existing as CardDoc).boardAreas as unknown
       const isObj = ba && typeof ba === 'object' && !Array.isArray(ba)
-      const wantsClear = (body.boardArea.areaLabel || '') === ''
       if (!isObj) {
         // If not an object, unset whole boardAreas first; this prevents path conflicts
         await col.updateOne({ _id }, { $unset: { boardAreas: '' }, $set: { updatedAt: new Date() } })
-        // If the request was a clear, we're done normalizing; fall through to main update (which may be no-op)
+        // Then proceed with the main update which may be a clear or set depending on payload
       }
     }
 
