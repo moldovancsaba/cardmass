@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from 'react'
-import BottomBar from '@/components/BottomBar'
+import BottomBar from './BottomBar'
 import { useRouter } from 'next/navigation'
 import { useSettings } from '@/lib/settings'
 import { fetchJSON } from '@/lib/client'
