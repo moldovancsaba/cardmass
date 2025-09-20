@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongoose'
 import { Card } from '@/models/Card'
-import type { Status } from '@/app/api/cards/route'
 import { randomUUID } from 'node:crypto'
 
 export const runtime = 'nodejs'
@@ -12,6 +11,10 @@ const allowedStatuses = [
   'bmc:customer_relationships', 'bmc:channels', 'bmc:customer_segments',
   'bmc:cost_structure', 'bmc:revenue_streams'
 ] as const
+
+// Local type derived from allowedStatuses to avoid cross-module type imports
+// which can resolve to a different "app" tree when using the src/ directory.
+type Status = (typeof allowedStatuses)[number]
 
 // GET /api/cards/[id]
 export async function GET(_req: Request, context: unknown) {
