@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 // Why: Matches requirements for direct, visual creation without backend dependence.
 
 type TileId = string; // "r-c"
-interface Area { id: string; label: string; color: string; tiles: TileId[] }
+interface Area { id: string; label: string; color: string; tiles: TileId[]; textBlack?: boolean }
 interface Store {
   version: number;
   slug: string;
@@ -37,7 +37,11 @@ const defaultStore: Store = {
   areas: [],
 };
 
-export default function CreatorApp() {
+export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legacy' | 'org'; orgUUID?: string } = {}) {
+  // mode:
+  // - 'legacy': uses slug-based endpoints (/api/boards/:slug) for load/save/update/delete
+  // - 'org': create boards under a specific organization via POST /api/v1/organizations/{orgUUID}/boards;
+  //          patch/delete by slug are disabled to avoid non-UUID routing. This reuses the same grid UI.
   const [store, setStore] = useState<Store>(defaultStore);
   const [loaded, setLoaded] = useState(false);
 
@@ -73,6 +77,20 @@ export default function CreatorApp() {
   // Load from server if ?load=slug is present
   const searchParams = useSearchParams();
   useEffect(() => {
+    const boardUUID = searchParams.get('board')
+    if (mode === 'org') {
+      if (!boardUUID || !orgUUID) return
+      ;(async () => {
+        try {
+          const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(boardUUID)}`, { headers: { 'X-Organization-UUID': orgUUID }, cache: 'no-store' })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data?.error?.message || data?.error || 'Load failed')
+          setStore({ version: 1, slug: data.slug || '', rows: Number(data.rows) || 0, cols: Number(data.cols) || 0, areas: Array.isArray(data.areas) ? data.areas : [] })
+        } catch (e) { console.error(e) }
+      })()
+      return
+    }
+    // legacy slug loader
     const slug = searchParams.get("load");
     if (!slug) return;
     (async () => {
@@ -392,39 +410,6 @@ export default function CreatorApp() {
             }}
           >apply (local)</button>
 
-          {/* Apply & save: PATCH server to rename/update area; propagates hashtag/label to cards */}
-          <button
-            className="h-8 px-3 rounded bg-blue-600 text-white disabled:opacity-50"
-            disabled={!currentLabel.trim() || !brushAreaId || !store.slug.trim()}
-            onClick={async () => {
-              const label = currentLabel.trim()
-              const slug = (store.slug || '').trim()
-              if (!brushAreaId || !slug) return
-              const prev = store.areas.find(a => a.id === brushAreaId)
-              if (!prev) return
-              try {
-                const res = await fetch(`/api/boards/${encodeURIComponent(slug)}`, {
-                  method: 'PATCH',
-                  headers: { 'content-type': 'application/json' },
-                  body: JSON.stringify({ oldLabel: prev.label, label, color: currentColor, tiles: Array.from(selection) }),
-                })
-                const data = await res.json()
-                if (!res.ok) throw new Error(data?.error || 'Update failed')
-                // Reflect server-updated area locally (by label match)
-                setStore(s => {
-                  const idx = s.areas.findIndex(a => a.id === brushAreaId)
-                  if (idx === -1) return s
-                  const updated = [...s.areas]
-                  updated[idx] = { ...updated[idx], label, color: currentColor, tiles: Array.from(selection) }
-                  return { ...s, areas: updated }
-                })
-                alert(`Updated area '${prev.label}' → '${label}'. Cards updated: ${data.updatedCards ?? 0}`)
-              } catch (e: unknown) {
-                const msg = e instanceof Error ? e.message : 'Update failed'
-                alert(msg)
-              }
-            }}
-          >apply & save</button>
 
           {/* Legacy add-area (create new label from selection) */}
           <button
@@ -445,48 +430,53 @@ export default function CreatorApp() {
               clearSelection();
             }}
           >clear</button>
+          {/* Create/Save board: org-scoped (uuid) only. */}
           <button
             className="h-8 px-3 rounded bg-blue-600 text-white"
             onClick={async () => {
               const slug = (store.slug || "").trim();
-              if (!slug) { alert("Set a slug before saving."); return; }
+              const rows = Number(store.rows) || 0
+              const cols = Number(store.cols) || 0
+              if (!slug) { alert("Set a slug before creating."); return; }
+              if (rows <= 0 || cols <= 0) { alert("Set rows and cols before creating."); return; }
               try {
-                const res = await fetch(`/api/boards/${encodeURIComponent(slug)}`, {
-                  method: "PUT",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ rows: store.rows, cols: store.cols, areas: store.areas }),
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data?.error || "Save failed");
-                alert(`Saved: ${slug} (v${data.version}).`);
+                if (mode === 'org') {
+                  if (!orgUUID) { alert('Missing organization UUID'); return }
+                  const boardUUID = searchParams.get('board')
+if (boardUUID) {
+                    // PATCH existing board (disallow saving empty areas)
+                    if (!Array.isArray(store.areas) || store.areas.length === 0) { alert('Cannot save a board with no areas. Delete the board instead.'); return }
+                    const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(boardUUID)}`, {
+                      method: 'PATCH',
+                      headers: { 'content-type': 'application/json', 'X-Organization-UUID': orgUUID },
+                      body: JSON.stringify({ slug, rows, cols, areas: store.areas })
+                    })
+                    const data = await res.json()
+                    if (!res.ok) throw new Error(data?.error?.message || data?.error || 'Save failed')
+                    try { const bc = new BroadcastChannel('cardmass'); bc.postMessage({ type: 'board:updated' }); bc.close() } catch {}
+                    // Redirect to organization board list (requested behavior)
+                    window.location.assign(`/${encodeURIComponent(orgUUID)}`)
+                  } else {
+// CREATE new board (require at least one area)
+                    if (!Array.isArray(store.areas) || store.areas.length === 0) { alert('Define at least one area before creating this board.'); return }
+                    const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards`, {
+                      method: "POST",
+                      headers: { "content-type": "application/json", 'X-Organization-UUID': orgUUID },
+                      body: JSON.stringify({ slug, rows, cols, areas: store.areas }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data?.error?.message || data?.error || "Create failed");
+                    try { const bc = new BroadcastChannel('cardmass'); bc.postMessage({ type: 'board:created' }); bc.close() } catch {}
+                    // Redirect to organization board list (requested behavior)
+                    window.location.assign(`/${encodeURIComponent(orgUUID)}`)
+                  }
+                }
               } catch (e: unknown) {
-                const msg = e instanceof Error ? e.message : "Save failed. Check MONGODB_URI in .env.local";
+                const msg = e instanceof Error ? e.message : "Create failed. Check MONGODB_URI in .env.local";
                 alert(msg);
               }
             }}
-          >save</button>
-          <a
-            className="h-8 px-3 rounded border border-black/20 flex items-center justify-center"
-            href={`/use/${encodeURIComponent(store.slug || "board")}`}
-          >goto</a>
-          <button
-            className="h-8 px-3 rounded bg-red-600 text-white"
-            onClick={async () => {
-              const slug = (store.slug || "").trim();
-              if (!slug) { alert("Set a slug before delete."); return; }
-              const ok = confirm(`Delete '${slug}' from server? This cannot be undone.`);
-              if (!ok) return;
-              try {
-                const res = await fetch(`/api/boards/${encodeURIComponent(slug)}`, { method: "DELETE" });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data?.error || "Delete failed");
-                alert(`Deleted: ${slug}`);
-              } catch (e: unknown) {
-                const msg = e instanceof Error ? e.message : "Delete failed.";
-                alert(msg);
-              }
-            }}
-          >delete</button>
+          >{mode === 'org' ? (searchParams.get('board') ? 'Save' : 'Create') : 'save'}</button>
         </div>
       </div>
 
@@ -543,9 +533,9 @@ export default function CreatorApp() {
                   title={assigned ? `#${slugify(assigned.label)} (${assigned.color})` : id}
                 >
                   {assigned && (
-                    <span
-                      className="absolute bottom-1 left-1 text-[10px] px-1 rounded text-white"
-                      style={{ backgroundColor: assigned.color }}
+<span
+                      className="absolute bottom-1 left-1 text-[10px] px-1 rounded"
+                      style={{ backgroundColor: assigned.color, color: (assigned as Area).textBlack !== false ? '#000' : '#fff' }}
                     >#{slugify(assigned.label)}</span>
                   )}
                 </button>
@@ -571,12 +561,27 @@ export default function CreatorApp() {
                 title={brushAreaId === a.id ? 'Brush active: click to turn off' : 'Click to use as brush'}
               >
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-white" style={{ backgroundColor: a.color }}>
+<span className="px-2 py-0.5 rounded" style={{ backgroundColor: a.color, color: (a.textBlack !== false) ? '#000' : '#fff' }}>
                     #{slugify(a.label)}
                   </span>
                   <span className="text-xs opacity-70">{a.tiles.length} tile(s)</span>
                 </div>
-                <button className="text-red-600 text-sm" onClick={(e) => { e.stopPropagation(); removeArea(a.id) }}>Delete</button>
+                <div className="flex items-center gap-3">
+                  <label className="text-xs flex items-center gap-1" onClick={(e)=>e.stopPropagation()}>
+                    <input type="checkbox" checked={a.textBlack !== false} onChange={(e)=>{
+                      e.stopPropagation();
+                      setStore(s => {
+                        const idx = s.areas.findIndex(x => x.id === a.id)
+                        if (idx === -1) return s
+                        const updated = [...s.areas]
+                        updated[idx] = { ...updated[idx], textBlack: e.target.checked }
+                        return { ...s, areas: updated }
+                      })
+                    }} />
+                    <span>BLACK text</span>
+                  </label>
+                  <button className="text-red-600 text-sm" onClick={(e) => { e.stopPropagation(); removeArea(a.id) }}>Delete</button>
+                </div>
               </li>
             ))}
           </ul>

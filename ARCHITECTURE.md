@@ -1,76 +1,94 @@
 # ARCHITECTURE
 
-Version: 0.2.0
-Generated: 2025-09-20T14:08:35.000Z
+Version: 0.5.0
+Generated: 2025-09-26T11:31:31.110Z
 
-1. Glossary (universal references)
-- card: a single element that has content (the thing you drag, edit, archive).
-- area: a specific territory on a board, identified by a label (canonical, lowercase). When a card is placed into an area on a given board, that area’s label becomes the card’s placement for that board.
-- board: a page defined by a grid of areas around the same initiative.
-- slug: the unique name of a board (string), used in routes and in per-board placements.
-- hashtag: a label that refers to an N-dimensional position (derived from placements on other boards and shown as #label). Hashtags are not stored as a separate field; they are computed from placements (see below).
-- placement: the per-board assignment of a card to an area on a specific board (persisted in boardAreas[boardSlug] = areaLabel).
-- spock: a virtual inbox area per board. It is used only for display when a card has no placement on that board. It is never persisted to a card.
+1. Overview
+- Single-DB, multi-tenant architecture with strict organization scoping.
+- UUID-first design: organizations, boards, and cards are identified by UUID v4.
+- Hashed routes only in the UI: /{organizationUUID}/{boardUUID}. Slugs are metadata and never used for routing.
+- All timestamps must be ISO 8601 with milliseconds in UTC.
+- No tests (MVP policy) and no breadcrumbs (Navigation policy).
 
-2. Data model
-- Collection: cards
-- Type: CardDoc (server) / Card (client)
-  - id/_id: string/ObjectId
+2. Glossary
+- organization: top-level tenant. All data is scoped under organizationId (UUID v4) and enforced at API boundaries.
+- board: a page defined by a grid of areas around the same initiative. Identified by uuid (UUID v4). slug is metadata.
+- area: a labeled territory on a board. Area labels are canonical (lowercase) and drive per-board placements.
+- card: a single element with content. Cards are classifiable across boards via per-board placements.
+- placement: per-board assignment of a card to an area on a specific board (persisted in boardAreas[boardSlug] = areaLabel). Never persist 'spock'.
+- spock: a virtual inbox area per board, used for display when a card has no placement on that board. Never persisted.
+
+3. Data model (MongoDB)
+- organizations
+  - uuid: string (v4, unique)
+  - name: string
+  - slug: string (unique; admin UX only)
+  - description?: string
+  - isActive: boolean
+  - createdAt / updatedAt: ISO string (server emits ISO with ms, UTC)
+  - Indexes: { uuid: 1 } unique, { slug: 1 } unique
+
+- boards
+  - uuid: string (v4, unique)
+  - organizationId: string (org uuid; required; indexed)
+  - slug?: string (metadata only)
+  - rows: number
+  - cols: number
+  - areas: Area[]
+  - version: number
+  - createdAt / updatedAt: Date (server) / ISO (client)
+  - Indexes: { uuid: 1 } unique, { organizationId: 1 }, { organizationId: 1, updatedAt: -1 }
+
+- cards
+  - uuid: string (v4, unique)
+  - organizationId: string (org uuid; required; indexed)
   - text: string
   - status: 'delegate' | 'decide' | 'do' | 'decline'
   - order: number
-  - createdAt / updatedAt: Date (server) / ISO string (client)
-  - boardSlug?: string (legacy creation source, optional)
+  - createdAt / updatedAt: Date (server) / ISO (client)
+  - boardSlug?: string (legacy; creation source, optional)
   - areaLabel?: string (deprecated; legacy single label)
   - boardAreas?: Record<string, string>
-    Why: Enables N-dimensional classification by allowing each card to have a placement on each board independently.
-    Rule: Never persist 'spock'. Clearing a placement is represented by deleting boardAreas[boardSlug].
+  - Indexes: { uuid: 1 } unique, { organizationId: 1, status: 1, updatedAt: -1 }
 
-3. Core behavior
-- Rendering on a board (GridBoard):
-  - Build the set of areas for the current board (boxes) and detect whether 'spock' exists.
-  - For each card:
-    - If boardAreas[currentBoardSlug] exists and matches an area on this board → render under that area.
-    - Else, if 'spock' exists on this board → render under 'spock'.
-    - Else → do not render this card on this board (hidden here).
-  - Hashtags for a card on board X are all placements from other boards (values of boardAreas for slugs != X), prefixed with '#', excluding spock (not persisted).
+4. API surface (App Router)
+- Organizations
+  - GET /api/v1/organizations — list (public)
+  - POST /api/v1/organizations — create (public); generates uuid; ISO timestamps
+  - GET /api/v1/organizations/[orgUUID] — fetch by uuid (validate v4)
+  - GET /api/v1/organizations/slug/[slug] — admin UX by slug (not for scoping)
 
-- DnD on a board (GridBoard):
-  - Drop into a non-spock area: PATCH /api/cards/:id with { boardArea: { boardSlug, areaLabel } } and order.
-  - Drop into spock: PATCH /api/cards/:id with { boardArea: { boardSlug, areaLabel: '' } } and order (clears placement for that board).
+- Boards (org scoped; requires X-Organization-UUID header to match path)
+  - GET /api/v1/organizations/[orgUUID]/boards — list for org
+  - POST /api/v1/organizations/[orgUUID]/boards — create under org; generates uuid; ISO timestamps
+  - GET /api/v1/organizations/[orgUUID]/boards/[boardUUID] — fetch within org
+  - PATCH /api/v1/organizations/[orgUUID]/boards/[boardUUID] — update allowed fields; bumps version; ISO timestamps
+  - DELETE /api/v1/organizations/[orgUUID]/boards/[boardUUID] — delete within org
 
-- Creation (SpockBar):
-  - POST /api/cards without areaLabel. New cards start unplaced; they appear in 'spock' on boards that have it or are hidden on boards without it.
+- Cards (org scoped; requires X-Organization-UUID header)
+  - GET /api/v1/organizations/[orgUUID]/cards?status=&boardUUID= — list for org; optional filters
+  - POST /api/v1/organizations/[orgUUID]/cards — create; inserts at top (min(order) - 1); ISO timestamps
+  - GET /api/v1/organizations/[orgUUID]/cards/[cardUUID] — fetch within org
+  - PATCH /api/v1/organizations/[orgUUID]/cards/[cardUUID] — partial update; ISO timestamps
+  - DELETE /api/v1/organizations/[orgUUID]/cards/[cardUUID] — delete within org
 
-4. Files and responsibilities
-- src/app/use/[slug]/page.tsx
-  - Loads the board, computes merged area boxes per label, passes boxes to the client GridBoard.
-- src/app/use/[slug]/GridBoard.tsx
-  - Client renderer for the board grid with DnD.
-  - Fetches all cards (GET /api/cards) and computes per-board grouping.
-  - Sends PATCH with boardArea payload on drops.
-- src/app/use/[slug]/SpockBar.tsx
-  - Bottom SPOCK bar (primary navigation on boards): shows up to 3 direct board links (alphabetical) + Admin, with a hamburger overflow for more; preserves card creation; never persists 'spock'.
-- src/app/api/cards/route.ts (GET, POST)
-  - Returns Card with boardAreas; accepts POST without areaLabel/spock.
-- src/app/api/cards/[id]/route.ts (PATCH, DELETE)
-  - PATCH supports { boardArea: { boardSlug, areaLabel } } semantics and avoids persisting 'spock'.
-- src/lib/types.ts
-  - Declares CardDoc/Card with boardAreas; areaLabel marked deprecated.
-- src/components/SpockNav.tsx
-  - Server minimal top nav: brand + Admin only (no version badge, no Creator).
 
-5. Naming & casing
-- Area labels are canonicalized by Creator and stored lowercase; code treats labels case-insensitively and uses canonical labels from the board definition when making updates.
-- Hashtags display using the stored/canonical label value (#label).
+5. Routing
+- Hashed board URL: /{organizationUUID}/{boardUUID}
+- Organization admin by slug (metadata): /organization/[slug]
+- Slugs never appear in routing for the main board view.
 
-6. Non-goals and constraints
-- No tests (MVP policy).
-- No breadcrumbs (Navigation policy).
-- Back-compat: areaLabel remains for legacy; new UI logic ignores it.
+6. Access guard (middleware)
+- Middleware enforces that for org-scoped paths, the X-Organization-UUID header exists, is a UUID v4, and matches the path segment.
+- Defense-in-depth: handlers also validate ids and organizationId ownership before reads/writes.
 
-7. Operational scripts
-- scripts/maintenance/clear-spock-area.mjs: clears any legacy 'spock' persisted in areaLabel.
+7. Current limitations and next steps
+- boardAreas are still keyed by board slug (compat). A follow-up migration will introduce placements keyed by boardUUID.
+- Legacy routes remain until Sunset; UI no longer depends on them.
 
-8. Version
-- Surfaced to the client via NEXT_PUBLIC_APP_VERSION for metadata alignment. Not shown in the UI navigation. Keep package.json and docs in sync per Versioning and Release Protocol.
+8. Operational scripts
+- scripts/migrations/001-add-organizations-and-backfill-uuids.mjs — creates organizations collection, backfills uuids and organizationId on boards/cards, and ensures indexes. Supports MIGRATE_DRY_RUN.
+- scripts/maintenance/clear-spock-area.mjs — clears any legacy 'spock' in areaLabel.
+
+9. Version & governance
+- Follow Versioning and Release Protocol. Ensure version is consistent in package.json and all docs. All timestamps are ISO 8601 with ms, UTC.

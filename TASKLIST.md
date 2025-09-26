@@ -1,31 +1,27 @@
 # TASKLIST
 
+Version: 0.5.0
 
-Version: 0.2.0
+Updated: 2025-09-26T11:31:31.110Z
 
-Updated: 2025-09-20T14:08:35.000Z
-
-- Implement per-board placements (boardAreas)
+- Per-area label text color (Creator + Tagger propagation)
   - Owner: ai
-  - Expected: 2025-09-21T12:00:00.000Z
+  - Expected: 2025-09-26T12:00:00.000Z
 
-- Update GridBoard grouping and DnD for boardArea semantics
+- Configure MongoDB connection for migrations
   - Owner: ai
-  - Expected: 2025-09-21T12:00:00.000Z
+  - Expected: 2025-09-22T18:30:00.000Z
 
-- Remove persisted 'spock' on creation in SpockBar
+- Run migration to backfill uuids and organizationId (apply)
   - Owner: ai
-  - Expected: 2025-09-21T12:00:00.000Z
+  - Expected: 2025-09-23T12:00:00.000Z
 
-- Compute hashtags from other boards’ placements
-  - Owner: ai
-  - Expected: 2025-09-21T12:00:00.000Z
 
-- Write ARCHITECTURE.md with glossary and file map
+- Migrate boardAreas to boardUUID-keyed placements
   - Owner: ai
-  - Expected: 2025-09-21T13:00:00.000Z
+  - Expected: 2025-10-15T12:00:00.000Z
 
-- Add maintenance script to clear legacy 'spock' areaLabel
+- Documentation sync and governance
   - Owner: ai
-  - Expected: 2025-09-21T14:00:00.000Z
+  - Expected: 2025-09-24T12:00:00.000Z
 

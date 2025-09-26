@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
+type NavItem = { id: string; label: string }
+
 type Props = {
   // Functional: creation
   disabled?: boolean // disables the input only; nav remains active
@@ -12,12 +14,16 @@ type Props = {
   onAdminNav?: () => void
 
   // SPOCK board navigation (new)
-  boardLinks?: string[] // list of board slugs for direct navigation
-  currentBoard?: string // active board slug for highlight
+  boardLinks?: string[] // legacy: list of board slugs
+  currentBoard?: string // active id/slug for highlight
   maxVisibleBoards?: number // default 3
+
+  // Extended org-scoped navigation (optional)
+  linkItems?: NavItem[] // items with custom label and id (uuid or slug)
+  linkBuilder?: (id: string) => string // builds href for a given id
 }
 
-export default function BottomBar({ disabled = false, onCreate, onAdminNav, boardLinks = [], currentBoard, maxVisibleBoards = 3 }: Props) {
+export default function BottomBar({ disabled = false, onCreate, onAdminNav, boardLinks = [], currentBoard, maxVisibleBoards = 3, linkItems, linkBuilder }: Props) {
   const [value, setValue] = useState('')
   const [open, setOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
@@ -50,9 +56,11 @@ export default function BottomBar({ disabled = false, onCreate, onAdminNav, boar
     }
   }
 
-  const sorted = [...(boardLinks || [])].sort((a, b) => a.localeCompare(b))
-  const visible = sorted.slice(0, Math.max(0, maxVisibleBoards))
-  const overflow = sorted.slice(Math.max(0, maxVisibleBoards))
+  const items: NavItem[] = linkItems && linkItems.length
+    ? [...linkItems].sort((a, b) => a.label.localeCompare(b.label))
+    : [...(boardLinks || [])].sort((a, b) => a.localeCompare(b)).map((s) => ({ id: s, label: s }))
+  const visible = items.slice(0, Math.max(0, maxVisibleBoards))
+  const overflow = items.slice(Math.max(0, maxVisibleBoards))
 
   return (
     <div className="mt-3 w-full bg-white border border-gray-300 rounded-md p-2 flex items-center gap-2 shrink-0 xl:mt-2">
@@ -72,14 +80,14 @@ export default function BottomBar({ disabled = false, onCreate, onAdminNav, boar
       {/* Navigation group: boards (max 3) + overflow + Admin */}
       <div className="flex items-center gap-2">
         {/* Direct board links */}
-        {visible.map((slug) => (
+        {visible.map((it) => (
           <Link
-            key={slug}
-            href={`/use/${encodeURIComponent(slug)}`}
-            aria-current={slug === currentBoard ? 'page' : undefined}
-            className={`border border-gray-300 rounded px-3 py-1 text-sm ${slug === currentBoard ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}
+            key={it.id}
+            href={linkBuilder ? linkBuilder(it.id) : `/use/${encodeURIComponent(it.id)}`}
+            aria-current={it.id === currentBoard ? 'page' : undefined}
+            className={`border border-gray-300 rounded px-3 py-1 text-sm ${it.id === currentBoard ? 'bg-black text-white' : 'bg-white text-black hover:bg-black/5'}`}
           >
-            {slug}
+            {it.label}
           </Link>
         ))}
 
@@ -104,16 +112,16 @@ export default function BottomBar({ disabled = false, onCreate, onAdminNav, boar
                 className="absolute right-0 bottom-full mb-2 z-50 bg-white border border-gray-300 rounded shadow-md max-h-[50dvh] overflow-auto min-w-[160px]"
               >
                 <ul className="py-1">
-                  {sorted.map((slug) => (
-                    <li key={`ov-${slug}`} role="none">
+                  {items.map((it) => (
+                    <li key={`ov-${it.id}`} role="none">
                       <Link
                         role="menuitem"
-                        href={`/use/${encodeURIComponent(slug)}`}
-                        aria-current={slug === currentBoard ? 'page' : undefined}
-                        className={`block px-3 py-1 text-sm hover:bg-black/5 ${slug === currentBoard ? 'font-semibold' : ''}`}
+                        href={linkBuilder ? linkBuilder(it.id) : `/use/${encodeURIComponent(it.id)}`}
+                        aria-current={it.id === currentBoard ? 'page' : undefined}
+                        className={`block px-3 py-1 text-sm hover:bg-black/5 ${it.id === currentBoard ? 'font-semibold' : ''}`}
                         onClick={() => setOpen(false)}
                       >
-                        {slug}
+                        {it.label}
                       </Link>
                     </li>
                   ))}
