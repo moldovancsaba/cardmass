@@ -228,9 +228,9 @@ return [bid, map, tmap] as const
   }
 
   return (
-    <div className="w-full h-screen grid grid-cols-[320px_1fr]">
+    <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-3">
       {/* Left: Inbox & Create */}
-      <aside className="relative border-r border-gray-200 p-3 overflow-hidden h-full flex flex-col">
+      <aside className="order-2 lg:order-1 lg:relative lg:border-r border-gray-200 p-3 overflow-hidden h-full flex flex-col">
         <h2 className="text-sm font-semibold mb-2">Inbox</h2>
         {loading && <div className="text-xs text-gray-500">Loading…</div>}
         {error && <div className="text-xs text-red-600">{error}</div>}
@@ -249,7 +249,7 @@ return [bid, map, tmap] as const
           {inbox.map(c => {
             const entries = Object.entries(c.boardAreas || {}) as Array<[string, string]>
             return (
-              <div key={c.id} draggable onDragStart={(e)=>{ try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }} className="relative border border-gray-300 rounded px-2 py-2 text-sm bg-white text-black shadow-sm cursor-grab hover:bg-black/5" title={c.text}>
+              <div key={c.id} draggable onDragStart={(e)=>{ try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }} className="relative border border-gray-300 rounded px-2 py-2 text-sm bg-white text-black shadow-sm cursor-grab hover:bg-black/5 w-full" title={c.text} style={{ maxWidth: 320 }}>
                 {/* content */}
                 <div className="pr-0">
                   {editingId===c.uuid ? (
@@ -397,7 +397,7 @@ return (
       </aside>
 
       {/* Right: Grid with areas */}
-      <section className="relative w-full h-full">
+      <section className="order-1 lg:order-2 relative w-full h-full">
         <div className="w-full h-full grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}>
           {/* background grid */}
           {Array.from({ length: rows }, (_, r) => r).map((r) => (
@@ -431,7 +431,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2">
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2" style={{ gridTemplateColumns: `repeat(auto-fill, minmax(320px, 1fr))` }}>
                 <div className="flex flex-col">
                   {/* slot before the first card (position 0) */}
                   {/*
@@ -455,8 +455,8 @@ return (
                         draggable
                         onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
                         onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
-                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 ${draggingId===c.uuid ? 'opacity-60' : ''}`}
-                        title={c.text}
+                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        title={c.text} style={{ maxWidth: 320 }}
                       >
                         <div className="pr-0">
                           {editingId===c.uuid ? (
