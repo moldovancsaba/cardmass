@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.8.0
+Version: 0.9.0
 
-Updated: 2025-09-27T15:47:28.000Z
+Updated: 2025-09-27T16:12:42.000Z
 
 ## Milestone (Q4 2025): UUID-first multi-tenant foundation
 - Priority: High
@@ -19,6 +19,11 @@ Updated: 2025-09-27T15:47:28.000Z
    - Owner: ai
    - Expected: 2025-09-27T16:10:00.000Z
    - Notes: Enforce minimum font size equal to Inbox card content (text-sm ~ 14px) across all UI, including hashtags and admin microcopy.
+
+11) Iconify card actions with Material Symbols
+   - Owner: ai
+   - Expected: 2025-09-27T16:30:00.000Z
+   - Notes: Replace 'open, archive, edit, del' with 'pageview, archive, edit_note, delete' icons in Tagger cards; load Google Fonts Material Symbols.
    - Owner: ai
    - Expected: 2025-09-27T14:00:00.000Z
    - Notes: Simplify Card view (no title/status/order; split timestamps; remove actions); ensure all Card page links open in a new tab with rel="noopener noreferrer". Forward-looking: centralize URL helper for Card links.

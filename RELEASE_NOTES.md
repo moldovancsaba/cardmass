@@ -1,5 +1,9 @@
 # RELEASE_NOTES
 
+## [v0.9.0] — 2025-09-27T16:12:42.000Z
+- Changed: Replaced card action labels with Material Symbols icons (pageview, archive, edit_note, delete) in Inbox and placed cards; loaded Google Fonts Material Symbols.
+- Docs: Updated version stamps and delivery logs.
+
 ## [v0.8.0] — 2025-09-27T15:47:28.000Z
 - Changed: Enforced global minimum text size baseline equal to Inbox card content (text-sm: 14px) across the app, including hashtags and admin texts.
 - Docs: Updated version stamps and roadmap/task references.

@@ -288,10 +288,18 @@ return [bid, map, tmap] as const
                     </>
                   ) : (
                     <>
-                      <a href={`/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 text-xs rounded bg-white hover:bg-black/5 border border-gray-300">open</a>
-                      <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200">archive</button>
-                      <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-2 py-0.5 text-xs rounded bg-black/5 hover:bg-black/10">edit</button>
-                      <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-red-50 hover:bg-red-100 text-red-700">del</button>
+                      <a href={`/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 text-xs rounded bg-white hover:bg-black/5 border border-gray-300" aria-label="open card in new tab" title="open">
+                        <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
+                      </a>
+                      <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200" aria-label="archive card" title="archive">
+                        <span className="material-symbols-outlined" aria-hidden="true">archive</span>
+                      </button>
+                      <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-2 py-0.5 text-xs rounded bg-black/5 hover:bg-black/10" aria-label="edit card" title="edit">
+                        <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
+                      </button>
+                      <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-red-50 hover:bg-red-100 text-red-700" aria-label="delete card" title="delete">
+                        <span className="material-symbols-outlined" aria-hidden="true">delete</span>
+                      </button>
                     </>
                   )}
                 </div>
@@ -487,10 +495,18 @@ return [bid, map, tmap] as const
                             </>
                           ) : (
                             <>
-                              <a href={`/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 text-xs rounded bg-white hover:bg-black/5 border border-gray-300">open</a>
-                              <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200">archive</button>
-                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-2 py-0.5 text-xs rounded bg-black/5 hover:bg-black/10">edit</button>
-                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-red-50 hover:bg-red-100 text-red-700">del</button>
+                              <a href={`/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 text-xs rounded bg-white hover:bg-black/5 border border-gray-300" aria-label="open card in new tab" title="open">
+                                <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
+                              </a>
+                              <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200" aria-label="archive card" title="archive">
+                                <span className="material-symbols-outlined" aria-hidden="true">archive</span>
+                              </button>
+                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-2 py-0.5 text-xs rounded bg-black/5 hover:bg-black/10" aria-label="edit card" title="edit">
+                                <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
+                              </button>
+                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-red-50 hover:bg-red-100 text-red-700" aria-label="delete card" title="delete">
+                                <span className="material-symbols-outlined" aria-hidden="true">delete</span>
+                              </button>
                             </>
                           )}
                         </div>

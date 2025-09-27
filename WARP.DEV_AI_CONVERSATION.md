@@ -24,6 +24,16 @@ Plan — Enforce global minimum text size baseline (text-sm)
 - What: Override small text utilities (text-xs, text-[10px], text-[11px], text-[12px], small) to at least 0.875rem (14px) globally.
 - Why: Product requirement to make hashtags, admin microcopy, and any small text legible and consistent with Inbox card content size.
 - Governance: Bump to v0.8.0, update docs with ISO 8601 ms timestamps.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T16:12:42.000Z
+Author: ai
+
+Plan — Replace card action labels with Material Symbols icons
+- What: Load Google Fonts Material Symbols and replace card action labels 'open, archive, edit, del' with icons 'pageview, archive, edit_note, delete' in both Inbox and placed cards.
+- Why: Cleaner UI, consistent iconography.
+- Governance: Bump version to v0.9.0, update docs and release notes with ISO timestamps.
 - Card page: remove page title and status/order; split created/updated to separate lines; remove action buttons; render all hashtags as a single comma-separated list (deduped, lowercase, excluding 'spock').
 - Global behavior: make all Card page links open in a new tab with target="_blank" and rel="noopener noreferrer".
 - Governance: bump MINOR to 0.7.0 before commit, update README/ROADMAP/TASKLIST/ARCHITECTURE/LEARNINGS with ISO 8601 timestamps (ms).

@@ -30,5 +30,23 @@ body {
 .text-\[12px\] { font-size: var(--cm-min-text-size) !important; }
 small { font-size: var(--cm-min-text-size) !important; }
 
+/* Material Symbols baseline styles for consistent icon rendering */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  /* Default size tuned for action buttons; can be overridden per-instance */
+  font-size: 18px;
+  /* Variable font axes */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
 a { color: #0369a1; } /* sky-700 */
 a:hover { color: #0ea5e9; } /* sky-500 */
