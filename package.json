@@ -3,7 +3,7 @@
 "version": "0.10.0",
   "private": true,
   "scripts": {
-    "predev": "rm -f app",
+"predev": "ln -sf src/app app",
     "dev": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000",
     "dev:turbo": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev --turbopack -p 4000",
     "prebuild": "ln -sf src/app app",
