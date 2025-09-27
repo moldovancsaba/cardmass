@@ -274,8 +274,10 @@ return [bid, map, tmap] as const
                       if (!name || name==='spock') return null
                       const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
                       const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
-                      return (
-                        <span key={`inbox-tag-${c.id}-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
+return (
+                        <a key={`inbox-tag-${c.id}-${bid}-${name}`} href={`/${encodeURIComponent(orgUUID)}/hashtags/resolve?board=${encodeURIComponent(bid)}&label=${encodeURIComponent(name)}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }} title={`Open #${name}`}>
+                          #{name}
+                        </a>
                       )
                     })}
                   </div>
@@ -292,9 +294,11 @@ return [bid, map, tmap] as const
 <a href={getCardUrl(orgUUID, c.uuid)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="open card in new tab" title="open">
                         <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
                       </a>
-<button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+{!isArchiveBoard && (
+                      <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
                         <span className="material-symbols-outlined" aria-hidden="true">archive</span>
                       </button>
+                    )}
 <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
                         <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
                       </button>
@@ -477,8 +481,10 @@ return [bid, map, tmap] as const
                                     if (!name || name==='spock') return null
                                     const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
                                     const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
-                                    return (
-                                      <span key={`placed-tag-${b.key}-${c.id}-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
+return (
+                                      <a key={`placed-tag-${b.key}-${c.id}-${bid}-${name}`} href={`/${encodeURIComponent(orgUUID)}/hashtags/resolve?board=${encodeURIComponent(bid)}&label=${encodeURIComponent(name)}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }} title={`Open #${name}`}>
+                                        #{name}
+                                      </a>
                                     )
                                   })}
                                 </div>
@@ -499,9 +505,11 @@ return [bid, map, tmap] as const
 <a href={getCardUrl(orgUUID, c.uuid)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="open card in new tab" title="open">
                                 <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
                               </a>
-<button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+{!isArchiveBoard && (
+                              <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
                                 <span className="material-symbols-outlined" aria-hidden="true">archive</span>
                               </button>
+                            )}
 <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
                                 <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
                               </button>

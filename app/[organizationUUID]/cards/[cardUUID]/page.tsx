@@ -77,7 +77,9 @@ export default async function CardDetailsPage(ctx: { params: Promise<{ organizat
                 const bg = entry?.color || '#e5e7eb'
                 const tBlack = entry?.textBlack ?? true
                 return (
-                  <span key={`card-tag-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: bg, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
+                  <a key={`card-tag-${bid}-${name}`} href={`/${encodeURIComponent(org)}/hashtags/resolve?board=${encodeURIComponent(bid)}&label=${encodeURIComponent(name)}`} className="px-1 rounded" style={{ backgroundColor: bg, color: tBlack ? '#000' : '#fff' }} title={`Open #${name}`}>
+                    #{name}
+                  </a>
                 )
               })}
             </div>
