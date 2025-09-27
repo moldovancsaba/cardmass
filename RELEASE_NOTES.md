@@ -3,6 +3,7 @@
 ## [v0.10.0] — 2025-09-27T17:19:16.000Z
 - Fixed: Addressed Next.js warnings by adding display=optional to Google Font link and disabling no-page-custom-font for App Router root layout.
 - Fixed: Type-checker stability by guarding useSearchParams nullability; ensured successful build.
+- Fixed: Added /api/settings endpoint to stop 404s during app bootstrap; settings moved to a server-safe shared module.
 - Note: Using App Router layout for fonts is intentional; loading icons via Google Fonts remains.
 
 ## [v0.9.0] — 2025-09-27T16:12:42.000Z
