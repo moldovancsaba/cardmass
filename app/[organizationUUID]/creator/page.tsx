@@ -1,5 +1,5 @@
 import SpockNav from "@/components/SpockNav";
-import CreatorApp from "@/app/creator/ui/CreatorApp";
+import CreatorApp from "../../creator/ui/CreatorApp";
 import { isUUIDv4 } from "@/lib/validation";
 import { notFound } from "next/navigation";
 
