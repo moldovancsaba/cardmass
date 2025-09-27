@@ -17,12 +17,43 @@ async function fetchHashtag(orgUUID: string, tagUUID: string) {
   return data as { uuid: string; boardKey: string; label: string; count: number; cards: { uuid: string; text: string; createdAt: string; updatedAt: string; boardAreas?: Record<string,string> }[] }
 }
 
+// Fetch per-board area map (label -> {color, textBlack})
+async function fetchBoardsAreaMap(orgUUID: string, boardIds: string[]): Promise<Record<string, Record<string, { color: string; textBlack: boolean }>>> {
+  const base = await getBaseURL()
+  const entries = await Promise.all(boardIds.map(async (bid) => {
+    try {
+      const res = await fetch(`${base}/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(bid)}`, { cache: 'no-store', headers: { 'X-Organization-UUID': orgUUID } })
+      if (!res.ok) return [bid, {} as Record<string, { color: string; textBlack: boolean }>] as const
+      const data = await res.json() as { areas?: { label: string; color: string; textBlack?: boolean }[] }
+      const map: Record<string, { color: string; textBlack: boolean }> = {}
+      for (const a of (data.areas || [])) {
+        const lbl = (a.label || '').toLowerCase()
+        if (!lbl) continue
+        map[lbl] = { color: a.color, textBlack: a.textBlack !== false }
+      }
+      return [bid, map] as const
+    } catch {
+      return [bid, {} as Record<string, { color: string; textBlack: boolean }>] as const
+    }
+  }))
+  const out: Record<string, Record<string, { color: string; textBlack: boolean }>> = {}
+  for (const [bid, map] of entries) out[bid] = map
+  return out
+}
+
 export default async function HashtagPage(ctx: { params: Promise<{ organizationUUID: string; hashtagUUID: string }> }) {
   const { organizationUUID: org, hashtagUUID } = await ctx.params
   if (!isUUIDv4(org)) {
     return (<main className="min-h-dvh p-6"><h1 className="text-xl font-semibold">Invalid URL</h1></main>)
   }
   const tag = await fetchHashtag(org, hashtagUUID)
+  // Collect involved board ids from all cards
+  const set = new Set<string>()
+  for (const c of tag.cards) {
+    const ba = (c.boardAreas || {}) as Record<string, string>
+    for (const k of Object.keys(ba)) if (k) set.add(k)
+  }
+  const areaMaps = await fetchBoardsAreaMap(org, Array.from(set))
 
   return (
     <main className="min-h-dvh bg-white text-black">
@@ -38,6 +69,22 @@ export default async function HashtagPage(ctx: { params: Promise<{ organizationU
               <div className="text-base whitespace-pre-wrap">{c.text}</div>
               <div className="mt-2 text-xs text-gray-600">created: {c.createdAt}</div>
               <div className="mt-1 text-xs text-gray-600">updated: {c.updatedAt}</div>
+              {/* Hashtags for this card (non-clickable), colored by per-board area styles */}
+              {Object.entries(c.boardAreas || {}).length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1 text-[10px]">
+                  {Object.entries(c.boardAreas || {}).map(([bid, lblRaw]) => {
+                    const name = String(lblRaw || '').toLowerCase()
+                    if (!name || name === 'spock') return null
+                    const cmap = (areaMaps as Record<string, Record<string, { color: string; textBlack: boolean }>>)[bid] || {}
+                    const entry = cmap[name]
+                    const bg = entry?.color || '#e5e7eb'
+                    const tBlack = entry?.textBlack ?? true
+                    return (
+                      <span key={`card-tag-${c.uuid}-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: bg, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
+                    )
+                  })}
+                </div>
+              )}
             </article>
           ))}
           {tag.cards.length === 0 && (
