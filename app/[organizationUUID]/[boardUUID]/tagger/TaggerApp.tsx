@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getCardUrl } from '@/lib/urls'
 
 type TileId = string
@@ -51,6 +51,32 @@ if (!b) map.set(key,{ key, label: key, color: a.color, textBlack: a.textBlack !=
     }
     return Array.from(map.values())
   }, [rows, cols, areas])
+
+  // Measure area content widths to compute a unified card width (narrowest wins)
+  const areaContentRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const el2key = useRef(new WeakMap<Element, string>())
+  const [areaWidths, setAreaWidths] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    const ro = new ResizeObserver((entries) => {
+      setAreaWidths((prev) => {
+        const next = { ...prev }
+        for (const entry of entries) {
+          const key = el2key.current.get(entry.target)
+          if (key) next[key] = entry.contentRect.width
+        }
+        return next
+      })
+    })
+    Object.entries(areaContentRefs.current).forEach(([key, el]) => { if (el) ro.observe(el) })
+    return () => { try { ro.disconnect() } catch {} }
+  }, [areaBoxes])
+
+  const minCardWidth = useMemo(() => {
+    const vals = Object.values(areaWidths).filter((v) => v && isFinite(v))
+    if (!vals.length) return 320
+    return Math.max(200, Math.min(...vals))
+  }, [areaWidths])
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -249,7 +275,7 @@ return [bid, map, tmap] as const
           {inbox.map(c => {
             const entries = Object.entries(c.boardAreas || {}) as Array<[string, string]>
             return (
-              <div key={c.id} draggable onDragStart={(e)=>{ try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }} className="relative border border-gray-300 rounded px-2 py-2 text-sm bg-white text-black shadow-sm cursor-grab hover:bg-black/5 w-full" title={c.text} style={{ maxWidth: 400 }}>
+              <div key={c.id} draggable onDragStart={(e)=>{ try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }} className="relative border border-gray-300 rounded px-2 py-2 text-sm bg-white text-black shadow-sm cursor-grab hover:bg-black/5 w-full" title={c.text}>
                 {/* content */}
                 <div className="pr-0">
                   {editingId===c.uuid ? (
@@ -431,7 +457,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2" style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, 400px), 1fr))` }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2" style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(100%, ${minCardWidth}px), 1fr))` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="flex flex-col">
                   {/* slot before the first card (position 0) */}
                   {/*
@@ -456,7 +482,7 @@ return (
                         onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
                         onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
                         className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
-                        title={c.text} style={{ maxWidth: 400 }}
+                        title={c.text}
                       >
                         <div className="pr-0">
                           {editingId===c.uuid ? (
