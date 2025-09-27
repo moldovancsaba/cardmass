@@ -77,7 +77,7 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
   // Load from server if ?load=slug is present
   const searchParams = useSearchParams();
   useEffect(() => {
-    const boardUUID = searchParams.get('board')
+    const boardUUID = searchParams?.get('board')
     if (mode === 'org') {
       if (!boardUUID || !orgUUID) return
       ;(async () => {
@@ -91,7 +91,7 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
       return
     }
     // legacy slug loader
-    const slug = searchParams.get("load");
+    const slug = searchParams?.get("load");
     if (!slug) return;
     (async () => {
       try {
@@ -442,7 +442,7 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
               try {
                 if (mode === 'org') {
                   if (!orgUUID) { alert('Missing organization UUID'); return }
-                  const boardUUID = searchParams.get('board')
+                      const boardUUID = searchParams?.get('board')
 if (boardUUID) {
                     // PATCH existing board (disallow saving empty areas)
                     if (!Array.isArray(store.areas) || store.areas.length === 0) { alert('Cannot save a board with no areas. Delete the board instead.'); return }
@@ -476,7 +476,7 @@ if (boardUUID) {
                 alert(msg);
               }
             }}
-          >{mode === 'org' ? (searchParams.get('board') ? 'Save' : 'Create') : 'save'}</button>
+          >{mode === 'org' ? (searchParams?.get('board') ? 'Save' : 'Create') : 'save'}</button>
         </div>
       </div>
 

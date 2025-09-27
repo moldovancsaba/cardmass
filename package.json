@@ -1,6 +1,6 @@
 {
   "name": "cardmass",
-"version": "0.9.0",
+"version": "0.10.0",
   "private": true,
   "scripts": {
     "dev": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000",

@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.9.0
+Version: 0.10.0
 
-Updated: 2025-09-27T16:12:42.000Z
+Updated: 2025-09-27T17:19:16.000Z
 
 ## Milestone (Q4 2025): UUID-first multi-tenant foundation
 - Priority: High

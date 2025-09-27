@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,8 +28,9 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* WHAT: Load Material Symbols icon font for UI iconography.
-            WHY: Use Google Fonts (Material Symbols Outlined) to render action icons consistently across the app. */}
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+            WHY: We keep this in root layout for App Router consistency; rule disabled above intentionally.
+            Important: display=optional to satisfy @next/next/google-font-display. */}
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=optional" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-black`}

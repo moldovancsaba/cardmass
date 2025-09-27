@@ -31,6 +31,17 @@ Timestamp: 2025-09-27T16:12:42.000Z
 Author: ai
 
 Plan — Replace card action labels with Material Symbols icons
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T17:19:16.000Z
+Author: ai
+
+Plan — Resolve Next.js font warnings and type-check path issues
+- What: Keep Material Symbols link in app/layout.tsx with display=optional; disable @next/next/no-page-custom-font for this file.
+- Why: App Router uses root layout; this avoids the page-only font warning while keeping font loading simple.
+- Also: Guarded useSearchParams nullability in CreatorApp to satisfy strict TS checks.
+- Governance: Bump to v0.10.0; update docs with ISO timestamps.
 - What: Load Google Fonts Material Symbols and replace card action labels 'open, archive, edit, del' with icons 'pageview, archive, edit_note, delete' in both Inbox and placed cards.
 - Why: Cleaner UI, consistent iconography.
 - Governance: Bump version to v0.9.0, update docs and release notes with ISO timestamps.

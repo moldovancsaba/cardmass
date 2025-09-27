@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Enable additional checks during development for safer delivery
   reactStrictMode: true,
+  // Disable typedRoutes to avoid TS path resolution onto app/page.js during typecheck
+  typedRoutes: false,
   // Surface the package version to the client so the UI can display it (keeps UI/docs/package aligned)
   env: {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version as string,

@@ -1,5 +1,10 @@
 # RELEASE_NOTES
 
+## [v0.10.0] — 2025-09-27T17:19:16.000Z
+- Fixed: Addressed Next.js warnings by adding display=optional to Google Font link and disabling no-page-custom-font for App Router root layout.
+- Fixed: Type-checker stability by guarding useSearchParams nullability; ensured successful build.
+- Note: Using App Router layout for fonts is intentional; loading icons via Google Fonts remains.
+
 ## [v0.9.0] — 2025-09-27T16:12:42.000Z
 - Changed: Replaced card action labels with Material Symbols icons (pageview, archive, edit_note, delete) in Inbox and placed cards; loaded Google Fonts Material Symbols.
 - Docs: Updated version stamps and delivery logs.
