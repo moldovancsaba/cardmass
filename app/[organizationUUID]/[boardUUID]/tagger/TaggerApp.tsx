@@ -398,7 +398,7 @@ return (
 
       {/* Right: Grid with areas */}
       <section className="relative w-full h-full">
-        <div className="w-full h-full grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}>
+        <div className="w-full h-full grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}>
           {/* background grid */}
           {Array.from({ length: rows }, (_, r) => r).map((r) => (
             Array.from({ length: cols }, (_, c) => c).map((c) => (
