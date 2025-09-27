@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.7.0
+Version: 0.8.0
 
-Updated: 2025-09-27T13:10:13.000Z
+Updated: 2025-09-27T15:47:28.000Z
 
 ## Milestone (Q4 2025): UUID-first multi-tenant foundation
 - Priority: High
@@ -14,6 +14,11 @@ Updated: 2025-09-27T13:10:13.000Z
 ### Items
 
 9) Card Details UX consistency and link behavior standardization
+
+10) Global minimum text size baseline
+   - Owner: ai
+   - Expected: 2025-09-27T16:10:00.000Z
+   - Notes: Enforce minimum font size equal to Inbox card content (text-sm ~ 14px) across all UI, including hashtags and admin microcopy.
    - Owner: ai
    - Expected: 2025-09-27T14:00:00.000Z
    - Notes: Simplify Card view (no title/status/order; split timestamps; remove actions); ensure all Card page links open in a new tab with rel="noopener noreferrer". Forward-looking: centralize URL helper for Card links.

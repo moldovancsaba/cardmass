@@ -14,6 +14,16 @@ Timestamp: 2025-09-27T13:10:13.000Z
 Author: ai
 
 Plan — Card Details simplification + new-tab open; prepare v0.7.0
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T15:47:28.000Z
+Author: ai
+
+Plan — Enforce global minimum text size baseline (text-sm)
+- What: Override small text utilities (text-xs, text-[10px], text-[11px], text-[12px], small) to at least 0.875rem (14px) globally.
+- Why: Product requirement to make hashtags, admin microcopy, and any small text legible and consistent with Inbox card content size.
+- Governance: Bump to v0.8.0, update docs with ISO 8601 ms timestamps.
 - Card page: remove page title and status/order; split created/updated to separate lines; remove action buttons; render all hashtags as a single comma-separated list (deduped, lowercase, excluding 'spock').
 - Global behavior: make all Card page links open in a new tab with target="_blank" and rel="noopener noreferrer".
 - Governance: bump MINOR to 0.7.0 before commit, update README/ROADMAP/TASKLIST/ARCHITECTURE/LEARNINGS with ISO 8601 timestamps (ms).

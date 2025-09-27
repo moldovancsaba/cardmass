@@ -17,6 +17,31 @@ async function fetchCard(orgUUID: string, cardUUID: string) {
   return data as { id: string; uuid: string; organizationId: string; text: string; status: string; order: number; createdAt: string; updatedAt: string; boardAreas?: Record<string,string> }
 }
 
+// WHAT: For colored hashtags, we need area color and text color (textBlack) from each involved board.
+// WHY: This mirrors Tagger's UI where hashtags reflect per-board area styling.
+async function fetchBoardsAreaMap(orgUUID: string, boardIds: string[]): Promise<Record<string, Record<string, { color: string; textBlack: boolean }>>> {
+  const base = await getBaseURL()
+  const entries = await Promise.all(boardIds.map(async (bid) => {
+    try {
+      const res = await fetch(`${base}/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(bid)}`, { cache: 'no-store', headers: { 'X-Organization-UUID': orgUUID } })
+      if (!res.ok) return [bid, {} as Record<string, { color: string; textBlack: boolean }>] as const
+      const data = await res.json() as { areas?: { label: string; color: string; textBlack?: boolean }[] }
+      const map: Record<string, { color: string; textBlack: boolean }> = {}
+      for (const a of (data.areas || [])) {
+        const lbl = (a.label || '').toLowerCase()
+        if (!lbl) continue
+        map[lbl] = { color: a.color, textBlack: a.textBlack !== false }
+      }
+      return [bid, map] as const
+    } catch {
+      return [bid, {} as Record<string, { color: string; textBlack: boolean }>] as const
+    }
+  }))
+  const out: Record<string, Record<string, { color: string; textBlack: boolean }>> = {}
+  for (const [bid, map] of entries) out[bid] = map
+  return out
+}
+
 
 export default async function CardDetailsPage(ctx: { params: Promise<{ organizationUUID: string; cardUUID: string }> }) {
   const { organizationUUID: org, cardUUID } = await ctx.params
@@ -28,12 +53,9 @@ export default async function CardDetailsPage(ctx: { params: Promise<{ organizat
 
   const card = await fetchCard(org, cardUUID)
 
-  // WHAT: Build a unique, lowercase list of hashtags from all per-board area labels, excluding 'spock'.
-  // WHY: Product requirement — display all related hashtags on the card view as a single comma-separated line; deduped across boards.
-  const tags = Array.from(new Set(Object.values(card.boardAreas || {})
-    .map(v => String(v || '').toLowerCase())
-    .filter(name => name && name !== 'spock')
-  ))
+  // Build color map per board for colored hashtags
+  const boardIds = Object.keys(card.boardAreas || {}).filter(Boolean)
+  const areaMaps = await fetchBoardsAreaMap(org, boardIds)
 
   return (
     <main className="min-h-dvh bg-white text-black">
@@ -44,9 +66,21 @@ export default async function CardDetailsPage(ctx: { params: Promise<{ organizat
           <div className="mt-2 text-xs text-gray-600">created: {card.createdAt}</div>
           <div className="mt-1 text-xs text-gray-600">updated: {card.updatedAt}</div>
 
-          {/* Related hashtags (all unique labels across boards), rendered as a comma-separated textual list */}
-          {tags.length > 0 && (
-            <div className="mt-3 text-[10px]">{tags.map((t, i) => `#${t}${i < tags.length - 1 ? ', ' : ''}`)}</div>
+          {/* Colored hashtags based on per-board area styles */}
+          {Object.entries(card.boardAreas || {}).length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1 text-[10px]">
+              {Object.entries(card.boardAreas || {}).map(([bid, lblRaw]) => {
+                const name = String(lblRaw || '').toLowerCase()
+                if (!name || name === 'spock') return null
+                const cmap = (areaMaps as Record<string, Record<string, { color: string; textBlack: boolean }>>)[bid] || {}
+                const entry = cmap[name]
+                const bg = entry?.color || '#e5e7eb'
+                const tBlack = entry?.textBlack ?? true
+                return (
+                  <span key={`card-tag-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: bg, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
+                )
+              })}
+            </div>
           )}
         </article>
       </section>

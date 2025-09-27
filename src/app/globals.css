@@ -4,6 +4,9 @@
 :root {
   --cm-bg: #ffffff;
   --cm-ink: #0f172a; /* slate-900 */
+  /* WHAT: Global minimum font size baseline across the app (matches Inbox card content size ~ text-sm = 0.875rem).
+     WHY: Product requirement to avoid unreadably small text for hashtags, admin labels, and microcopy. */
+  --cm-min-text-size: 0.875rem; /* 14px */
 }
 
 @theme inline {
@@ -17,6 +20,15 @@ body {
   color: var(--cm-ink);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
+
+/* Enforce minimum text size globally by overriding small text utilities to the baseline.
+   We deliberately override common small sizes used in the codebase. The !important ensures
+   the baseline wins over Tailwind utilities compiled earlier. */
+.text-xs { font-size: var(--cm-min-text-size) !important; }
+.text-\[10px\] { font-size: var(--cm-min-text-size) !important; }
+.text-\[11px\] { font-size: var(--cm-min-text-size) !important; }
+.text-\[12px\] { font-size: var(--cm-min-text-size) !important; }
+small { font-size: var(--cm-min-text-size) !important; }
 
 a { color: #0369a1; } /* sky-700 */
 a:hover { color: #0ea5e9; } /* sky-500 */

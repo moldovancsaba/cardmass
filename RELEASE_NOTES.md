@@ -1,5 +1,9 @@
 # RELEASE_NOTES
 
+## [v0.8.0] — 2025-09-27T15:47:28.000Z
+- Changed: Enforced global minimum text size baseline equal to Inbox card content (text-sm: 14px) across the app, including hashtags and admin texts.
+- Docs: Updated version stamps and roadmap/task references.
+
 ## [v0.7.0] — 2025-09-27T13:10:13.000Z
 - Changed: Card Details UI simplified (removed page title and status/order; split created/updated lines; removed actions; hashtags consolidated and deduped).
 - Changed: All Card page links now open in a new tab (target="_blank" rel="noopener noreferrer").

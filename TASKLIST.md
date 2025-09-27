@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 0.7.0
+Version: 0.8.0
 
-Updated: 2025-09-27T13:10:13.000Z
+Updated: 2025-09-27T15:47:28.000Z
 
 - Card Details UI compliance update (no title/status/order; split timestamps; remove actions; hashtags line)
   - Owner: ai
@@ -19,6 +19,10 @@ Updated: 2025-09-27T13:10:13.000Z
 - Build and prepare release (verify build success before commit)
   - Owner: ai
   - Expected: 2025-09-27T14:00:00.000Z
+
+- Enforce global minimum text size baseline (text-sm) via CSS overrides
+  - Owner: ai
+  - Expected: 2025-09-27T16:10:00.000Z
 
 - Per-area label text color (Creator + Tagger propagation)
   - Owner: ai
