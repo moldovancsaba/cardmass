@@ -18,11 +18,24 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
   const [labelColorCache, setLabelColorCache] = useState<Record<string, Record<string, string>>>({})
   const [labelTextMap, setLabelTextMap] = useState<Record<string, Record<string, boolean>>>({})
   const [draggingId, setDraggingId] = useState<string | null>(null)
+  // Archive board detection (by slug: 'archive') to switch card list to archived-only
+  const isArchiveBoard = useMemo(() => {
+    const b = boards.find((x) => x.uuid === boardUUID)
+    return ((b?.slug || '').toLowerCase() === 'archive')
+  }, [boards, boardUUID])
+  // WHAT: show a compact nav with a hamburger menu and the 3 most recently visited boards for quick switching.
+  // WHY: Keeps UI minimal while offering fast access to commonly used boards.
+  const [showMenu, setShowMenu] = useState(false)
+  const [recentBoards, setRecentBoards] = useState<string[]>([])
   const [hoverArea, setHoverArea] = useState<string | null>(null)
-  const [dropHint, setDropHint] = useState<{ area: string; cardId?: string; before?: boolean } | null>(null)
+  const [dropHint, setDropHint] = useState<{ area: string; cardId?: string; before?: boolean; slot?: number } | null>(null)
   // Inline edit state for placed cards
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState<string>('')
+  // Inbox drop-target hover state
+  // WHAT: Tracks when a dragged card is hovering over the Inbox list so we can show a visible cue and allow dropping there.
+  // WHY: Dropping into the Inbox should clear the card's placement for the current board (see onDrop below), aligning with the soft "SPOCK" inbox model.
+  const [inboxHover, setInboxHover] = useState(false)
 
   const areaBoxes = useMemo(() => {
 type Box = { key: string; label: string; color: string; textBlack: boolean; minR: number; minC: number; maxR: number; maxC: number }
@@ -41,14 +54,47 @@ if (!b) map.set(key,{ key, label: key, color: a.color, textBlack: a.textBlack !=
   const load = useCallback(async () => {
     setLoading(true); setError(null)
     try {
-      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards`, { cache:'no-store', headers: { 'X-Organization-UUID': orgUUID } })
+      const qs = isArchiveBoard ? '?archived=only' : ''
+      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards${qs}`, { cache:'no-store', headers: { 'X-Organization-UUID': orgUUID } })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error?.message || 'Load failed')
       setCards(Array.isArray(data) ? data : [])
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Load failed')
     } finally { setLoading(false) }
-  }, [orgUUID])
+  }, [orgUUID, isArchiveBoard])
+
+  // Track recent boards in localStorage per organization
+  useEffect(() => {
+    try {
+      const key = `cardmass:recents:${orgUUID}`
+      const raw = localStorage.getItem(key)
+      let list: string[] = []
+      try { list = raw ? (JSON.parse(raw) as string[]) : [] } catch {}
+      // Move current board to front
+      list = [boardUUID, ...list.filter((x) => x !== boardUUID)]
+      // Clamp to reasonable size (e.g., 10)
+      if (list.length > 10) list = list.slice(0, 10)
+      localStorage.setItem(key, JSON.stringify(list))
+      setRecentBoards(list)
+    } catch {}
+  }, [orgUUID, boardUUID])
+
+  const recent3 = useMemo(() => {
+    const idx: Record<string, number> = {}
+    recentBoards.forEach((id, i) => { idx[id] = i })
+    const byRecent = [...boards].filter(b => recentBoards.includes(b.uuid)).sort((a,b) => (idx[a.uuid] ?? 999) - (idx[b.uuid] ?? 999))
+    return byRecent.slice(0,3)
+  }, [recentBoards, boards])
+
+
+  // Close menu on Escape for accessibility
+  useEffect(() => {
+    if (!showMenu) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowMenu(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showMenu])
 
   useEffect(() => { load() }, [load])
 
@@ -183,41 +229,147 @@ return [bid, map, tmap] as const
   return (
     <div className="w-full h-screen grid grid-cols-[320px_1fr]">
       {/* Left: Inbox & Create */}
-      <aside className="border-r border-gray-200 p-3 overflow-hidden h-full flex flex-col">
+      <aside className="relative border-r border-gray-200 p-3 overflow-hidden h-full flex flex-col">
         <h2 className="text-sm font-semibold mb-2">Inbox</h2>
         {loading && <div className="text-xs text-gray-500">Loading…</div>}
         {error && <div className="text-xs text-red-600">{error}</div>}
         {/* Scrollable inbox list */}
-        <div className="space-y-2 mb-3 overflow-auto flex-1">
+        {/*
+          WHAT: Make Inbox a valid drop target to move a card back from any area into the board's SPOCK inbox.
+          WHY: Backend PATCH interprets an empty areaLabel for the given boardSlug as an UNSET operation (see cards/[cardUUID]/route.ts),
+               which clears the per-board placement and returns the card to Inbox for this board.
+        */}
+        <div
+          className={`space-y-2 mb-3 overflow-auto flex-1 ${inboxHover ? 'ring-2 ring-blue-400 rounded' : ''}`}
+          onDragOver={(e)=>{ e.preventDefault(); setInboxHover(true) }}
+          onDragLeave={()=>{ setInboxHover(false) }}
+          onDrop={(e)=>{ e.preventDefault(); setInboxHover(false); try{ const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if (id) { /* Empty areaLabel clears placement => moves to SPOCK Inbox for this board */ placeCard(id, '', undefined) } }catch{} }}
+        >
           {inbox.map(c => {
             const entries = Object.entries(c.boardAreas || {}) as Array<[string, string]>
             return (
-              <div key={c.id} draggable onDragStart={(e)=>{ try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }} className="border border-gray-300 rounded px-2 py-1 text-sm bg-white text-black shadow-sm cursor-grab hover:bg-black/5" title={c.text}>
-<div className="whitespace-pre-wrap break-words">{c.text}</div>
+              <div key={c.id} draggable onDragStart={(e)=>{ try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }} className="relative border border-gray-300 rounded px-2 py-2 text-sm bg-white text-black shadow-sm cursor-grab hover:bg-black/5" title={c.text}>
+                {/* content */}
+                <div className="pr-0">
+                  {editingId===c.uuid ? (
+                    <div>
+                      <textarea
+                        value={editText}
+                        onChange={(e)=>setEditText(e.target.value)}
+                        onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
+                        className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
+                        placeholder="Edit text..."
+                      />
+                      <div className="mt-1 text-[10px] text-gray-500">Enter to save • Shift+Enter for newline • Esc to cancel</div>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
+                  )}
+                </div>
                 {entries.length>0 && (
                   <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
                     {entries.map(([bid, lbl]) => {
                       const name = String(lbl||'').toLowerCase()
                       if (!name || name==='spock') return null
-const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
-const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
-return (
+                      const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
+                      const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
+                      return (
                         <span key={`inbox-tag-${c.id}-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
                       )
                     })}
                   </div>
                 )}
+                {/* actions moved to bottom to avoid overlaying text */}
+                <div className="mt-2 flex items-center gap-1 flex-wrap">
+                  {editingId===c.uuid ? (
+                    <>
+                      <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
+                      <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <a href={`/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 text-xs rounded bg-white hover:bg-black/5 border border-gray-300">open</a>
+                      <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200">archive</button>
+                      <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-2 py-0.5 text-xs rounded bg-black/5 hover:bg-black/10">edit</button>
+                      <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-red-50 hover:bg-red-100 text-red-700">del</button>
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}
           {inbox.length === 0 && !loading && <div className="text-xs text-gray-500">Inbox empty — create a card below or drag from other boards</div>}
         </div>
-        {/* All boards navigation for Tagger */}
+        {/* SPOCK nav: hamburger first, then 3 recent boards; overlay menu for full list */}
         <div className="mb-2 flex items-center gap-2 overflow-x-auto">
-          {boards.map(b => (
-            <a key={`nav-${b.uuid}`} href={`/${encodeURIComponent(orgUUID)}/${encodeURIComponent(b.uuid)}/tagger`} className={`border border-gray-300 rounded px-3 py-1 text-xs ${b.uuid===boardUUID ? 'bg-black text-white' : 'bg-white hover:bg-black/5'}`}>{b.slug || `board-${b.uuid.slice(0,6)}`}</a>
+          <button
+            onClick={() => setShowMenu(v => !v)}
+            aria-label="Boards menu"
+            aria-expanded={showMenu}
+            className="border border-gray-300 rounded px-3 py-1 text-xs bg-white hover:bg-black/5"
+          >
+            ☰
+          </button>
+          {recent3.map(b => (
+            <a key={`nav-recent-${b.uuid}`} href={`/${encodeURIComponent(orgUUID)}/${encodeURIComponent(b.uuid)}/tagger`} className={`border border-gray-300 rounded px-3 py-1 text-xs ${b.uuid===boardUUID ? 'bg-black text-white' : 'bg-white hover:bg-black/5'}`}>{b.slug || `board-${b.uuid.slice(0,6)}`}</a>
           ))}
         </div>
+
+        {/* Overlay menu that covers the Inbox column */}
+        {showMenu && (
+          <div className="absolute inset-0 z-30" role="dialog" aria-modal="true">
+            {/* backdrop */}
+            <div className="absolute inset-0 bg-black/20" onClick={()=>setShowMenu(false)} />
+            {/* panel */}
+            <div className="absolute inset-0 p-3">
+              <div className="mx-auto h-full w-full max-w-md rounded-lg border border-gray-200 bg-white shadow-xl ring-1 ring-black/5 overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
+                  <div className="text-sm font-semibold">Boards</div>
+                  <button onClick={()=>setShowMenu(false)} className="px-2 py-1 text-xs rounded bg-black text-white">Close</button>
+                </div>
+                <div className="p-2 overflow-auto space-y-2">
+                  {/* recent section */}
+                  {recent3.length > 0 && (
+                    <div>
+                      <div className="px-2 pb-1 text-[11px] text-gray-500">Recent</div>
+                      <div className="grid grid-cols-1 gap-1">
+                        {recent3.map(b => (
+                          <a
+                            key={`ov-recent-${b.uuid}`}
+                            href={`/${encodeURIComponent(orgUUID)}/${encodeURIComponent(b.uuid)}/tagger`}
+                            onClick={()=>setShowMenu(false)}
+                            className={`block rounded border px-3 py-2 text-sm ${b.uuid===boardUUID ? 'bg-black text-white border-black' : 'bg-white hover:bg-black/5 border-gray-300'}`}
+                          >
+                            {b.slug || `board-${b.uuid.slice(0,6)}`}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* all boards */}
+                  <div>
+                    <div className="px-2 pb-1 text-[11px] text-gray-500">All Boards</div>
+                    <div className="grid grid-cols-1 gap-1">
+                      {[...boards].map(b => (
+                        <a
+                          key={`ov-all-${b.uuid}`}
+                          href={`/${encodeURIComponent(orgUUID)}/${encodeURIComponent(b.uuid)}/tagger`}
+                          onClick={()=>setShowMenu(false)}
+                          className={`block rounded border px-3 py-2 text-sm ${b.uuid===boardUUID ? 'bg-black text-white border-black' : 'bg-white hover:bg-black/5 border-gray-300'}`}
+                        >
+                          {b.slug || `board-${b.uuid.slice(0,6)}`}
+                        </a>
+                      ))}
+                      {boards.length === 0 && (
+                        <div className="px-3 py-2 text-xs text-gray-500">No boards</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Bottom-stuck input with SPOCK-like behavior */}
         <div className="space-y-2">
           <textarea
@@ -245,7 +397,7 @@ return (
           {areaBoxes.map((b) => (
             <div
               key={b.key}
-              onDragOver={(e)=>{ e.preventDefault(); setHoverArea(b.key); setDropHint({ area: b.key }) }}
+              onDragOver={(e)=>{ e.preventDefault(); setHoverArea(b.key) }}
               onDragEnter={() => setHoverArea(b.key)}
               onDragLeave={(e)=>{ if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) return; setHoverArea(null); setDropHint(null) }}
               onDrop={(e)=>{
@@ -267,88 +419,99 @@ return (
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
               <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2">
-                <div className="flex flex-col gap-2">
-                  {sortedAreaCards(b.label).map((c) => (
-                    <div
-                      key={`placed-${b.key}-${c.id}`}
-                      draggable
-                      onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
-                      onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
-                      onDragOver={(e)=>{ e.preventDefault(); const rect=(e.currentTarget as HTMLDivElement).getBoundingClientRect(); const isBefore = e.clientY < rect.top + rect.height/2; setDropHint({ area: b.key, cardId: c.id, before: isBefore }) }}
-                      onDrop={(e)=>{
-                        e.preventDefault()
-                        const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect()
-                        const isBefore = e.clientY < rect.top + rect.height/2
-                        const id = (e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''
-                        if (!id) return
-                        setDropHint(null)
-                        const newOrder = computeNewOrder(b.label, c.id, isBefore)
-                        placeCard(id, b.label, newOrder)
-                      }}
-                      className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 ${draggingId===c.uuid ? 'opacity-60' : ''}`}
-                      title={c.text}
-                    >
-                      {/* insertion hint lines */}
-                      {dropHint && dropHint.area===b.key && dropHint.cardId===c.id && dropHint.before && (
-                        <div className="absolute left-1 right-1 -top-1 h-0.5 bg-blue-500 rounded-full pointer-events-none" />
-                      )}
-                      {dropHint && dropHint.area===b.key && dropHint.cardId===c.id && dropHint.before===false && (
-                        <div className="absolute left-1 right-1 -bottom-1 h-0.5 bg-blue-500 rounded-full pointer-events-none" />
-                      )}
+                <div className="flex flex-col">
+                  {/* slot before the first card (position 0) */}
+                  {/*
+                    WHAT: Slot before the first card. On mobile/touch (base breakpoint) make it a bit taller and widen hit area with negative margins.
+                    WHY: Improves targetability and clarity on small screens.
+                  */}
+                  <div
+                    className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                    onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 0 }) }}
+                    onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); const newOrder = arr.length>0 ? computeNewOrder(b.label, arr[0].id, true) : 1; placeCard(id, b.label, newOrder) }}
+                  >
+                    {dropHint && dropHint.area===b.key && dropHint.slot===0 && (
+                      <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
+                    )}
+                  </div>
 
-                      <div className="pr-14">
-                        {editingId===c.uuid ? (
-                          <div>
-                            <textarea
-                              value={editText}
-                              onChange={(e)=>setEditText(e.target.value)}
-                              onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
-                              className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
-                              placeholder="Edit text..."
-                            />
-                            <div className="mt-1 text-[10px] text-gray-500">Enter to save • Shift+Enter for newline • Esc to cancel</div>
-                          </div>
-                        ) : (
-                          <>
-<div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
-                            {/* labels from all boards */}
-                            {Object.entries(c.boardAreas||{}).length>0 && (
-                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
-                                {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
-                                  const name = String(lbl||'').toLowerCase()
-                                  if (!name || name==='spock') return null
-const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
-const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
-return (
-                                    <span key={`placed-tag-${b.key}-${c.id}-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </>
-                        )}
+                  {sortedAreaCards(b.label).map((c, idx) => (
+                    <div key={`placed-wrap-${b.key}-${c.id}`}>
+                      <div
+                        key={`placed-${b.key}-${c.id}`}
+                        draggable
+                        onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
+                        onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
+                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        title={c.text}
+                      >
+                        <div className="pr-0">
+                          {editingId===c.uuid ? (
+                            <div>
+                              <textarea
+                                value={editText}
+                                onChange={(e)=>setEditText(e.target.value)}
+                                onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
+                                className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
+                                placeholder="Edit text..."
+                              />
+                              <div className="mt-1 text-[10px] text-gray-500">Enter to save • Shift+Enter for newline • Esc to cancel</div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
+                              {/* labels from all boards */}
+                              {Object.entries(c.boardAreas||{}).length>0 && (
+                                <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
+                                  {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
+                                    const name = String(lbl||'').toLowerCase()
+                                    if (!name || name==='spock') return null
+                                    const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
+                                    const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
+                                    return (
+                                      <span key={`placed-tag-${b.key}-${c.id}-${bid}-${name}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }}>#{name}</span>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        {/* actions moved to bottom to avoid overlaying text */}
+                        <div className="mt-2 flex items-center gap-1 flex-wrap">
+                          {editingId===c.uuid ? (
+                            <>
+                              <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
+                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <a href={`/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`} target="_blank" rel="noopener noreferrer" className="px-2 py-0.5 text-xs rounded bg-white hover:bg-black/5 border border-gray-300">open</a>
+                              <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200">archive</button>
+                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-2 py-0.5 text-xs rounded bg-black/5 hover:bg-black/10">edit</button>
+                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-red-50 hover:bg-red-100 text-red-700">del</button>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      {/* actions: edit/delete during normal; save/cancel when editing */}
-                      <div className="absolute top-0 right-0 flex gap-1 p-0.5">
-                        {editingId===c.uuid ? (
-                          <>
-                            <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-1 rounded bg-black text-white">save</button>
-                            <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-1 rounded bg-gray-200">cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="px-1 rounded bg-black/5 hover:bg-black/10">edit</button>
-                            <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="px-1 rounded bg-red-50 hover:bg-red-100 text-red-700">del</button>
-                          </>
+                      {/* slot after this card (position idx+1) */}
+                      {/*
+                        WHAT: Slot after each card (between-card insertion point). Taller on mobile/touch; subtle hover bg when active.
+                        WHY: Easier to hit and more obvious visual feedback during reordering.
+                      */}
+                      <div
+                        className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                        onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: idx+1 }) }}
+                        onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); let newOrder: number; if (idx+1 >= arr.length) { newOrder = computeNewOrder(b.label) } else { newOrder = computeNewOrder(b.label, arr[idx+1].id, true) } placeCard(id, b.label, newOrder) }}
+                      >
+                        {dropHint && dropHint.area===b.key && dropHint.slot===idx+1 && (
+                          <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
                         )}
                       </div>
                     </div>
                   ))}
-                {/* bottom insertion hint for area end */}
-                {dropHint && dropHint.area===b.key && !dropHint.cardId && (
-                  <div className="h-2 -mb-1 relative"><div className="absolute left-1 right-1 bottom-0 h-0.5 bg-blue-500 rounded-full pointer-events-none" /></div>
-                )}
                 </div>
               </div>
             </div>

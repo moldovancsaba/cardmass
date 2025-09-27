@@ -1,7 +1,9 @@
 import { isUUIDv4 } from '@/lib/validation'
 import { fetchWithOrg } from '@/lib/http/fetchWithOrg'
 import { headers } from 'next/headers'
-import TaggerApp, { Area } from './TaggerApp'
+// Area is a TS type — use type-only import to avoid emitting a runtime binding that could break Next.js module resolution in production builds.
+import TaggerApp from './TaggerApp'
+import type { Area } from './TaggerApp'
 
 // TAGGER — new board page from zero: reliable grid + inbox tagging UI
 

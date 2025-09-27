@@ -21,6 +21,7 @@ function toCard(doc: OrgCardDoc) {
     boardSlug: doc.boardSlug,
     areaLabel: doc.areaLabel,
     boardAreas: doc.boardAreas || undefined,
+    isArchived: !!doc.isArchived,
   }
 }
 
@@ -42,7 +43,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ orgUUID: stri
   const { orgUUID, cardUUID } = await ctx.params
   if (!isUUIDv4(orgUUID) || !isUUIDv4(cardUUID)) return NextResponse.json({ error: { code: 'INVALID_ID', message: 'Invalid UUID parameter' } }, { status: 400 })
 
-  let body: Partial<Pick<OrgCardDoc, 'text' | 'status' | 'order' | 'areaLabel' | 'boardAreas'>> & { boardArea?: { boardSlug?: string; areaLabel?: string } } = {}
+  let body: Partial<Pick<OrgCardDoc, 'text' | 'status' | 'order' | 'areaLabel' | 'boardAreas' | 'isArchived'>> & { boardArea?: { boardSlug?: string; areaLabel?: string } } = {}
   try { body = await req.json() } catch { return NextResponse.json({ error: { code: 'BAD_JSON', message: 'Invalid JSON' } }, { status: 400 }) }
 
   const setPaths: Record<string, unknown> = { updatedAt: new Date() }
@@ -52,6 +53,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ orgUUID: stri
   if (typeof body.status === 'string') setPaths['status'] = body.status
   if (typeof body.order === 'number') setPaths['order'] = body.order
   if (typeof body.areaLabel === 'string') setPaths['areaLabel'] = body.areaLabel
+  if (typeof body.isArchived === 'boolean') setPaths['isArchived'] = body.isArchived
   if (body.boardArea && typeof body.boardArea.boardSlug === 'string') {
     const slug = (body.boardArea.boardSlug || '').trim()
     const label = (body.boardArea.areaLabel || '')

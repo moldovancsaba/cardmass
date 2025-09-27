@@ -17,6 +17,7 @@ async function fetchCard(orgUUID: string, cardUUID: string) {
   return data as { id: string; uuid: string; organizationId: string; text: string; status: string; order: number; createdAt: string; updatedAt: string; boardAreas?: Record<string,string> }
 }
 
+
 export default async function CardDetailsPage(ctx: { params: Promise<{ organizationUUID: string; cardUUID: string }> }) {
   const { organizationUUID: org, cardUUID } = await ctx.params
   if (!isUUIDv4(org) || !isUUIDv4(cardUUID)) {
@@ -26,34 +27,30 @@ export default async function CardDetailsPage(ctx: { params: Promise<{ organizat
   }
 
   const card = await fetchCard(org, cardUUID)
-  const tags = Object.values(card.boardAreas || {}).map(v => `#${String(v||'').toLowerCase()}`).filter(t => t !== '#')
+
+  // WHAT: Build a unique, lowercase list of hashtags from all per-board area labels, excluding 'spock'.
+  // WHY: Product requirement — display all related hashtags on the card view as a single comma-separated line; deduped across boards.
+  const tags = Array.from(new Set(Object.values(card.boardAreas || {})
+    .map(v => String(v || '').toLowerCase())
+    .filter(name => name && name !== 'spock')
+  ))
 
   return (
     <main className="min-h-dvh bg-white text-black">
       <section className="mx-auto max-w-2xl px-4 py-6 space-y-4">
-        <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Card</h1>
-          <a href={`/${encodeURIComponent(org)}`} className="text-sm underline">Back to organization</a>
-        </header>
-
         <article className="border border-gray-200 rounded p-3 bg-white shadow-sm">
           <div className="text-sm text-gray-500 mb-2">UUID: <code className="font-mono">{card.uuid}</code></div>
           <div className="text-base whitespace-pre-wrap">{card.text}</div>
-          <div className="mt-2 text-xs text-gray-600">status: {card.status} • order: {card.order}</div>
-          <div className="mt-2 text-xs text-gray-600">created: {card.createdAt} • updated: {card.updatedAt}</div>
-          {tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1 text-[10px]">
-              {tags.map((t) => (<span key={`tag-${t}`} className="px-1 rounded bg-black/5">{t}</span>))}
-            </div>
-          )}
+          <div className="mt-2 text-xs text-gray-600">created: {card.createdAt}</div>
+          <div className="mt-1 text-xs text-gray-600">updated: {card.updatedAt}</div>
 
-          <div className="mt-4">
-            <CardActions orgUUID={org} cardUUID={card.uuid} initialText={card.text} />
-          </div>
+          {/* Related hashtags (all unique labels across boards), rendered as a comma-separated textual list */}
+          {tags.length > 0 && (
+            <div className="mt-3 text-[10px]">{tags.map((t, i) => `#${t}${i < tags.length - 1 ? ', ' : ''}`)}</div>
+          )}
         </article>
       </section>
     </main>
   )
 }
 
-import CardActions from './CardActions'

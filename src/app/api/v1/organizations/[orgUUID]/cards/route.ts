@@ -21,6 +21,7 @@ function toCard(doc: OrgCardDoc) {
     boardSlug: doc.boardSlug,
     areaLabel: doc.areaLabel,
     boardAreas: doc.boardAreas || undefined,
+    isArchived: !!doc.isArchived,
   }
 }
 
@@ -30,12 +31,24 @@ export async function GET(req: Request, ctx: { params: Promise<{ orgUUID: string
 
   const url = new URL(req.url)
   const status = url.searchParams.get('status') as CardStatus | null
+  const archivedParam = url.searchParams.get('archived')
   // boardUUID is accepted for forward-compat; filtering by board UUID will be addressed in a later step
 
   try {
     const db = await getDb()
     const col = db.collection<OrgCardDoc>('cards')
-    const filter: Partial<{ organizationId: string; status: CardStatus }> = { organizationId: orgUUID }
+    // Archived filtering policy:
+    // - Default: exclude archived from list views
+    // - archived=only: return only archived
+    // - archived=include: include both archived and non-archived
+    const filter: Record<string, unknown> = { organizationId: orgUUID }
+    if (archivedParam === 'only') {
+      filter.isArchived = true
+    } else if (archivedParam === 'include') {
+      // no filter on isArchived
+    } else {
+      filter.isArchived = { $ne: true }
+    }
     if (status) filter.status = status
     const docs = await col.find(filter).sort({ order: 1, updatedAt: -1 }).toArray()
     return NextResponse.json(docs.map(toCard))
@@ -83,6 +96,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ orgUUID: strin
       boardSlug: body.boardSlug,
       areaLabel: (body.areaLabel && body.areaLabel.toLowerCase() === 'spock') ? '' : (body.areaLabel || undefined),
       boardAreas: (body.boardAreas && typeof body.boardAreas === 'object') ? (body.boardAreas as Record<string, string>) : undefined,
+      isArchived: false,
     }
     const res = await col.insertOne(doc)
     doc._id = res.insertedId

@@ -38,6 +38,11 @@ export interface CardDoc {
    * Why: Enables N-dimensional classification; spock is never persisted (empty mapping implies spock fallback where available).
    */
   boardAreas?: Record<string, string>;
+  /**
+   * Hide card from all interactive listings without deleting it.
+   * Why: Archive keeps data for future reference or sharing while removing it from day-to-day flows.
+   */
+  isArchived?: boolean;
 }
 
 export interface Card {
@@ -51,4 +56,5 @@ export interface Card {
   /** @deprecated — see Card.boardAreas */
   areaLabel?: string;
   boardAreas?: Record<string, string>;
+  isArchived?: boolean;
 }

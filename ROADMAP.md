@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.5.0
+Version: 0.7.0
 
-Updated: 2025-09-26T11:31:31.110Z
+Updated: 2025-09-27T13:10:13.000Z
 
 ## Milestone (Q4 2025): UUID-first multi-tenant foundation
 - Priority: High
@@ -13,7 +13,24 @@ Updated: 2025-09-26T11:31:31.110Z
 
 ### Items
 
+9) Card Details UX consistency and link behavior standardization
+   - Owner: ai
+   - Expected: 2025-09-27T14:00:00.000Z
+   - Notes: Simplify Card view (no title/status/order; split timestamps; remove actions); ensure all Card page links open in a new tab with rel="noopener noreferrer". Forward-looking: centralize URL helper for Card links.
+
 0) Per-area label text color (Creator → Tagger)
+2) Drag from areas back to Inbox (Tagger)
+   - Owner: ai
+   - Expected: 2025-09-26T15:00:00.000Z
+   - Notes: Enable Inbox as a drop target; empty areaLabel unsets placement for current board.
+7) Colored hashtags on Card page
+   - Owner: ai
+   - Expected: 2025-09-27T12:00:00.000Z
+   - Notes: Fetch board areas for referenced boards and render colored/tagged labels.
+8) SPOCK nav: hamburger + 3 recent boards
+   - Owner: ai
+   - Expected: 2025-09-27T12:00:00.000Z
+   - Notes: Store recents per org in localStorage; render hamburger + top 3; full overlay menu covers Inbox when opened.
    - Owner: ai
    - Expected: 2025-09-26T12:00:00.000Z
    - Notes: Remove Tagger global toggle; persist area.textBlack in Creator; apply text color to Tagger area labels and hashtags.
@@ -29,6 +46,16 @@ Updated: 2025-09-26T11:31:31.110Z
    - Notes: Migrate boardAreas to be keyed by boardUUID; update API and UI.
 
 4) Documentation automation
+- Owner: ai
+- Expected: 2025-10-05T12:00:00.000Z
+- Notes: Add scripts to sync version and timestamps across docs.
+
+5) Card archive (hide across boards, keep in DB)
    - Owner: ai
-   - Expected: 2025-10-05T12:00:00.000Z
-   - Notes: Add scripts to sync version and timestamps across docs.
+   - Expected: 2025-09-26T14:00:00.000Z
+   - Notes: Add Card.isArchived flag; filter lists to exclude archived; add archive control in Tagger (Inbox + placed).
+
+6) Dedicated Card page + Open button
+   - Owner: ai
+   - Expected: 2025-09-26T14:00:00.000Z
+   - Notes: Ensure server page exists at /{orgUUID}/cards/{cardUUID}; add "open" button in Tagger to link; shareable URL.

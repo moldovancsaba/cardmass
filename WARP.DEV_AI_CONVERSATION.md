@@ -1,5 +1,109 @@
 # WARP.DEV_AI_CONVERSATION
 
+Timestamp: 2025-09-27T12:01:54.000Z
+Author: ai
+
+Fix — Allow drops into middle of lists reliably; bump to 0.6.9 (dev)
+- Do not override slot hints at area level: removed setDropHint from area onDragOver.
+- Stop event propagation on slot dragOver/drop so parent onDrop doesn’t hijack the drop.
+- Result: Dropping between any two cards works consistently with correct insertion order.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T13:10:13.000Z
+Author: ai
+
+Plan — Card Details simplification + new-tab open; prepare v0.7.0
+- Card page: remove page title and status/order; split created/updated to separate lines; remove action buttons; render all hashtags as a single comma-separated list (deduped, lowercase, excluding 'spock').
+- Global behavior: make all Card page links open in a new tab with target="_blank" and rel="noopener noreferrer".
+- Governance: bump MINOR to 0.7.0 before commit, update README/ROADMAP/TASKLIST/ARCHITECTURE/LEARNINGS with ISO 8601 timestamps (ms).
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T11:49:59.000Z
+Author: ai
+
+Plan — Mobile/touch slot affordance + hover background; bump to 0.6.7 (dev)
+- Slightly increase slot width on mobile by adding horizontal padding and negative margins at base breakpoint; keep default on sm+.
+- Add subtle blue background in active slot while dragging for clearer targeting.
+- Governance: bump patch to 0.6.7 and sync timestamps.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T11:42:57.000Z
+Author: ai
+
+Plan — Reordering UX: taller slots + pulsing dashed guideline; bump to 0.6.6 (dev)
+- Increase between-card slot height during drag for easier targeting.
+- Replace solid line with centered, dashed, pulsing blue guideline for precise visual feedback.
+- Governance: bump patch version to 0.6.6 and sync documentation timestamps.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T10:56:14.000Z
+Author: ai
+
+Plan — Card fine-tuning: bottom action bar, no overlays on cards; bump to 0.6.5 (dev)
+- Move card operation buttons to the bottom below hashtags in both Inbox and area cards: open, archive, edit, del.
+- Remove absolute-positioned action overlays; ensure text and elements do not overlay card content.
+- Governance: bump version to 0.6.5 and sync documentation (ISO 8601 timestamps with ms).
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T10:36:42.000Z
+Author: ai
+
+Plan update — Archive board semantics and visibility
+- Server: cards list supports archived=only | include | default(exclude). Default keeps archived hidden from normal boards; "archive" board requests archived-only.
+- Client: Tagger detects board slug 'archive' and fetches archived=only cards there. Archived cards keep previous hashtags; Archive board can have its own areas and cards default to Inbox there.
+- Governance: bump dev version to 0.6.4 and sync docs.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T10:28:03.000Z
+Author: ai
+
+Plan refinement — SPOCK hamburger opens a full overlay over Inbox
+- Replace the small dropdown with an overlay that covers the Inbox column with a styled panel listing boards.
+- Include Recent section and the full boards list; add backdrop and Escape-to-close.
+- Governance: bump dev version to 0.6.3 and sync documentation.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-27T10:09:46.000Z
+Author: ai
+
+Plan summary — Colored hashtags on Card page; SPOCK nav hamburger + 3 recents; bump to 0.6.2 (dev)
+- Card page: Render colored hashtags by fetching board areas for referenced boards and applying per-area colors/textBlack.
+- Tagger/SPOCK nav: Always show a hamburger first; display the 3 most recently visited boards next to it; show the rest in a dropdown when hamburger is clicked; track recents per org in localStorage.
+- Governance: Bump version to 0.6.2 (pre-dev) and sync docs with ISO 8601 timestamps (ms).
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-26T13:28:43.000Z
+Author: ai
+
+Action plan — Fix Tagger type import; enable Inbox drop; add Archive on Card page; bump to 0.6.1 (dev)
+- Fix: In tagger/page.tsx, import Area via `import type` to avoid runtime binding emission and Next.js module error.
+- Feature: In TaggerApp, make Inbox a drop target; on drop, call placeCard(id, '', undefined) to unset placement for this board.
+- Feature: Add Archive button on Card page to PATCH { isArchived: true } and redirect to /{orgUUID}.
+- Governance: Bump version to 0.6.1 before dev; update README/ARCHITECTURE/ROADMAP/TASKLIST/LEARNINGS; ISO 8601 timestamps with ms.
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-26T12:32:16.000Z
+Author: ai
+
+Plan summary — Card archive + open page link
+- Add Card.isArchived (boolean) to hide cards from all list views without deleting; filter GET list to exclude archived; PATCH supports toggling.
+- Add archive controls to Tagger (Inbox items and placed items) to set isArchived=true and optimistically remove from UI.
+- Ensure dedicated Card page at /{orgUUID}/cards/{cardUUID} for sharing; add "open" button to Tagger items linking there.
+- Update ROADMAP and TASKLIST with ISO timestamps; bump docs version to 0.6.0 (minor feature).
+
+---
+
+# WARP.DEV_AI_CONVERSATION
+
 Timestamp: 2025-09-26T11:12:46.693Z
 Author: ai
 

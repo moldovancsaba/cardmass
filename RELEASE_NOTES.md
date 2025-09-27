@@ -1,5 +1,10 @@
 # RELEASE_NOTES
 
+## [v0.7.0] — 2025-09-27T13:10:13.000Z
+- Changed: Card Details UI simplified (removed page title and status/order; split created/updated lines; removed actions; hashtags consolidated and deduped).
+- Changed: All Card page links now open in a new tab (target="_blank" rel="noopener noreferrer").
+- Docs: Updated ROADMAP, TASKLIST, ARCHITECTURE, LEARNINGS, README to reflect v0.7.0 and timestamp policy.
+
 ## [v0.5.0] — 2025-09-26T11:31:31.110Z
 - Added: Per-area label text color preference in Creator Areas (textBlack: BLACK/WHITE) with persistence.
 - Changed: Tagger consumes per-board, per-label textBlack for area labels and all hashtag badges.
