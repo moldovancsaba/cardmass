@@ -161,6 +161,16 @@ Action summary — Purge legacy GridBoard/Kanban and endpoints
 
 ---
 
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-28T10:39:23.000Z
+Author: ai
+
+Action — Tagger area top alignment; prepare v0.11.0
+- What: Align cards to the top-left in Tagger areas using content-start, justify-start, items-start on the grid container.
+- Why: Keeps areas visually anchored and dense; matches requested UX.
+- Governance: Bump MINOR to 0.11.0, sync docs (ISO 8601 with ms), run build before commit.
+
 Previous entries retained below for context:
 
 Timestamp: 2025-09-20T09:54:50.000Z

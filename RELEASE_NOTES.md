@@ -1,5 +1,9 @@
 # RELEASE_NOTES
 
+## [v0.11.0] — 2025-09-28T10:39:23.000Z
+- Changed: Tagger areas now align cards to the top-left. Inner grid containers use content-start, justify-start, and items-start to anchor rows and items, preserving uniform card width and multi-column packing without horizontal scroll.
+- Docs: Synchronized version numbers and timestamps across README, ARCHITECTURE, ROADMAP, TASKLIST, and LEARNINGS.
+
 ## [v0.10.0] — 2025-09-27T17:19:16.000Z
 - Fixed: Addressed Next.js warnings by adding display=optional to Google Font link and disabling no-page-custom-font for App Router root layout.
 - Fixed: Type-checker stability by guarding useSearchParams nullability; ensured successful build.

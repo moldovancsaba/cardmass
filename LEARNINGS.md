@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.10.0
+Version: 0.11.0
 
-Updated: 2025-09-27T17:19:16.000Z
+Updated: 2025-09-28T10:39:23.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -16,3 +16,5 @@ Updated: 2025-09-27T17:19:16.000Z
   Why: Keep production builds lint-clean and improve maintainability.
 - Timestamp standard: All timestamps across code and docs must be ISO 8601 with milliseconds in UTC (non-negotiable).
   Why: Consistency, precision, and interoperability.
+- Grid alignment nuance: For CSS grid, explicitly set content-start and items-start (and justify-start as needed) on grid containers to ensure items anchor to the top-left.
+  Why: Prevents vertical centering or space-around artifacts so boards remain predictable and dense at a glance.

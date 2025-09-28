@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 0.10.0
+Version: 0.11.0
 
-Updated: 2025-09-27T18:43:12.000Z
+Updated: 2025-09-28T10:39:23.000Z
 
 - Card Details UI compliance update (no title/status/order; split timestamps; remove actions; hashtags line)
   - Owner: ai
