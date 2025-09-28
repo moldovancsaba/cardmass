@@ -466,6 +466,7 @@ return (
                   */}
                   <div
                     className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                    style={{ gridColumn: '1 / -1' }}
                     onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 0 }) }}
                     onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); const newOrder = arr.length>0 ? computeNewOrder(b.label, arr[0].id, true) : 1; placeCard(id, b.label, newOrder) }}
                   >
