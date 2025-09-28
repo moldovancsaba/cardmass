@@ -458,7 +458,7 @@ return (
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
 <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.floor(((areaWidths[b.key]||0)+8)/ (minCardWidth+8)))}, ${minCardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
-                <div className="flex flex-col">
+                <div className="contents">
                   {/* slot before the first card (position 0) */}
                   {/*
                     WHAT: Slot before the first card. On mobile/touch (base breakpoint) make it a bit taller and widen hit area with negative margins.
