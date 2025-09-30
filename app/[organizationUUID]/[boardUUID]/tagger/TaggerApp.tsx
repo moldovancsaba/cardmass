@@ -14,6 +14,10 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [input, setInput] = useState('')
+  // Inbox details toggle: show/hide hashtags and action buttons to control density
+  // IMPORTANT: Initialize with a stable value to avoid SSR/client hydration mismatch.
+  // Load the persisted value from localStorage after mount.
+  const [showInboxDetails, setShowInboxDetails] = useState<boolean>(true)
   const [boards, setBoards] = useState<Array<{ uuid: string; slug?: string }>>([])
   // Cache area colors per board UUID -> (labelLower -> color)
   const [labelColorCache, setLabelColorCache] = useState<Record<string, Record<string, string>>>({})
@@ -124,6 +128,20 @@ if (!b) map.set(key,{ key, label: key, color: a.color, textBlack: a.textBlack !=
   }, [showMenu])
 
   useEffect(() => { load() }, [load])
+
+  // Load persisted inbox details preference after mount to prevent hydration mismatches
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`cardmass:inbox:details:${orgUUID}`)
+      if (stored) setShowInboxDetails(stored !== 'hide')
+    } catch {}
+  }, [orgUUID])
+
+  // Persist inbox details toggle per organization for consistent experience
+  useEffect(() => {
+    try { localStorage.setItem(`cardmass:inbox:details:${orgUUID}`, showInboxDetails ? 'show' : 'hide') } catch {}
+  }, [orgUUID, showInboxDetails])
+
 
   // Load boards for navigation across Tagger pages
   useEffect(() => {
@@ -257,7 +275,17 @@ return [bid, map, tmap] as const
     <div className="w-full h-screen grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-3">
       {/* Left: Inbox & Create */}
       <aside className="order-2 lg:order-1 lg:relative lg:border-r border-gray-200 p-3 overflow-hidden h-full flex flex-col">
-        <h2 className="text-sm font-semibold mb-2">Inbox</h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold">Inbox</h2>
+          <button
+            onClick={(e)=>{ e.preventDefault(); setShowInboxDetails(v=>!v) }}
+            className="border border-gray-300 rounded px-2 py-0.5 text-xs bg-white hover:bg-black/5"
+            aria-pressed={showInboxDetails}
+            title={showInboxDetails ? 'hide details' : 'show details'}
+          >
+            {showInboxDetails ? 'hide' : 'show'}
+          </button>
+        </div>
         {loading && <div className="text-xs text-gray-500">Loading…</div>}
         {error && <div className="text-xs text-red-600">{error}</div>}
         {/* Scrollable inbox list */}
@@ -293,7 +321,7 @@ return [bid, map, tmap] as const
                     <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
                   )}
                 </div>
-                {entries.length>0 && (
+                {showInboxDetails && entries.length>0 && (
                   <div className="mt-1 flex flex-wrap gap-1 text-[10px]">
                     {entries.map(([bid, lbl]) => {
                       const name = String(lbl||'').toLowerCase()
@@ -309,7 +337,7 @@ return (
                   </div>
                 )}
                 {/* actions moved to bottom to avoid overlaying text */}
-                <div className="mt-2 flex items-center gap-1 flex-wrap">
+                <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
                   {editingId===c.uuid ? (
                     <>
                       <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
@@ -501,7 +529,7 @@ return (
                             <>
                               <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
                               {/* labels from all boards */}
-                              {Object.entries(c.boardAreas||{}).length>0 && (
+                              {showInboxDetails && Object.entries(c.boardAreas||{}).length>0 && (
                                 <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
                                   {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
                                     const name = String(lbl||'').toLowerCase()
@@ -521,7 +549,7 @@ return (
                         </div>
 
                         {/* actions moved to bottom to avoid overlaying text */}
-                        <div className="mt-2 flex items-center gap-1 flex-wrap">
+                        <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
                           {editingId===c.uuid ? (
                             <>
                               <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>

@@ -1,6 +1,9 @@
 # cardmass
 
-Version: 0.11.0
+Version: 0.14.0
+Updated: 2025-09-30T09:54:35.000Z
+
+![version](https://img.shields.io/badge/version-0.14.0-blue?style=flat-square)
 
 Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
@@ -10,6 +13,10 @@ Links
 - TASKLIST.md — active tasks with owners and expected dates
 - RELEASE_NOTES.md — completed releases
 - LEARNINGS.md — decisions and migration notes
+- TECH_STACK.md — languages, frameworks, tools, env vars
+- NAMING_GUIDE.md — naming conventions and examples
+- WARP.md — guidance for warp.dev usage and repository commands
+- WARP.DEV_AI_CONVERSATION.md — planning and governance log
 
 Quickstart
 1) Install dependencies
@@ -31,6 +38,7 @@ Core concepts (universal references)
 - uuid: globally unique identifier (v4) used for organizations, boards, and cards
 
 Notes
+- All timestamps must be ISO 8601 with milliseconds in UTC
 - No tests (MVP policy)
 - No breadcrumbs (Navigation policy)
 - Version is surfaced via NEXT_PUBLIC_APP_VERSION for metadata alignment; it is not shown in the UI navigation

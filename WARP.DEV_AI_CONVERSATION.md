@@ -1,5 +1,18 @@
 # WARP.DEV_AI_CONVERSATION
 
+Timestamp: 2025-09-28T15:54:11.000Z
+Author: ai
+
+Plan — Documentation refresh and governance alignment (v0.12.0)
+- Synchronize versions and timestamps across all docs
+- Clean ROADMAP to forward-looking only
+- Add TECH_STACK.md and NAMING_GUIDE.md
+- Update README with version badge and governance notes
+- Append release notes for v0.12.0
+- Governance: Follow Versioning Protocol; ISO timestamps (ms); No tests; No breadcrumbs
+
+# WARP.DEV_AI_CONVERSATION
+
 Timestamp: 2025-09-27T12:01:54.000Z
 Author: ai
 
@@ -202,3 +215,28 @@ Files in scope
 - src/components/BottomBar.tsx — render board links + overflow + Admin; preserve input
 - src/components/SpockNav.tsx — convert to server; brand + Admin
 - ROADMAP.md, README.md, ARCHITECTURE.md — updated to reflect ISO timestamps and nav changes
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-30T08:41:22.000Z
+Author: ai
+
+Plan — Add WARP.md and governance sync (v0.13.0)
+- Created WARP.md with commands, architecture, governance, and scripts inventory
+- Linked WARP.md in README
+- Bumped MINOR to 0.13.0; updated version/timestamps across docs
+- Added RELEASE_NOTES entry for v0.13.0
+- ROADMAP: added maintenance item for WARP.md
+- TASKLIST: added P0 to create WARP.md and wire docs
+- Build and lint before commit; request run-dev approval prior to committing to main
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-30T09:54:35.000Z
+Author: ai
+
+Delivery — Inbox toggle controls all card details; hydration fix; prepare v0.14.0
+- Changed: Single “show/hide” toggle in Inbox that affects both Inbox and placed cards (hashtags + actions)
+- Removed: Board-level toggle
+- Fixed: Prevented hydration mismatch by loading localStorage preference after mount
+- Governance: Bump MINOR to 0.14.0; sync docs/timestamps; update release notes

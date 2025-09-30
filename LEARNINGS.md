@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.11.0
+Version: 0.14.0
 
-Updated: 2025-09-28T10:39:23.000Z
+Updated: 2025-09-30T09:54:35.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -18,3 +18,6 @@ Updated: 2025-09-28T10:39:23.000Z
   Why: Consistency, precision, and interoperability.
 - Grid alignment nuance: For CSS grid, explicitly set content-start and items-start (and justify-start as needed) on grid containers to ensure items anchor to the top-left.
   Why: Prevents vertical centering or space-around artifacts so boards remain predictable and dense at a glance.
+
+- Process: Documentation governance enforcement
+  Why: Consolidated docs, synchronized version/timestamps, and planned automation to prevent drift and ensure compliance.

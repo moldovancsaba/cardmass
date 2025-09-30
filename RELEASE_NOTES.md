@@ -1,5 +1,33 @@
 # RELEASE_NOTES
 
+## [v0.14.0] — 2025-09-30T09:55:53.504Z
+- (update notes here)
+
+## [v0.14.0] — 2025-09-30T09:55:53.466Z
+- (update notes here)
+
+## [v0.14.0] — 2025-09-30T09:54:35.000Z
+- Feature: Single Inbox “show/hide” toggle now controls hashtags and action buttons for all cards on the page (Inbox + board areas); preference persisted per organization.
+- Fixed: Resolved hydration mismatch by deferring localStorage reads to useEffect, ensuring SSR and client initial render match.
+
+## [v0.13.0] — 2025-09-30T08:41:22.000Z
+- (update notes here)
+
+## [v0.13.0] — 2025-09-30T08:47:00.133Z
+- (update notes here)
+
+## [v0.13.0] — 2025-09-30T08:41:22.000Z
+- Docs: Added WARP.md (commands, architecture, governance for Warp usage) and linked it from README.
+- Governance: Synchronized versions across docs; ensured ISO 8601 with milliseconds (UTC).
+
+## [v0.12.0] — 2025-09-28T15:54:11.000Z
+- Docs: Comprehensive documentation refresh and governance alignment
+  - Added TECH_STACK.md and NAMING_GUIDE.md
+  - Cleaned ROADMAP to be forward-looking only; grouped milestones with priorities and dependencies
+  - Synchronized version/timestamps across README, ARCHITECTURE, ROADMAP, TASKLIST, LEARNINGS, and RELEASE_NOTES
+  - Added version badge and governance notes to README (no tests; no breadcrumbs; timestamp policy)
+  - Governance: Enforced ISO 8601 with milliseconds (UTC) across all documentation and followed Versioning & Release Protocol
+
 ## [v0.11.0] — 2025-09-28T10:39:23.000Z
 - Changed: Tagger areas now align cards to the top-left. Inner grid containers use content-start, justify-start, and items-start to anchor rows and items, preserving uniform card width and multi-column packing without horizontal scroll.
 - Docs: Synchronized version numbers and timestamps across README, ARCHITECTURE, ROADMAP, TASKLIST, and LEARNINGS.
