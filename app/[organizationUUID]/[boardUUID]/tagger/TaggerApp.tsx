@@ -545,103 +545,118 @@ return (
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside stacked pane */}
               <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
-                {/* slot before first card */}
+                <div className="contents">
+                  {/* slot before first card */}
+                  <div
+                    className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                    style={{ gridColumn: '1 / -1' }}
+                    onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 0 }) }}
+                    onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); const newOrder = arr.length>0 ? computeNewOrder(b.label, arr[0].id, true) : 1; placeCard(id, b.label, newOrder) }}
+                  >
+                    {dropHint && dropHint.area===b.key && dropHint.slot===0 && (
+                      <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
+                    )}
+                  </div>
+
+                  {sortedAreaCards(b.label).map((c, idx) => (
+                    <div key={`stack-placed-${b.key}-${c.id}`}>
+                      <div
+                        draggable
+                        onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
+                        onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
+                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        title={c.text}
+                      >
+                        <div className="pr-0">
+                          {editingId===c.uuid ? (
+                            <div>
+                              <textarea
+                                value={editText}
+                                onChange={(e)=>setEditText(e.target.value)}
+                                onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
+                                className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
+                                placeholder="Edit text..."
+                              />
+                              <div className="mt-1 text-[10px] text-gray-500">Enter to save • Shift+Enter for newline • Esc to cancel</div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
+                              {/* labels from all boards */}
+                              {showInboxDetails && Object.entries(c.boardAreas||{}).length>0 && (
+                                <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
+                                  {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
+                                    const name = String(lbl||'').toLowerCase()
+                                    if (!name || name==='spock') return null
+                                    const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
+                                    const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
+                                    return (
+                                      <a key={`stack-placed-tag-${b.key}-${c.id}-${bid}-${name}`} href={`/${encodeURIComponent(orgUUID)}/hashtags/resolve?board=${encodeURIComponent(bid)}&label=${encodeURIComponent(name)}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }} title={`Open #${name}`}>
+                                        #{name}
+                                      </a>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+                        {/* actions */}
+                        <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
+                          {editingId===c.uuid ? (
+                            <>
+                              <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
+                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <a href={getCardUrl(orgUUID, c.uuid)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="open card in new tab" title="open">
+                                <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
+                              </a>
+                              {!isArchiveBoard && (
+                                <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+                                  <span className="material-symbols-outlined" aria-hidden="true">archive</span>
+                                </button>
+                              )}
+                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
+                                <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
+                              </button>
+                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
+                                <span className="material-symbols-outlined" aria-hidden="true">delete</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* slot after this card (only for single-column areas) */}
+                      {(areaCols[b.key] || viewportCols) === 1 && (
+                        <div
+                          className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                          style={{ gridColumn: '1 / -1' }}
+                          onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: idx+1 }) }}
+                          onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); let newOrder: number; if (idx+1 >= arr.length) { newOrder = computeNewOrder(b.label) } else { newOrder = computeNewOrder(b.label, arr[idx+1].id, true) } placeCard(id, b.label, newOrder) }}
+                        >
+                          {dropHint && dropHint.area===b.key && dropHint.slot===idx+1 && (
+                            <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {/* end-of-grid slot to drop at end (spans columns) */}
                 <div
-                  className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                  className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===9999 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
                   style={{ gridColumn: '1 / -1' }}
-                  onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 0 }) }}
-                  onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); const newOrder = arr.length>0 ? computeNewOrder(b.label, arr[0].id, true) : 1; placeCard(id, b.label, newOrder) }}
+                  onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 9999 }) }}
+                  onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const newOrder = computeNewOrder(b.label); placeCard(id, b.label, newOrder) }}
                 >
-                  {dropHint && dropHint.area===b.key && dropHint.slot===0 && (
+                  {dropHint && dropHint.area===b.key && dropHint.slot===9999 && (
                     <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
                   )}
                 </div>
-
-                {sortedAreaCards(b.label).map((c, idx) => (
-                  <div key={`stack-placed-${b.key}-${c.id}`}>
-                    <div
-                      draggable
-                      onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
-                      onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
-                      className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
-                      title={c.text}
-                    >
-                      <div className="pr-0">
-                        {editingId===c.uuid ? (
-                          <div>
-                            <textarea
-                              value={editText}
-                              onChange={(e)=>setEditText(e.target.value)}
-                              onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
-                              className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
-                              placeholder="Edit text..."
-                            />
-                            <div className="mt-1 text-[10px] text-gray-500">Enter to save • Shift+Enter for newline • Esc to cancel</div>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
-                            {/* labels from all boards */}
-                            {showInboxDetails && Object.entries(c.boardAreas||{}).length>0 && (
-                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
-                                {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
-                                  const name = String(lbl||'').toLowerCase()
-                                  if (!name || name==='spock') return null
-                                  const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
-                                  const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
-                                  return (
-                                    <a key={`stack-placed-tag-${b.key}-${c.id}-${bid}-${name}`} href={`/${encodeURIComponent(orgUUID)}/hashtags/resolve?board=${encodeURIComponent(bid)}&label=${encodeURIComponent(name)}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }} title={`Open #${name}`}>
-                                      #{name}
-                                    </a>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-
-                      {/* actions */}
-                      <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
-                        {editingId===c.uuid ? (
-                          <>
-                            <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
-                            <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
-                          </>
-                        ) : (
-                          <>
-                            <a href={getCardUrl(orgUUID, c.uuid)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="open card in new tab" title="open">
-                              <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
-                            </a>
-                            {!isArchiveBoard && (
-                              <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
-                                <span className="material-symbols-outlined" aria-hidden="true">archive</span>
-                              </button>
-                            )}
-                            <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
-                              <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
-                            </button>
-                            <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
-                              <span className="material-symbols-outlined" aria-hidden="true">delete</span>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* slot after this card */}
-                    <div
-                      className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
-                      style={{ gridColumn: '1 / -1' }}
-                      onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: idx+1 }) }}
-                      onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); let newOrder: number; if (idx+1 >= arr.length) { newOrder = computeNewOrder(b.label) } else { newOrder = computeNewOrder(b.label, arr[idx+1].id, true) } placeCard(id, b.label, newOrder) }}
-                    >
-                      {dropHint && dropHint.area===b.key && dropHint.slot===idx+1 && (
-                        <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
-                      )}
-                    </div>
-                  </div>
-                ))}
               </div>
             </section>
           ))}
@@ -917,22 +932,32 @@ return (
                         </div>
                       </div>
 
-                      {/* slot after this card (position idx+1) */}
-                      {/*
-                        WHAT: Slot after each card (between-card insertion point). Taller on mobile/touch; subtle hover bg when active.
-                        WHY: Easier to hit and more obvious visual feedback during reordering.
-                      */}
-                      <div
-                        className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
-                        onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: idx+1 }) }}
-                        onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); let newOrder: number; if (idx+1 >= arr.length) { newOrder = computeNewOrder(b.label) } else { newOrder = computeNewOrder(b.label, arr[idx+1].id, true) } placeCard(id, b.label, newOrder) }}
-                      >
-                        {dropHint && dropHint.area===b.key && dropHint.slot===idx+1 && (
-                          <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
-                        )}
-                      </div>
+                      {/* slot after this card (only for single-column areas) */}
+                      {(areaCols[b.key] || viewportCols) === 1 && (
+                        <div
+                          className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                          style={{ gridColumn: '1 / -1' }}
+                          onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: idx+1 }) }}
+                          onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); let newOrder: number; if (idx+1 >= arr.length) { newOrder = computeNewOrder(b.label) } else { newOrder = computeNewOrder(b.label, arr[idx+1].id, true) } placeCard(id, b.label, newOrder) }}
+                        >
+                          {dropHint && dropHint.area===b.key && dropHint.slot===idx+1 && (
+                            <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
+                </div>
+                {/* end-of-grid slot to drop at end (spans columns) */}
+                <div
+                  className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===9998 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                  style={{ gridColumn: '1 / -1' }}
+                  onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 9998 }) }}
+                  onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const newOrder = computeNewOrder(b.label); placeCard(id, b.label, newOrder) }}
+                >
+                  {dropHint && dropHint.area===b.key && dropHint.slot===9998 && (
+                    <div className="absolute left-1 right-1 top-1/2 -translate-y-1/2 border-t-2 border-dashed border-blue-500/90 filter drop-shadow-sm animate-pulse pointer-events-none" />
+                  )}
                 </div>
               </div>
             </div>

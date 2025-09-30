@@ -1,5 +1,10 @@
 # RELEASE_NOTES
 
+## [v0.15.0] — 2025-09-30T13:34:38.000Z
+- Fix: Resolved build failure caused by mismatched JSX in TaggerApp stacked (<1200px) layout. Added a proper grid content wrapper, closed map blocks, and ensured correct nesting.
+- Changed: Multi-column wrapping now packs cards side-by-side by removing per-card full-width slots in multi-column areas. Kept top-of-area slot and introduced an end-of-grid slot. Per-card slot-after is rendered only for single-column areas.
+- Result: npm run build succeeds; UI maintains uniform card width with correct wrapping.
+
 ## [v0.14.1] — 2025-09-30T10:55:35.000Z
 - Dev: Start local dev cycle for stacked single-column mobile layout and interactions.
 
