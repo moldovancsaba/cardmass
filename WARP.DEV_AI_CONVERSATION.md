@@ -236,6 +236,16 @@ Timestamp: 2025-09-30T09:54:35.000Z
 Author: ai
 
 Delivery — Inbox toggle controls all card details; hydration fix; prepare v0.14.0
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-09-30T10:55:35.000Z
+Author: ai
+
+Action — Start dev server (v0.14.1)
+- Bumped patch to 0.14.1 before running dev, synchronized docs, and added a minimal release note.
+- Launch dev server on port 4000 to verify stacked mobile layout and DnD.
+- Logs written to .dev.log; use Ctrl+C or pkill to stop if needed.
 - Changed: Single “show/hide” toggle in Inbox that affects both Inbox and placed cards (hashtags + actions)
 - Removed: Board-level toggle
 - Fixed: Prevented hydration mismatch by loading localStorage preference after mount
