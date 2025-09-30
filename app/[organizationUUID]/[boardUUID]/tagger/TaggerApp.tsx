@@ -23,6 +23,14 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
   const [labelColorCache, setLabelColorCache] = useState<Record<string, Record<string, string>>>({})
   const [labelTextMap, setLabelTextMap] = useState<Record<string, Record<string, boolean>>>({})
   const [draggingId, setDraggingId] = useState<string | null>(null)
+  // Track SPOCK container widths (desktop aside and stacked section); take the max visible width
+  const spockDesktopRef = useRef<HTMLDivElement | null>(null)
+  const spockStackedRef = useRef<HTMLDivElement | null>(null)
+  const [spockWidth, setSpockWidth] = useState<number>(0)
+  // Computed area content widths (existing)
+  // Columns per area derived from (areaWidth / spockWidth), clamped by viewport breakpoints
+  const [areaCols, setAreaCols] = useState<Record<string, number>>({})
+  const [viewportCols, setViewportCols] = useState<number>(1)
   // Archive board detection (by slug: 'archive') to switch card list to archived-only
   const isArchiveBoard = useMemo(() => {
     const b = boards.find((x) => x.uuid === boardUUID)
@@ -80,6 +88,62 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     Object.entries(areaContentRefs.current).forEach(([key, el]) => { if (el) ro.observe(el) })
     return () => { try { ro.disconnect() } catch {} }
   }, [areaBoxes])
+
+  // Observe SPOCK container widths (both desktop and stacked), take the max
+  useEffect(() => {
+    const ro = new ResizeObserver(() => {
+      try {
+        const w1 = spockDesktopRef.current ? spockDesktopRef.current.getBoundingClientRect().width : 0
+        const w2 = spockStackedRef.current ? spockStackedRef.current.getBoundingClientRect().width : 0
+        const w = Math.max(w1, w2, 0)
+        setSpockWidth(w)
+      } catch {}
+    })
+    try { if (spockDesktopRef.current) ro.observe(spockDesktopRef.current) } catch {}
+    try { if (spockStackedRef.current) ro.observe(spockStackedRef.current) } catch {}
+    return () => { try { ro.disconnect() } catch {} }
+  }, [])
+
+  // Track viewport breakpoint cols (1/<640, 2/≥640, 3/≥1280)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    function computeCols() {
+      try {
+        if (window.matchMedia('(min-width: 1280px)').matches) return 3
+        if (window.matchMedia('(min-width: 640px)').matches) return 2
+        return 1
+      } catch {
+        const w = window.innerWidth || 0
+        if (w >= 1280) return 3
+        if (w >= 640) return 2
+        return 1
+      }
+    }
+    const apply = () => setViewportCols(computeCols())
+    apply()
+    window.addEventListener('resize', apply)
+    return () => window.removeEventListener('resize', apply)
+  }, [])
+
+  // Compute per-area max columns based on area vs. spock widths, clamped by viewport cols
+  useEffect(() => {
+    setAreaCols((prev) => {
+      const next: Record<string, number> = {}
+      const sw = spockWidth || 0
+      for (const b of areaBoxes) {
+        const aw = areaWidths[b.key] || 0
+        let fromRatio = 1
+        if (sw > 0 && aw > 0) {
+          fromRatio = Math.floor(aw / sw)
+          if (fromRatio < 1) fromRatio = 1
+          if (fromRatio > 3) fromRatio = 3
+        }
+        const cols = Math.max(1, Math.min(3, Math.min(fromRatio, viewportCols)))
+        next[b.key] = cols
+      }
+      return next
+    })
+  }, [areaBoxes, areaWidths, spockWidth, viewportCols])
 
   const minCardWidth = useMemo(() => {
     const vals = Object.values(areaWidths).filter((v) => v && isFinite(v))
@@ -300,6 +364,7 @@ return [bid, map, tmap] as const
                which clears the per-board placement and returns the card to Inbox for this board.
         */}
         <div
+          ref={spockDesktopRef}
           className={`space-y-2 mb-3 overflow-auto flex-1 ${inboxHover ? 'ring-2 ring-blue-400 rounded' : ''}`}
           onDragOver={(e)=>{ e.preventDefault(); setInboxHover(true) }}
           onDragLeave={()=>{ setInboxHover(false) }}
@@ -465,7 +530,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside stacked pane */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, minmax(0, 1fr))` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 {/* slot before first card */}
                 <div
                   className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
@@ -569,7 +634,7 @@ return (
 
           {/* SPOCK stacked section: full screen split (Inbox + Nav/Input) */}
           <section className="snap-start w-full h-[100svh] border rounded-sm overflow-hidden">
-            <div className="h-[50svh] overflow-auto p-2">
+            <div className="h-[50svh] overflow-auto p-2" ref={spockStackedRef}>
               {/* Inbox list (reuse same DOM as aside, compact) */}
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-semibold">Inbox</h2>
@@ -747,7 +812,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, minmax(0, 1fr))` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
                   {/* slot before the first card (position 0) */}
                   {/*
