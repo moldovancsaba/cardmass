@@ -465,10 +465,11 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside stacked pane */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2">
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                 {/* slot before first card */}
                 <div
                   className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                  style={{ gridColumn: '1 / -1' }}
                   onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: 0 }) }}
                   onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); const newOrder = arr.length>0 ? computeNewOrder(b.label, arr[0].id, true) : 1; placeCard(id, b.label, newOrder) }}
                 >
@@ -478,7 +479,7 @@ return (
                 </div>
 
                 {sortedAreaCards(b.label).map((c, idx) => (
-                  <div key={`stack-placed-${b.key}-${c.id}`} className="mb-2">
+                  <div key={`stack-placed-${b.key}-${c.id}`}>
                     <div
                       draggable
                       onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
@@ -552,6 +553,7 @@ return (
                     {/* slot after this card */}
                     <div
                       className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
+                      style={{ gridColumn: '1 / -1' }}
                       onDragOver={(e)=>{ e.preventDefault(); e.stopPropagation(); setDropHint({ area: b.key, slot: idx+1 }) }}
                       onDrop={(e)=>{ e.preventDefault(); e.stopPropagation(); const id=(e.dataTransfer as DataTransfer).getData('text/plain') || draggingId || ''; if(!id) return; setDropHint(null); const arr = sortedAreaCards(b.label); let newOrder: number; if (idx+1 >= arr.length) { newOrder = computeNewOrder(b.label) } else { newOrder = computeNewOrder(b.label, arr[idx+1].id, true) } placeCard(id, b.label, newOrder) }}
                     >
@@ -745,7 +747,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
-<div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${Math.max(1, Math.floor(((areaWidths[b.key]||0)+8)/ (minCardWidth+8)))}, ${minCardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start grid-cols-1 sm:grid-cols-2 xl:grid-cols-3" ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
                   {/* slot before the first card (position 0) */}
                   {/*
