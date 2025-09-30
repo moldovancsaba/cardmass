@@ -1,5 +1,11 @@
 # RELEASE_NOTES
 
+## [v0.16.0] — 2025-09-30T14:08:21.000Z
+- Added: Per-area row-first (dense) packing option. When enabled for an area, the card grid uses row-dense flow to keep cards next to each other in rows where possible.
+- Added: Separate Area background color alongside Hashtag color in Creator. Background tint in Tagger uses the new bgColor (with opacity), while hashtag chips keep the hashtag color.
+- Creator: Area list now shows a small background swatch next to the hashtag chip; per-area toggles include BLACK text and Row-first.
+- Tagger: Area background tint prefers bgColor; gridAutoFlow respects per-area rowFirst.
+
 ## [v0.15.0] — 2025-09-30T13:34:38.000Z
 - Fix: Resolved build failure caused by mismatched JSX in TaggerApp stacked (<1200px) layout. Added a proper grid content wrapper, closed map blocks, and ensured correct nesting.
 - Changed: Multi-column wrapping now packs cards side-by-side by removing per-card full-width slots in multi-column areas. Kept top-of-area slot and introduced an end-of-grid slot. Per-card slot-after is rendered only for single-column areas.

@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.15.0
+Version: 0.16.0
 
-Updated: 2025-09-30T13:34:38.000Z
+Updated: 2025-09-30T14:08:21.000Z
 
 ## Milestone: v0.14.0 — Documentation Governance Alignment
 - Priority: P0

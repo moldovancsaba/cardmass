@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 0.15.0
+Version: 0.16.0
 
-Updated: 2025-09-30T13:34:38.000Z
+Updated: 2025-09-30T14:08:21.000Z
 
 - P0 — Create and wire WARP.md into README and governance
   - Owner: ai

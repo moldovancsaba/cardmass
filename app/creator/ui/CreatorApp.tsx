@@ -8,7 +8,7 @@ import { useSearchParams } from "next/navigation";
 // Why: Matches requirements for direct, visual creation without backend dependence.
 
 type TileId = string; // "r-c"
-interface Area { id: string; label: string; color: string; tiles: TileId[]; textBlack?: boolean }
+interface Area { id: string; label: string; color: string; bgColor?: string; tiles: TileId[]; textBlack?: boolean; rowFirst?: boolean }
 interface Store {
   version: number;
   slug: string;
@@ -50,6 +50,8 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
   const [currentColor, setCurrentColor] = useState("#0ea5e9"); // sky-500
   const [selection, setSelection] = useState<Set<TileId>>(new Set());
   const [overrideMode] = useState(true);
+  const [currentBgColor, setCurrentBgColor] = useState<string>("#e5e7eb"); // default gray-200 for area background
+  const [currentRowFirst, setCurrentRowFirst] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragAnchor, setDragAnchor] = useState<{ r: number; c: number } | null>(null);
   const [dragHover, setDragHover] = useState<{ r: number; c: number } | null>(null);
@@ -200,7 +202,7 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
       const finalTiles = overrideMode ? tiles : tiles.filter(t => !map.has(t));
       if (finalTiles.length === 0) return s; // nothing to add
 
-      const area: Area = { id: uid(), label, color: currentColor, tiles: finalTiles };
+      const area: Area = { id: uid(), label, color: currentColor, bgColor: currentBgColor, tiles: finalTiles, textBlack: true, rowFirst: currentRowFirst };
       return { ...s, areas: [...areas, area] };
     });
 
@@ -354,6 +356,8 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
                 if (a) {
                   setCurrentLabel(a.label)
                   setCurrentColor(a.color)
+                  setCurrentBgColor(a.bgColor || a.color)
+                  setCurrentRowFirst(!!a.rowFirst)
                   // Load tiles into selection for editing (replace selection)
                   setSelection(new Set(a.tiles))
                 }
@@ -375,21 +379,39 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
               onChange={e => setCurrentLabel(e.target.value)}
             />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium">Color</label>
-            <input
-              type="color"
-              value={currentColor}
-              onChange={e => setCurrentColor(e.target.value)}
-              className="h-9 w-12 p-0 border border-black/20 rounded"
-              title="Select selection color"
-            />
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">Hashtag color</label>
+              <input
+                type="color"
+                value={currentColor}
+                onChange={e => setCurrentColor(e.target.value)}
+                className="h-9 w-12 p-0 border border-black/20 rounded"
+                title="Select hashtag background color"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">Area background</label>
+              <input
+                type="color"
+                value={currentBgColor}
+                onChange={e => setCurrentBgColor(e.target.value)}
+                className="h-9 w-12 p-0 border border-black/20 rounded"
+                title="Select area background color"
+              />
+            </div>
           </div>
-          <div className="text-sm">
-            <span className="opacity-70 mr-2">label preview</span>
-            <span className="px-2 py-0.5 rounded text-white" style={{ backgroundColor: currentColor }}>
-              #{slugify(currentLabel || "label")}
-            </span>
+          <div className="flex items-center gap-4 text-sm">
+            <div>
+              <span className="opacity-70 mr-2">label preview</span>
+              <span className="px-2 py-0.5 rounded" style={{ backgroundColor: currentColor, color: '#fff' }}>
+                #{slugify(currentLabel || "label")}
+              </span>
+            </div>
+            <label className="text-xs flex items-center gap-2">
+              <input type="checkbox" checked={currentRowFirst} onChange={e => setCurrentRowFirst(e.target.checked)} />
+              <span>Row-first (dense) packing</span>
+            </label>
           </div>
 
           {/* Apply locally: update selected area fields and (optionally) its tiles with current selection */}
@@ -404,7 +426,7 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
                 if (idx === -1) return s
                 const updated = [...s.areas]
                 const prev = updated[idx]
-                updated[idx] = { ...prev, label, color: currentColor, tiles: Array.from(selection) }
+                updated[idx] = { ...prev, label, color: currentColor, bgColor: currentBgColor, rowFirst: currentRowFirst, tiles: Array.from(selection) }
                 return { ...s, areas: updated }
               })
             }}
@@ -507,9 +529,9 @@ if (boardUUID) {
               const assigned = tileToArea.get(id);
               const inDrag = dragSet.has(id);
               const isPersistSel = selection.has(id);
-              const baseTint = `rgba(${parseInt(currentColor.slice(1,3),16)}, ${parseInt(currentColor.slice(3,5),16)}, ${parseInt(currentColor.slice(5,7),16)}, 0.25)`;
-              const bg = assigned ? assigned.color : baseTint;
-              const borderColor = (isPersistSel || inDrag) ? currentColor : "#e5e7eb"; // gray-200
+              const baseTint = `rgba(${parseInt(currentBgColor.slice(1,3),16)}, ${parseInt(currentBgColor.slice(3,5),16)}, ${parseInt(currentBgColor.slice(5,7),16)}, 0.25)`;
+              const bg = assigned ? (assigned.bgColor || assigned.color) : baseTint;
+              const borderColor = (isPersistSel || inDrag) ? currentBgColor : "#e5e7eb"; // gray-200
               return (
                 <button
                   key={id}
@@ -533,10 +555,12 @@ if (boardUUID) {
                   title={assigned ? `#${slugify(assigned.label)} (${assigned.color})` : id}
                 >
                   {assigned && (
-<span
-                      className="absolute bottom-1 left-1 text-[10px] px-1 rounded"
-                      style={{ backgroundColor: assigned.color, color: (assigned as Area).textBlack !== false ? '#000' : '#fff' }}
-                    >#{slugify(assigned.label)}</span>
+                    <>
+                      <span
+                        className="absolute bottom-1 left-1 text-[10px] px-1 rounded"
+                        style={{ backgroundColor: assigned.color, color: (assigned as Area).textBlack !== false ? '#000' : '#fff' }}
+                      >#{slugify(assigned.label)}</span>
+                    </>
                   )}
                 </button>
               );
@@ -561,7 +585,8 @@ if (boardUUID) {
                 title={brushAreaId === a.id ? 'Brush active: click to turn off' : 'Click to use as brush'}
               >
                 <div className="flex items-center gap-2">
-<span className="px-2 py-0.5 rounded" style={{ backgroundColor: a.color, color: (a.textBlack !== false) ? '#000' : '#fff' }}>
+                  <span className="inline-block h-4 w-4 rounded border border-black/20" style={{ backgroundColor: a.bgColor || a.color }} title="Area background" />
+                  <span className="px-2 py-0.5 rounded" style={{ backgroundColor: a.color, color: (a.textBlack !== false) ? '#000' : '#fff' }}>
                     #{slugify(a.label)}
                   </span>
                   <span className="text-xs opacity-70">{a.tiles.length} tile(s)</span>
@@ -579,6 +604,19 @@ if (boardUUID) {
                       })
                     }} />
                     <span>BLACK text</span>
+                  </label>
+                  <label className="text-xs flex items-center gap-1" onClick={(e)=>e.stopPropagation()}>
+                    <input type="checkbox" checked={!!a.rowFirst} onChange={(e)=>{
+                      e.stopPropagation();
+                      setStore(s => {
+                        const idx = s.areas.findIndex(x => x.id === a.id)
+                        if (idx === -1) return s
+                        const updated = [...s.areas]
+                        updated[idx] = { ...updated[idx], rowFirst: e.target.checked }
+                        return { ...s, areas: updated }
+                      })
+                    }} />
+                    <span>Row-first</span>
                   </label>
                   <button className="text-red-600 text-sm" onClick={(e) => { e.stopPropagation(); removeArea(a.id) }}>Delete</button>
                 </div>

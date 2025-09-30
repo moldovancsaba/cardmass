@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getCardUrl } from '@/lib/urls'
 
 type TileId = string
-export type Area = { label: string; color: string; tiles: TileId[]; textBlack?: boolean }
+export type Area = { label: string; color: string; tiles: TileId[]; textBlack?: boolean; bgColor?: string; rowFirst?: boolean }
 export type Card = { id: string; uuid: string; text: string; status: 'delegate'|'decide'|'do'|'decline'; order: number; createdAt: string; updatedAt: string; boardAreas?: Record<string,string> }
 
 type Props = { orgUUID: string; boardUUID: string; rows: number; cols: number; areas: Area[] }
@@ -51,14 +51,14 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
   const [inboxHover, setInboxHover] = useState(false)
 
   const areaBoxes = useMemo(() => {
-    type Box = { key: string; label: string; color: string; textBlack: boolean; minR: number; minC: number; maxR: number; maxC: number }
-    const t2a = new Map<TileId, { label: string; color: string; textBlack?: boolean }>()
-    for (const a of (areas||[])) for (const t of (a.tiles||[])) t2a.set(t, { label: a.label, color: a.color, textBlack: a.textBlack })
+    type Box = { key: string; label: string; color: string; bgColor?: string; rowFirst?: boolean; textBlack: boolean; minR: number; minC: number; maxR: number; maxC: number }
+    const t2a = new Map<TileId, { label: string; color: string; bgColor?: string; rowFirst?: boolean; textBlack?: boolean }>()
+    for (const a of (areas||[])) for (const t of (a.tiles||[])) t2a.set(t, { label: a.label, color: a.color, bgColor: a.bgColor, rowFirst: a.rowFirst, textBlack: a.textBlack })
     const map = new Map<string, Box>()
     for (let r=0;r<rows;r++) for (let c=0;c<cols;c++) {
       const id=`${r}-${c}`; const a=t2a.get(id); if (!a) continue
       const key = (a.label||'').toLowerCase(); const b=map.get(key)
-      if (!b) map.set(key,{ key, label: key, color: a.color, textBlack: a.textBlack !== false, minR:r,minC:c,maxR:r,maxC:c })
+      if (!b) map.set(key,{ key, label: key, color: a.color, bgColor: a.bgColor, rowFirst: a.rowFirst, textBlack: a.textBlack !== false, minR:r,minC:c,maxR:r,maxC:c })
       else { b.minR=Math.min(b.minR,r); b.minC=Math.min(b.minC,c); b.maxR=Math.max(b.maxR,r); b.maxC=Math.max(b.maxC,c) }
     }
     return Array.from(map.values())
@@ -541,10 +541,10 @@ return (
           {orderedAreaBoxes.map((b) => (
             <section key={`stack-${b.key}`} className="snap-start w-full h-[50svh] border rounded-sm relative overflow-hidden mb-2">
               {/* area background tint */}
-              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
+              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || b.color).slice(1,3),16)}, ${parseInt((b.bgColor || b.color).slice(3,5),16)}, ${parseInt((b.bgColor || b.color).slice(5,7),16)}, 0.25)` }} />
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside stacked pane */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)`, gridAutoFlow: b.rowFirst ? 'row dense' : 'row' }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
                   {/* slot before first card */}
                   <div
@@ -838,10 +838,10 @@ return (
               className={`relative border rounded-sm overflow-hidden ${hoverArea===b.key ? 'ring-2 ring-blue-400' : ''}`}
               style={{ gridColumn: `${b.minC + 1} / ${b.maxC + 2}`, gridRow: `${b.minR + 1} / ${b.maxR + 2}` }}
             >
-              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
+              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || b.color).slice(1,3),16)}, ${parseInt((b.bgColor || b.color).slice(3,5),16)}, ${parseInt((b.bgColor || b.color).slice(5,7),16)}, 0.25)` }} />
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)`, gridAutoFlow: b.rowFirst ? 'row dense' : 'row' }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
                   {/* slot before the first card (position 0) */}
                   {/*
