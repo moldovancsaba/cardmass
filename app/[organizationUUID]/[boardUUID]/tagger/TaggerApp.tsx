@@ -127,7 +127,7 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
 
   // Compute per-area max columns based on area vs. spock widths, clamped by viewport cols
   useEffect(() => {
-    setAreaCols((prev) => {
+    setAreaCols(() => {
       const next: Record<string, number> = {}
       const sw = spockWidth || 0
       for (const b of areaBoxes) {
@@ -138,18 +138,32 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
           if (fromRatio < 1) fromRatio = 1
           if (fromRatio > 3) fromRatio = 3
         }
-        const cols = Math.max(1, Math.min(3, Math.min(fromRatio, viewportCols)))
-        next[b.key] = cols
+        next[b.key] = Math.max(1, Math.min(3, Math.min(fromRatio, viewportCols)))
       }
       return next
     })
   }, [areaBoxes, areaWidths, spockWidth, viewportCols])
 
-  const minCardWidth = useMemo(() => {
+  // Global uniform card width across the board (px), derived from SPOCK width and viewport columns
+  const cardWidth = useMemo(() => {
+    const GAP = 8
+    const cols = Math.max(1, Math.min(3, viewportCols))
+    // Prefer SPOCK width to define the baseline card width
+    if (spockWidth && spockWidth > 0) {
+      const avail = Math.max(0, spockWidth - (cols - 1) * GAP)
+      const w = Math.floor(avail / cols)
+      return Math.max(200, Math.min(480, w || 0))
+    }
+    // Fallback: use narrowest measured area width
     const vals = Object.values(areaWidths).filter((v) => v && isFinite(v))
-    if (!vals.length) return 320
-    return Math.max(200, Math.min(...vals))
-  }, [areaWidths])
+    if (vals.length) {
+      const minArea = Math.min(...vals)
+      const avail = Math.max(0, minArea - (cols - 1) * GAP)
+      const w = Math.floor(avail / cols)
+      return Math.max(200, Math.min(480, w || 0))
+    }
+    return 320
+  }, [viewportCols, spockWidth, areaWidths])
 
   const load = useCallback(async () => {
     setLoading(true); setError(null)
@@ -530,7 +544,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside stacked pane */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, minmax(0, 1fr))` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 {/* slot before first card */}
                 <div
                   className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
@@ -812,7 +826,7 @@ return (
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt(b.color.slice(1,3),16)}, ${parseInt(b.color.slice(3,5),16)}, ${parseInt(b.color.slice(5,7),16)}, 0.25)` }} />
 <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               {/* Placed cards inside area */}
-              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, minmax(0, 1fr))` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)` }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
                   {/* slot before the first card (position 0) */}
                   {/*
