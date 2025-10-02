@@ -1,9 +1,9 @@
 # cardmass
 
-Version: 0.16.0
-Updated: 2025-09-30T14:08:21.000Z
+Version: 0.18.0
+Updated: 2025-10-02T12:47:30.000Z
 
-![version](https://img.shields.io/badge/version-0.16.0-blue?style=flat-square)
+![version](https://img.shields.io/badge/version-0.18.0-blue?style=flat-square)
 
 Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
@@ -41,4 +41,26 @@ Notes
 - All timestamps must be ISO 8601 with milliseconds in UTC
 - No tests (MVP policy)
 - No breadcrumbs (Navigation policy)
+- Board backgrounds can be set in Creator (Board background CSS) and on the organization page (InlineCreateBoard). They are applied on Tagger as inline background-* styles.
+- Area backgrounds are independent from hashtag colors; Tagger tints area fills using bgColor and no stroke
 - Version is surfaced via NEXT_PUBLIC_APP_VERSION for metadata alignment; it is not shown in the UI navigation
+- Authentication: Zero-trust access for Tagger pages via admin session (HttpOnly cookie) OR page password (32-hex token). See ARCHITECTURE.md § 10 for complete specification.
+
+Board background (CSS) — example
+Paste multiline CSS with only background-* declarations (others are ignored by design):
+
+```css path=null start=null
+background-color: #2A7B9B; /* Fallback solid color */
+background-image:
+  url("https://example.com/your-background.jpg"),
+  linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 50%, rgba(237, 221, 83, 1) 100%);
+
+/* Optional positioning/repeat */
+background-repeat: no-repeat, no-repeat;
+background-size: cover, cover;
+background-position: center, center;
+```
+
+Where to set it
+- In Creator: middle column → “Board background (CSS)”
+- On organization page: “Create Board” → “Board background (CSS)”

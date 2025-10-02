@@ -18,6 +18,7 @@ function toBoard(doc: BoardDoc) {
     rows: doc.rows,
     cols: doc.cols,
     areas: doc.areas,
+    background: doc.background,
     version: doc.version,
     createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : (doc.createdAt as string),
     updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : (doc.updatedAt as string),
@@ -41,13 +42,14 @@ export async function POST(req: Request, ctx: { params: Promise<{ orgUUID: strin
   const { orgUUID } = await ctx.params
   if (!isUUIDv4(orgUUID)) return NextResponse.json({ error: { code: 'INVALID_ORG_ID', message: 'Invalid organization UUID' } }, { status: 400 })
 
-  let body: Partial<Pick<BoardDoc, 'slug' | 'rows' | 'cols' | 'areas'>> = {}
+  let body: Partial<Pick<BoardDoc, 'slug' | 'rows' | 'cols' | 'areas' | 'background'>> = {}
   try { body = await req.json() } catch { return NextResponse.json({ error: { code: 'BAD_JSON', message: 'Invalid JSON' } }, { status: 400 }) }
 
   const slug = typeof body.slug === 'string' ? body.slug.trim() : '' // metadata only
   const rows = Number.isFinite(body.rows) ? Number(body.rows) : 1
   const cols = Number.isFinite(body.cols) ? Number(body.cols) : 1
   const areas = Array.isArray(body.areas) ? (body.areas as Board['areas']) : []
+  const background = typeof body.background === 'string' ? String(body.background) : ''
 
   try {
     const db = await getDb()
@@ -67,6 +69,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ orgUUID: strin
       rows,
       cols,
       areas,
+      background,
       version: 1,
       createdAt: now,
       updatedAt: now,

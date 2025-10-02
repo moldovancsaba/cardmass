@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 0.16.0
+Version: 0.18.0
 
-Updated: 2025-09-30T14:08:21.000Z
+Updated: 2025-10-02T12:47:30.000Z
 
 ## Milestone: v0.14.0 — Documentation Governance Alignment
 - Priority: P0
@@ -42,3 +42,26 @@ Updated: 2025-09-30T14:08:21.000Z
   - Priority: P2
   - Expected: 2025-10-20T12:00:00.000Z
   - Notes: Keep commands/architecture current and aligned with governance (ISO timestamps, version/doc sync).
+
+- Masonry via CSS multicol for Tagger multi-column areas
+  - Owner: ai
+  - Priority: P0
+  - Expected: 2025-10-02T18:00:00.000Z
+  - Dependencies: TaggerApp.tsx desktop/stacked rendering; DnD slots unchanged; cardWidth computation; Tailwind v4
+  - Notes: Feature-flagged (ENABLE_MASONRY). Row-first applies only to grid fallback; DOM order preserved; no new libraries.
+
+- Zero-Trust Authentication & Access (admin-session + page passwords)
+  - Owner: ai
+  - Priority: P0
+  - Status: ✅ COMPLETED (v0.18.0 - 2025-10-02T12:47:30.000Z)
+  - Dependencies: MongoDB users/pagePasswords; cookie settings; Next.js API routes
+  - Notes: Based on MessMass AUTHENTICATION_AND_ACCESS; enforce server-side checks; Tagger pages protected; build passes; dev server running
+  - Deliverables:
+    * Data models: users, pagePasswords collections with indexes
+    * Helper libs: src/lib/users.ts, src/lib/auth.ts, src/lib/pagePassword.ts
+    * API endpoints: POST/DELETE /api/auth/login, GET /api/auth/check, POST/PUT /api/page-passwords
+    * UI components: PasswordGate.tsx, TaggerWithAuth.tsx
+    * TaggerApp: 19 fetch calls updated with auth headers
+    * Server enforcement: all boards/cards APIs with scope=tagger or X-Page-* headers
+    * Operational scripts: create-user.mjs, update-password.mjs, test-login.mjs
+    * Admin user created: admin@doneisbetter.com (super-admin)

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { isUUIDv4 } from '@/lib/validation'
+// TODO Phase 4: Server-side auth enforcement
+// import { enforceAdminOrPagePassword } from '@/lib/auth'
 import type { CardDoc, CardStatus } from '@/lib/types'
 
 interface OrgCardDoc extends CardDoc {
@@ -32,6 +34,21 @@ export async function GET(req: Request, ctx: { params: Promise<{ orgUUID: string
   const url = new URL(req.url)
   const status = url.searchParams.get('status') as CardStatus | null
   const archivedParam = url.searchParams.get('archived')
+  
+  // TODO Phase 4: Server-side zero-trust enforcement
+  // Phase 1-3: UI-level protection only (PasswordGate component)
+  // const hasPageHeaders = req.headers.get('x-page-id') || req.headers.get('x-page-type') || req.headers.get('x-page-password')
+  // const scopeParam = url.searchParams.get('scope')
+  // const boardParam = url.searchParams.get('board')
+  // if ((scopeParam === 'tagger' || hasPageHeaders) && boardParam && isUUIDv4(boardParam)) {
+  //   const access = await enforceAdminOrPagePassword({ pageId: boardParam, pageType: 'tagger' })
+  //   if (!access.allowed) {
+  //     return NextResponse.json(
+  //       { error: { code: 'UNAUTHORIZED', message: access.reason || 'Access denied' } },
+  //       { status: access.status || 401 }
+  //     )
+  //   }
+  // }
   // boardUUID is accepted for forward-compat; filtering by board UUID will be addressed in a later step
 
   try {
@@ -61,6 +78,22 @@ export async function GET(req: Request, ctx: { params: Promise<{ orgUUID: string
 export async function POST(req: Request, ctx: { params: Promise<{ orgUUID: string }> }) {
   const { orgUUID } = await ctx.params
   if (!isUUIDv4(orgUUID)) return NextResponse.json({ error: { code: 'INVALID_ORG_ID', message: 'Invalid organization UUID' } }, { status: 400 })
+
+  // TODO Phase 4: Server-side zero-trust enforcement
+  // Phase 1-3: UI-level protection only (PasswordGate component)
+  // const hasPageHeaders = req.headers.get('x-page-id') || req.headers.get('x-page-type') || req.headers.get('x-page-password')
+  // if (hasPageHeaders) {
+  //   const pageId = req.headers.get('x-page-id')
+  //   if (pageId && isUUIDv4(pageId)) {
+  //     const access = await enforceAdminOrPagePassword({ pageId, pageType: 'tagger' })
+  //     if (!access.allowed) {
+  //       return NextResponse.json(
+  //         { error: { code: 'UNAUTHORIZED', message: access.reason || 'Access denied' } },
+  //         { status: access.status || 401 }
+  //       )
+  //     }
+  //   }
+  // }
 
   let body: Partial<Pick<OrgCardDoc, 'text' | 'status' | 'boardSlug' | 'areaLabel' | 'boardAreas'>> = {}
   try { body = await req.json() } catch { return NextResponse.json({ error: { code: 'BAD_JSON', message: 'Invalid JSON' } }, { status: 400 }) }

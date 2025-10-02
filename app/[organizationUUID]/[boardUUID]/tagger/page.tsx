@@ -1,13 +1,12 @@
 import { isUUIDv4 } from '@/lib/validation'
 import { fetchWithOrg } from '@/lib/http/fetchWithOrg'
 import { headers } from 'next/headers'
-// Area is a TS type — use type-only import to avoid emitting a runtime binding that could break Next.js module resolution in production builds.
-import TaggerApp from './TaggerApp'
+import TaggerWithAuth from './TaggerWithAuth'
 import type { Area } from './TaggerApp'
 
-// TAGGER — new board page from zero: reliable grid + inbox tagging UI
+// TAGGER — Zero-trust authenticated board page
 
-type BoardDetails = { uuid: string; rows: number; cols: number; areas: Area[] }
+type BoardDetails = { uuid: string; rows: number; cols: number; areas: Area[]; background?: string }
 
 export default async function TaggerPage(ctx: { params: Promise<{ organizationUUID: string, boardUUID: string }> }) {
   const { organizationUUID: org, boardUUID: boardId } = await ctx.params
@@ -28,17 +27,37 @@ export default async function TaggerPage(ctx: { params: Promise<{ organizationUU
   let rows = 0
   let cols = 0
   let areas: Area[] = []
+  let background: string | undefined = undefined
   try {
     const base = await getBaseURL()
     const data = await fetchWithOrg<BoardDetails>(`${base}/api/v1/organizations/${encodeURIComponent(org)}/boards/${encodeURIComponent(boardId)}`, org, { cache: 'no-store' })
     rows = Number(data?.rows) || 0
     cols = Number(data?.cols) || 0
     areas = Array.isArray(data?.areas) ? data.areas : []
+    background = data?.background
   } catch {}
 
+  function parseBackgroundCSS(css: string | undefined): React.CSSProperties {
+    if (!css || typeof css !== 'string') return {}
+    const out: Record<string, string> = {}
+    css.split(/;\s*/).forEach((decl) => {
+      const idx = decl.indexOf(':')
+      if (idx === -1) return
+      const prop = decl.slice(0, idx).trim().toLowerCase()
+      const val = decl.slice(idx + 1).trim()
+      // allow only background-* props for safety
+      if (!prop.startsWith('background')) return
+      const camel = prop.replace(/-([a-z])/g, (_, c) => c.toUpperCase())
+      out[camel] = val
+    })
+    return out as React.CSSProperties
+  }
+
+  const backgroundStyle = parseBackgroundCSS(background)
+
   return (
-    <main className="min-h-screen bg-white">
-      <TaggerApp orgUUID={org} boardUUID={boardId} rows={rows} cols={cols} areas={areas} />
+    <main className="min-h-screen" style={backgroundStyle}>
+      <TaggerWithAuth orgUUID={org} boardUUID={boardId} rows={rows} cols={cols} areas={areas} />
     </main>
   )
 }

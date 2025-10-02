@@ -45,17 +45,17 @@ Architecture (big picture)
     - Cards: list/create/fetch/update/delete within org; archived filtering via ?archived=only|include|default(exclude)
   - UI routes:
     - /: OrgHome, admin entry points
-    - /{organizationUUID}/{boardUUID}/tagger: Tagger UI (grid areas, inbox, drag+drop placement)
+  - /{organizationUUID}/{boardUUID}/tagger: Tagger UI (grid areas, inbox, drag+drop placement). Applies per-board background CSS (background-* only) if present.
     - /{organizationUUID}/cards/{cardUUID}: Card details (colored hashtags from per-board area styles)
     - /organization/[slug]: admin UX by slug (metadata-only)
 - Middleware guard (middleware.ts): enforces X-Organization-UUID header presence/format and equality with org segment for /api/v1/organizations/*
 - Data model (MongoDB):
   - organizations: { uuid, name, slug, description?, isActive, createdAt, updatedAt }
-  - boards: { uuid, organizationId, slug?, rows, cols, areas[], version, createdAt, updatedAt }
+  - boards: { uuid, organizationId, slug?, rows, cols, areas[], background?, version, createdAt, updatedAt }
   - cards: { uuid, organizationId, text, status, order, createdAt, updatedAt, boardAreas?: Record<string,string>, isArchived? }
   - spock (inbox) is never persisted; an empty mapping implies spock on a given board
 - Libraries (src/lib):
-  - db.ts (MongoDB client), validation.ts (isUUIDv4), http/headers.ts (ORG_HEADER), http/fetchWithOrg.ts (header helper), urls.ts, types.ts, color/date/datetime utils
+  - db.ts (MongoDB client), validation.ts (isUUIDv4), http/headers.ts (ORG_HEADER), http/fetchWithOrg.ts (header helper), urls.ts, types.ts (Board.background, Area.bgColor/textBlack/rowFirst), color/date/datetime utils
   - settings-default.ts and /api/settings route feed a client SettingsProvider (src/lib/settings.tsx)
 - Path alias: @/* → ./src/* (tsconfig.json)
 - Legacy surfaces: src/app/** contains older pages; primary UI and APIs live under app/**
@@ -68,6 +68,9 @@ Governance and conventions
   - Before running dev: increment PATCH
   - Before committing: increment MINOR (reset PATCH to 0), update all docs (README, ARCHITECTURE, TASKLIST, LEARNINGS, ROADMAP, RELEASE_NOTES) and keep package.json in sync
   - Major releases only when explicitly requested; update all documentation comprehensively
+- Build verification policy (MANDATORY):
+  - After any code change applied via automation or manual edits, run `npm run build` and address any errors before reporting success
+  - Rationale: prevents broken main and ensures rapid feedback during refactors or UI changes
 - Planning/logging:
   - Log plans and decisions in WARP.DEV_AI_CONVERSATION.md with ISO timestamps
   - Keep ROADMAP.md forward-looking, grouped by milestone/quarter with priorities and dependencies

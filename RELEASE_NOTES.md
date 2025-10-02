@@ -1,6 +1,49 @@
 # RELEASE_NOTES
 
-## [v0.16.0] — 2025-09-30T14:08:21.000Z
+## [v0.18.0] — 2025-10-02T12:47:30.000Z
+- Added: Zero-trust authentication system (MessMass specification)
+  - Admin session: HttpOnly cookie 'admin-session' with base64 JSON token (sub, email, role, exp); 7-day expiry; SameSite=Lax, Secure in production
+  - Page passwords: 32-hex tokens per pageId/pageType stored in MongoDB pagePasswords collection; idempotent generation; usage tracking (usageCount, lastUsedAt)
+  - Server rule: Protected endpoints allow access IFF (valid admin-session cookie) OR (valid page password headers)
+- Added: Authentication API endpoints
+  - POST/DELETE /api/auth/login — admin login/logout with 800ms timing delay
+  - GET /api/auth/check — session presence check for admin bypass
+  - POST /api/page-passwords — create/retrieve page password + shareable link (admin-only)
+  - PUT /api/page-passwords — validate page password with admin bypass
+- Added: UI components for access control
+  - PasswordGate.tsx — client component with 3 states (checking/locked/unlocked); admin bypass; URL param ?pw= support; render prop pattern
+  - TaggerWithAuth.tsx — wrapper integrating PasswordGate with TaggerApp
+- Changed: TaggerApp accepts getAuthHeaders prop; all 19 fetch calls spread auth headers (X-Page-Id, X-Page-Type, X-Page-Password)
+- Added: Server-side enforcement on protected APIs
+  - GET/POST/PATCH/DELETE boards/cards APIs: enforce when scope=tagger or X-Page-* headers present
+  - enforceAdminOrPagePassword() function validates admin session OR page password headers
+- Added: Data models and collections
+  - users: { email (unique), name, role, password (32-hex), createdAt, updatedAt }
+  - pagePasswords: { pageId, pageType, password, createdAt, usageCount, lastUsedAt }
+  - Both collections include unique indexes
+- Added: Operational scripts
+  - scripts/admin/create-user.mjs — create admin user with generated password
+  - scripts/admin/update-password.mjs — rotate admin password  
+  - scripts/test-login.mjs — automated auth flow testing
+- Security: All timestamps ISO 8601 with milliseconds (UTC); admin user created (admin@doneisbetter.com); cookies secure; no client-readable secrets
+- Build: Resolved Next.js cache issues with bash heredoc file operations; npm run build passes; dev server running on port 4000
+
+## [v0.17.0] — 2025-10-01T12:34:55.000Z
+- Added: Board-level background CSS field
+  - Creator: new "Board background (CSS)" textarea under Slug; accepts multiline background-* declarations (e.g., background-color, background-image with url and linear-gradient, background-repeat/size/position)
+  - Org page: InlineCreateBoard now includes a "Board background (CSS)" textarea
+  - API: Boards create/patch now accept/return background; GET returns background
+  - Tagger: applies board.background on the page main container (whitelisted background-* only)
+- Changed: Area styling refinements
+  - Area background is fully independent from hashtag color; Tagger uses bgColor tint only (neutral fallback when not set)
+  - Removed area border (“stroke”) and added 4px top padding before grid starts; increased inter-area gap on desktop
+- Fixed: Build blockers
+  - Corrected accidental Cyrillic 'ok' typo in TaggerApp
+  - Resolved ESLint no-explicit-any by typing API responses and background parse path
+- Docs: Synchronized versions and timestamps across README, ARCHITECTURE, ROADMAP, TASKLIST, LEARNINGS, WARP, TECH_STACK, NAMING_GUIDE
+  - README: added example snippet for Board background (CSS) and where to set it
+
+## [v0.16.0]
 - Added: Per-area row-first (dense) packing option. When enabled for an area, the card grid uses row-dense flow to keep cards next to each other in rows where possible.
 - Added: Separate Area background color alongside Hashtag color in Creator. Background tint in Tagger uses the new bgColor (with opacity), while hashtag chips keep the hashtag color.
 - Creator: Area list now shows a small background swatch next to the hashtag chip; per-area toggles include BLACK text and Row-first.

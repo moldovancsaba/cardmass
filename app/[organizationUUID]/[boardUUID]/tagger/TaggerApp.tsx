@@ -7,9 +7,15 @@ type TileId = string
 export type Area = { label: string; color: string; tiles: TileId[]; textBlack?: boolean; bgColor?: string; rowFirst?: boolean }
 export type Card = { id: string; uuid: string; text: string; status: 'delegate'|'decide'|'do'|'decline'; order: number; createdAt: string; updatedAt: string; boardAreas?: Record<string,string> }
 
-type Props = { orgUUID: string; boardUUID: string; rows: number; cols: number; areas: Area[] }
+type Props = { orgUUID: string; boardUUID: string; rows: number; cols: number; areas: Area[]; getAuthHeaders?: () => Record<string, string> }
 
-export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Props) {
+// Feature flag for progressive enhancement of masonry layout (CSS multicol)
+// WHAT: Enables Pinterest-like packing for multi-column areas using CSS multi-column.
+// WHY: Provides denser visual layout without JS reflow while preserving DOM order and DnD behavior.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ENABLE_MASONRY = true
+
+export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas, getAuthHeaders }: Props) {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -85,7 +91,7 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
         return next
       })
     })
-    Object.entries(areaContentRefs.current).forEach(([key, el]) => { if (el) ro.observe(el) })
+    Object.entries(areaContentRefs.current).forEach(([, el]) => { if (el) ro.observe(el) })
     return () => { try { ro.disconnect() } catch {} }
   }, [areaBoxes])
 
@@ -104,7 +110,7 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     return () => { try { ro.disconnect() } catch {} }
   }, [])
 
-  // Track viewport breakpoint cols (1/<640, 2/≥640, 3/≥1280)
+  // Track viewport breakpoint cols (1/<640, 2/≥1280)
   useEffect(() => {
     if (typeof window === 'undefined') return
     function computeCols() {
@@ -124,25 +130,6 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     window.addEventListener('resize', apply)
     return () => window.removeEventListener('resize', apply)
   }, [])
-
-  // Compute per-area max columns based on area vs. spock widths, clamped by viewport cols
-  useEffect(() => {
-    setAreaCols(() => {
-      const next: Record<string, number> = {}
-      const sw = spockWidth || 0
-      for (const b of areaBoxes) {
-        const aw = areaWidths[b.key] || 0
-        let fromRatio = 1
-        if (sw > 0 && aw > 0) {
-          fromRatio = Math.floor(aw / sw)
-          if (fromRatio < 1) fromRatio = 1
-          if (fromRatio > 3) fromRatio = 3
-        }
-        next[b.key] = Math.max(1, Math.min(3, Math.min(fromRatio, viewportCols)))
-      }
-      return next
-    })
-  }, [areaBoxes, areaWidths, spockWidth, viewportCols])
 
   // Global uniform card width across the board (px), derived from SPOCK width and viewport columns
   const cardWidth = useMemo(() => {
@@ -165,18 +152,52 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     return 320
   }, [viewportCols, spockWidth, areaWidths])
 
+  // Compute per-area max columns based on:
+  // - SPOCK-relative width thresholds (ceil(aw/sw)) per user rule
+  // - Actual width fit using uniform cardWidth and grid gap
+  // - Viewport cap (1/2/3 per breakpoints)
+  useEffect(() => {
+    setAreaCols(() => {
+      const next: Record<string, number> = {}
+      const sw = spockWidth || 0
+      const GAP = 8 // matches gap-2 (0.5rem)
+      for (const b of areaBoxes) {
+        const aw = areaWidths[b.key] || 0
+        // SPOCK-relative ratio cap: 1 if <sw, 2 if [sw, 2*sw), 3 if >= 2*sw (capped)
+        let ratioCap = 1
+        if (sw > 0 && aw > 0) {
+          ratioCap = Math.ceil(aw / sw)
+          if (ratioCap < 1) ratioCap = 1
+          if (ratioCap > 3) ratioCap = 3
+        }
+        // Width-fit cap: how many columns of (cardWidth + gap) actually fit in aw
+        let fitCap = 1
+        if (aw > 0 && cardWidth > 0) {
+          fitCap = Math.floor((aw + GAP) / (cardWidth + GAP))
+          if (fitCap < 1) fitCap = 1
+          if (fitCap > 3) fitCap = 3
+        }
+        const cols = Math.max(1, Math.min(3, Math.min(viewportCols, ratioCap, fitCap)))
+        next[b.key] = cols
+      }
+      return next
+    })
+  }, [areaBoxes, areaWidths, spockWidth, viewportCols, cardWidth])
+
+
   const load = useCallback(async () => {
     setLoading(true); setError(null)
     try {
       const qs = isArchiveBoard ? '?archived=only' : ''
-      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards${qs}`, { cache:'no-store', headers: { 'X-Organization-UUID': orgUUID } })
+      const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }
+      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards${qs}`, { cache:'no-store', headers })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error?.message || 'Load failed')
       setCards(Array.isArray(data) ? data : [])
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Load failed')
     } finally { setLoading(false) }
-  }, [orgUUID, isArchiveBoard])
+  }, [orgUUID, isArchiveBoard, getAuthHeaders])
 
   // Track recent boards in localStorage per organization
   useEffect(() => {
@@ -231,7 +252,8 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     let aborted = false
     async function loadBoards() {
       try {
-        const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards`, { cache:'no-store', headers: { 'X-Organization-UUID': orgUUID } })
+        const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }
+        const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards`, { cache:'no-store', headers })
         const data = await res.json()
         if (!res.ok) throw new Error(data?.error?.message || 'Load boards failed')
         if (!aborted) setBoards(Array.isArray(data) ? data : [])
@@ -239,7 +261,7 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     }
     loadBoards()
     return () => { aborted = true }
-  }, [orgUUID])
+  }, [orgUUID, getAuthHeaders])
 
   // Load area colors for boards referenced by cards.boardAreas for colored hashtags
   useEffect(() => {
@@ -254,7 +276,8 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas }: Pro
     async function loadColors() {
       try {
         const entries = await Promise.all(missing.map(async (bid) => {
-          const r = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(bid)}`, { cache:'no-store', headers: { 'X-Organization-UUID': orgUUID } })
+          const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }
+          const r = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(bid)}`, { cache:'no-store', headers })
           if (!r.ok) return [bid, {} as Record<string, string>] as const
 const data = await r.json() as { areas?: { label: string; color: string; textBlack?: boolean }[] }
 const map: Record<string, string> = {}
@@ -283,7 +306,7 @@ return [bid, map, tmap] as const
     }
     loadColors()
     return () => { aborted = true }
-  }, [cards, orgUUID, labelColorCache])
+  }, [cards, orgUUID, labelColorCache, getAuthHeaders])
   useEffect(() => {
     const onAny = () => load()
     try { window.addEventListener('card:created', onAny); window.addEventListener('card:updated', onAny); window.addEventListener('card:deleted', onAny) } catch {}
@@ -309,7 +332,8 @@ return [bid, map, tmap] as const
   async function createCard() {
     const text = input.trim(); if (!text) return
     try {
-      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards`, { method:'POST', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text, status:'decide' }) })
+      const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }
+      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards`, { method:'POST', headers, body: JSON.stringify({ text, status:'decide' }) })
       const data = await res.json(); if (!res.ok) throw new Error(data?.error?.message || 'Create failed')
       setInput(''); try{ window.dispatchEvent(new CustomEvent('card:created')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:created'}); bc.close() }catch{}
     } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Create failed') }
@@ -321,7 +345,8 @@ return [bid, map, tmap] as const
       type CardPatchPayload = { boardArea?: { boardSlug?: string; areaLabel?: string }; order?: number }
       const payload: CardPatchPayload = { boardArea: { boardSlug: boardUUID, areaLabel } }
       if (typeof newOrder === 'number') payload.order = newOrder
-      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(cardId)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json', 'X-Organization-UUID': orgUUID }, body: JSON.stringify(payload) })
+      const headers = { 'Content-Type':'application/json', 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }
+      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(cardId)}`, { method:'PATCH', headers, body: JSON.stringify(payload) })
       if (!res.ok) { const t = await res.text(); throw new Error(t || 'Update failed') }
       try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{}
     } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Update failed') }
@@ -395,7 +420,7 @@ return [bid, map, tmap] as const
                       <textarea
                         value={editText}
                         onChange={(e)=>setEditText(e.target.value)}
-                        onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
+                        onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
                         className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
                         placeholder="Edit text..."
                       />
@@ -424,7 +449,7 @@ return (
                 <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
                   {editingId===c.uuid ? (
                     <>
-                      <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
+                      <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
                       <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
                     </>
                   ) : (
@@ -433,14 +458,14 @@ return (
                         <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
                       </a>
 {!isArchiveBoard && (
-                      <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+                      <button onClick={async (e)=>{ e.preventDefault(); try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
                         <span className="material-symbols-outlined" aria-hidden="true">archive</span>
                       </button>
                     )}
 <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
                         <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
                       </button>
-<button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
+<button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
                         <span className="material-symbols-outlined" aria-hidden="true">delete</span>
                       </button>
                     </>
@@ -538,15 +563,12 @@ return (
       <section className="order-1 min-[1200px]:order-2 relative w-full h-full">
         {/* Stacked (<1200px): single column scroll with half-screen panes */}
         <div className="block min-[1200px]:hidden h-full overflow-auto snap-y snap-mandatory p-2">
-          {orderedAreaBoxes.map((b) => (
-            <section key={`stack-${b.key}`} className="snap-start w-full h-[50svh] border rounded-sm relative overflow-hidden mb-2">
-              {/* area background tint */}
-              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || b.color).slice(1,3),16)}, ${parseInt((b.bgColor || b.color).slice(3,5),16)}, ${parseInt((b.bgColor || b.color).slice(5,7),16)}, 0.25)` }} />
+{orderedAreaBoxes.map((b) => (
+            <section key={`stack-${b.key}`} className="snap-start w-full h-[50svh] rounded-sm relative overflow-hidden mb-3">
+              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || '#e5e7eb').slice(1,3),16)}, ${parseInt((b.bgColor || '#e5e7eb').slice(3,5),16)}, ${parseInt((b.bgColor || '#e5e7eb').slice(5,7),16)}, 0.25)` }} />
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
-              {/* Placed cards inside stacked pane */}
               <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)`, gridAutoFlow: b.rowFirst ? 'row dense' : 'row' }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
-                  {/* slot before first card */}
                   <div
                     className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
                     style={{ gridColumn: '1 / -1' }}
@@ -573,7 +595,7 @@ return (
                               <textarea
                                 value={editText}
                                 onChange={(e)=>setEditText(e.target.value)}
-                                onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
+                                onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
                                 className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
                                 placeholder="Edit text..."
                               />
@@ -582,7 +604,6 @@ return (
                           ) : (
                             <>
                               <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
-                              {/* labels from all boards */}
                               {showInboxDetails && Object.entries(c.boardAreas||{}).length>0 && (
                                 <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
                                   {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
@@ -602,11 +623,10 @@ return (
                           )}
                         </div>
 
-                        {/* actions */}
                         <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
                           {editingId===c.uuid ? (
                             <>
-                              <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
+                              <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
                               <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
                             </>
                           ) : (
@@ -615,14 +635,14 @@ return (
                                 <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
                               </a>
                               {!isArchiveBoard && (
-                                <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
-                                  <span className="material-symbols-outlined" aria-hidden="true">archive</span>
-                                </button>
-                              )}
+                                <button onClick={async (e)=>{ e.preventDefault(); try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+                                <span className="material-symbols-outlined" aria-hidden="true">archive</span>
+                              </button>
+                            )}
                               <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
                                 <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
                               </button>
-                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
+                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
                                 <span className="material-symbols-outlined" aria-hidden="true">delete</span>
                               </button>
                             </>
@@ -630,7 +650,6 @@ return (
                         </div>
                       </div>
 
-                      {/* slot after this card (only for single-column areas) */}
                       {(areaCols[b.key] || viewportCols) === 1 && (
                         <div
                           className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
@@ -646,7 +665,6 @@ return (
                     </div>
                   ))}
                 </div>
-                {/* end-of-grid slot to drop at end (spans columns) */}
                 <div
                   className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 ${dropHint && dropHint.area===b.key && dropHint.slot===9999 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
                   style={{ gridColumn: '1 / -1' }}
@@ -661,10 +679,8 @@ return (
             </section>
           ))}
 
-          {/* SPOCK stacked section: full screen split (Inbox + Nav/Input) */}
           <section className="snap-start w-full h-[100svh] border rounded-sm overflow-hidden">
             <div className="h-[50svh] overflow-auto p-2" ref={spockStackedRef}>
-              {/* Inbox list (reuse same DOM as aside, compact) */}
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-sm font-semibold">Inbox</h2>
                 <button
@@ -676,7 +692,6 @@ return (
                   {showInboxDetails ? 'hide' : 'show'}
                 </button>
               </div>
-              {/* Scrollable inbox list */}
               <div
                 className={`space-y-2 mb-3 overflow-auto`}
                 onDragOver={(e)=>{ e.preventDefault(); setInboxHover(true) }}
@@ -708,25 +723,24 @@ return (
                           <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
                         </a>
                         {!isArchiveBoard && (
-                          <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+                          <button onClick={async (e)=>{ e.preventDefault(); try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
                             <span className="material-symbols-outlined" aria-hidden="true">archive</span>
                           </button>
                         )}
                         <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
                           <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
                         </button>
-                        <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
+                        <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
                           <span className="material-symbols-outlined" aria-hidden="true">delete</span>
                         </button>
                       </div>
                     </div>
                   )
                 })}
-                {inbox.length === 0 && !loading && <div className="text-xs text-gray-500">Inbox empty — create a card below or drag from other boards</div>}
+{inbox.length === 0 && !loading && <div className="text-xs text-gray-500">Inbox empty - create a card below or drag from other boards</div>}
               </div>
             </div>
-            {/* bottom half: nav + input */}
-            <div className="h-[50svh] border-t overflow-auto p-2">
+              <div className="h-[50svh] border-t overflow-auto p-2">
               <div className="mb-2 flex items-center gap-2 overflow-x-auto">
                 <button
                   onClick={() => setShowMenu(v => !v)}
@@ -792,7 +806,6 @@ return (
                   </div>
                 </div>
               )}
-              {/* composer */}
               <div className="space-y-2">
                 <textarea
                   value={input}
@@ -807,16 +820,13 @@ return (
           </section>
         </div>
 
-        {/* Desktop (≥1200px): mosaic grid */}
-        <div className="hidden min-[1200px]:grid w-full h-full gap-[3px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}>
-          {/* background grid */}
+        <div className="hidden min-[1200px]:grid w-full h-full pt-1 gap-[6px]" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}>
           {Array.from({ length: rows }, (_, r) => r).map((r) => (
             Array.from({ length: cols }, (_, c) => c).map((c) => (
               <div key={`cell-${r}-${c}`} className="border border-gray-200" />
             ))
           ))}
 
-          {/* areas */}
           {areaBoxes.map((b) => (
             <div
               key={b.key}
@@ -835,19 +845,13 @@ return (
                   }
                 }catch{}
               }}
-              className={`relative border rounded-sm overflow-hidden ${hoverArea===b.key ? 'ring-2 ring-blue-400' : ''}`}
+              className={`relative rounded-sm overflow-hidden ${hoverArea===b.key ? 'ring-2 ring-blue-400' : ''}`}
               style={{ gridColumn: `${b.minC + 1} / ${b.maxC + 2}`, gridRow: `${b.minR + 1} / ${b.maxR + 2}` }}
             >
-              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || b.color).slice(1,3),16)}, ${parseInt((b.bgColor || b.color).slice(3,5),16)}, ${parseInt((b.bgColor || b.color).slice(5,7),16)}, 0.25)` }} />
-<span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
-              {/* Placed cards inside area */}
+              <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || '#e5e7eb').slice(1,3),16)}, ${parseInt((b.bgColor || '#e5e7eb').slice(3,5),16)}, ${parseInt((b.bgColor || '#e5e7eb').slice(5,7),16)}, 0.25)` }} />
+              <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
               <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)`, gridAutoFlow: b.rowFirst ? 'row dense' : 'row' }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
-                  {/* slot before the first card (position 0) */}
-                  {/*
-                    WHAT: Slot before the first card. On mobile/touch (base breakpoint) make it a bit taller and widen hit area with negative margins.
-                    WHY: Improves targetability and clarity on small screens.
-                  */}
                   <div
                     className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
                     style={{ gridColumn: '1 / -1' }}
@@ -875,7 +879,7 @@ return (
                               <textarea
                                 value={editText}
                                 onChange={(e)=>setEditText(e.target.value)}
-                                onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
+                                onKeyDown={async (e)=>{ if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); const next=editText.trim(); if (next) { try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} } } if (e.key==='Escape'){ e.preventDefault(); setEditingId(null); setEditText('') } }}
                                 className="w-full resize-none outline-none bg-white text-black min-h-[64px] border border-gray-300 rounded p-1"
                                 placeholder="Edit text..."
                               />
@@ -884,7 +888,6 @@ return (
                           ) : (
                             <>
                               <div className="whitespace-pre-wrap break-words" title={c.text}>{c.text}</div>
-                              {/* labels from all boards */}
                               {showInboxDetails && Object.entries(c.boardAreas||{}).length>0 && (
                                 <div className="mt-0.5 flex flex-wrap gap-1 text-[10px]">
                                   {Object.entries(c.boardAreas||{}).map(([bid, lbl]) => {
@@ -892,7 +895,7 @@ return (
                                     if (!name || name==='spock') return null
                                     const color = (labelColorCache[bid] && labelColorCache[bid][name]) || '#e5e7eb'
                                     const tBlack = !!(labelTextMap[bid] && labelTextMap[bid][name])
-return (
+                                    return (
                                       <a key={`placed-tag-${b.key}-${c.id}-${bid}-${name}`} href={`/${encodeURIComponent(orgUUID)}/hashtags/resolve?board=${encodeURIComponent(bid)}&label=${encodeURIComponent(name)}`} className="px-1 rounded" style={{ backgroundColor: color, color: tBlack ? '#000' : '#fff' }} title={`Open #${name}`}>
                                         #{name}
                                       </a>
@@ -904,27 +907,26 @@ return (
                           )}
                         </div>
 
-                        {/* actions moved to bottom to avoid overlaying text */}
                         <div className={`mt-2 flex items-center gap-1 flex-wrap ${showInboxDetails || editingId===c.uuid ? '' : 'hidden'}`}>
                           {editingId===c.uuid ? (
                             <>
-                              <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
+                              <button onClick={async (e)=>{ e.preventDefault(); const next=editText.trim(); if (!next) return; try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ text: next }) }); if (res.ok){ setCards(prev=>prev.map(x=>x.uuid===c.uuid?{...x, text: next}:x)); setEditingId(null); setEditText(''); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="px-2 py-0.5 text-xs rounded bg-black text-white">save</button>
                               <button onClick={(e)=>{ e.preventDefault(); setEditingId(null); setEditText('') }} className="px-2 py-0.5 text-xs rounded bg-gray-200">cancel</button>
                             </>
                           ) : (
                             <>
-<a href={getCardUrl(orgUUID, c.uuid)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="open card in new tab" title="open">
+                              <a href={getCardUrl(orgUUID, c.uuid)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="open card in new tab" title="open">
                                 <span className="material-symbols-outlined" aria-hidden="true">pageview</span>
                               </a>
-{!isArchiveBoard && (
-                              <button onClick={async (e)=>{ e.preventDefault(); try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers:{ 'Content-Type':'application/json','X-Organization-UUID': orgUUID }, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
+                              {!isArchiveBoard && (
+                                <button onClick={async (e)=>{ e.preventDefault(); try{ const headers = { 'Content-Type':'application/json','X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'PATCH', headers, body: JSON.stringify({ isArchived: true }) }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:updated')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:updated'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="archive card" title="archive">
                                 <span className="material-symbols-outlined" aria-hidden="true">archive</span>
                               </button>
                             )}
-<button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
+                              <button onClick={(e)=>{ e.preventDefault(); setEditingId(c.uuid); setEditText(c.text) }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="edit card" title="edit">
                                 <span className="material-symbols-outlined" aria-hidden="true">edit_note</span>
                               </button>
-<button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers:{ 'X-Organization-UUID': orgUUID } }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
+                              <button onClick={async (e)=>{ e.preventDefault(); const ok=confirm('Delete this card?'); if(!ok) return; try{ const headers = { 'X-Organization-UUID': orgUUID, ...(getAuthHeaders ? getAuthHeaders() : {}) }; const res=await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/cards/${encodeURIComponent(c.uuid)}`, { method:'DELETE', headers }); if (res.ok){ setCards(prev=>prev.filter(x=>x.uuid!==c.uuid)); try{ window.dispatchEvent(new CustomEvent('card:deleted')) }catch{}; try{ const bc=new BroadcastChannel('cardmass'); bc.postMessage({type:'card:deleted'}); bc.close() }catch{} } }catch{} }} className="inline-flex items-center justify-center h-8 w-8 rounded text-black hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="delete card" title="delete">
                                 <span className="material-symbols-outlined" aria-hidden="true">delete</span>
                               </button>
                             </>
@@ -932,7 +934,6 @@ return (
                         </div>
                       </div>
 
-                      {/* slot after this card (only for single-column areas) */}
                       {(areaCols[b.key] || viewportCols) === 1 && (
                         <div
                           className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===idx+1 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
@@ -948,7 +949,6 @@ return (
                     </div>
                   ))}
                 </div>
-                {/* end-of-grid slot to drop at end (spans columns) */}
                 <div
                   className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===9998 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
                   style={{ gridColumn: '1 / -1' }}

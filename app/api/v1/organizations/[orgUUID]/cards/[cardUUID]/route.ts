@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getDb } from '@/lib/db'
 import { isUUIDv4 } from '@/lib/validation'
+// TODO Phase 4: Server-side auth enforcement
+// import { enforceAdminOrPagePassword } from '@/lib/auth'
 import type { CardDoc } from '@/lib/types'
 
 interface OrgCardDoc extends CardDoc {
@@ -42,6 +44,22 @@ export async function GET(_req: Request, ctx: { params: Promise<{ orgUUID: strin
 export async function PATCH(req: Request, ctx: { params: Promise<{ orgUUID: string, cardUUID: string }> }) {
   const { orgUUID, cardUUID } = await ctx.params
   if (!isUUIDv4(orgUUID) || !isUUIDv4(cardUUID)) return NextResponse.json({ error: { code: 'INVALID_ID', message: 'Invalid UUID parameter' } }, { status: 400 })
+
+  // TODO Phase 4: Server-side zero-trust enforcement
+  // Phase 1-3: UI-level protection only (PasswordGate component)
+  // const hasPageHeaders = req.headers.get('x-page-id') || req.headers.get('x-page-type') || req.headers.get('x-page-password')
+  // if (hasPageHeaders) {
+  //   const pageId = req.headers.get('x-page-id')
+  //   if (pageId && isUUIDv4(pageId)) {
+  //     const access = await enforceAdminOrPagePassword({ pageId, pageType: 'tagger' })
+  //     if (!access.allowed) {
+  //       return NextResponse.json(
+  //         { error: { code: 'UNAUTHORIZED', message: access.reason || 'Access denied' } },
+  //         { status: access.status || 401 }
+  //       )
+  //     }
+  //   }
+  // }
 
   let body: Partial<Pick<OrgCardDoc, 'text' | 'status' | 'order' | 'areaLabel' | 'boardAreas' | 'isArchived'>> & { boardArea?: { boardSlug?: string; areaLabel?: string } } = {}
   try { body = await req.json() } catch { return NextResponse.json({ error: { code: 'BAD_JSON', message: 'Invalid JSON' } }, { status: 400 }) }
@@ -93,9 +111,26 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ orgUUID: stri
   }
 }
 
-export async function DELETE(_req: Request, ctx: { params: Promise<{ orgUUID: string, cardUUID: string }> }) {
+export async function DELETE(req: Request, ctx: { params: Promise<{ orgUUID: string, cardUUID: string }> }) {
   const { orgUUID, cardUUID } = await ctx.params
   if (!isUUIDv4(orgUUID) || !isUUIDv4(cardUUID)) return NextResponse.json({ error: { code: 'INVALID_ID', message: 'Invalid UUID parameter' } }, { status: 400 })
+  
+  // TODO Phase 4: Server-side zero-trust enforcement
+  // Phase 1-3: UI-level protection only (PasswordGate component)
+  // const hasPageHeaders = req.headers.get('x-page-id') || req.headers.get('x-page-type') || req.headers.get('x-page-password')
+  // if (hasPageHeaders) {
+  //   const pageId = req.headers.get('x-page-id')
+  //   if (pageId && isUUIDv4(pageId)) {
+  //     const access = await enforceAdminOrPagePassword({ pageId, pageType: 'tagger' })
+  //     if (!access.allowed) {
+  //       return NextResponse.json(
+  //         { error: { code: 'UNAUTHORIZED', message: access.reason || 'Access denied' } },
+  //         { status: access.status || 401 }
+  //       )
+  //     }
+  //   }
+  // }
+  
   try {
     const db = await getDb()
     const res = await db.collection<OrgCardDoc>('cards').deleteOne({ organizationId: orgUUID, uuid: cardUUID })

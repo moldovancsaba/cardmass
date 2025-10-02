@@ -1,11 +1,42 @@
 
-> cardmass@0.14.1 dev
+> cardmass@0.17.0 dev
 > NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000
 
    ▲ Next.js 15.5.3
    - Local:        http://localhost:4000
-   - Network:      http://192.168.0.140:4000
+   - Network:      http://172.20.10.2:4000
    - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 1310ms
+ ✓ Ready in 1536ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.1s (655 modules)
+ GET / 200 in 3363ms
+ ✓ Compiled in 130ms (246 modules)
+[Error: ENOENT: no such file or directory, stat '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'
+}
+ ⨯ unhandledRejection: [Error: ENOENT: no such file or directory, stat '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'
+}
+ ⨯ unhandledRejection:  [Error: ENOENT: no such file or directory, stat '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'] {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'stat',
+  path: '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'
+}
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, stat '/Users/moldovancsaba/Projects/cardmass/.next/cache/webpack/client-development/1.pack.gz'
+ ✓ Compiled in 81ms (246 modules)
+ ✓ Compiled in 100ms (246 modules)
+ ✓ Compiled in 81ms (246 modules)
+ ✓ Compiled in 95ms (246 modules)
+ ✓ Compiled in 77ms (246 modules)
+ ✓ Compiled in 69ms (246 modules)
+ ✓ Compiled in 84ms (246 modules)
+ ✓ Compiled in 99ms (246 modules)

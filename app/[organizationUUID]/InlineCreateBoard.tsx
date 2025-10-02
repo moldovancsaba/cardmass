@@ -12,6 +12,7 @@ export default function InlineCreateBoard({ orgUUID, defaultSlug = '' }: { orgUU
   const [slug, setSlug] = useState(defaultSlug)
   const [rows, setRows] = useState(1)
   const [cols, setCols] = useState(1)
+  const [background, setBackground] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,6 +20,7 @@ export default function InlineCreateBoard({ orgUUID, defaultSlug = '' }: { orgUU
     const s = (slug || '').trim()
     const r = Math.max(1, Math.min(100, Number(rows) || 1))
     const c = Math.max(1, Math.min(100, Number(cols) || 1))
+    const bg = String(background || '')
     setLoading(true)
     setError(null)
     try {
@@ -29,7 +31,7 @@ export default function InlineCreateBoard({ orgUUID, defaultSlug = '' }: { orgUU
         orgUUID,
         {
           method: 'POST',
-          body: JSON.stringify({ slug: s, rows: r, cols: c, areas: [] }),
+          body: JSON.stringify({ slug: s, rows: r, cols: c, areas: [], background: bg }),
         }
       )
       // Navigate to the hashed org/board route
@@ -76,6 +78,16 @@ export default function InlineCreateBoard({ orgUUID, defaultSlug = '' }: { orgUU
             onChange={(e) => setCols(Math.max(1, Math.min(100, Number(e.target.value) || 1)))}
             className="border border-black/20 rounded px-2 py-1"
           />
+        </label>
+        <label className="flex flex-col gap-1 md:col-span-3">
+          <span className="text-xs" title="Only background-* declarations are applied; other properties are ignored.">Board background (CSS)</span>
+          <textarea
+            value={background}
+            onChange={(e) => setBackground(e.target.value)}
+            className="border border-black/20 rounded px-2 py-1 font-mono text-[11px] min-h-[120px]"
+            placeholder={`background-color: #2A7B9B; /* Fallback solid color */\nbackground-image: \n  url("https://example.com/your-background.jpg"), \n  linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 50%, rgba(237, 221, 83, 1) 100%);\n\n/* Optional positioning/repeat */\nbackground-repeat: no-repeat, no-repeat;\nbackground-size: cover, cover;\nbackground-position: center, center;`}
+          />
+          <div className="text-[10px] text-gray-500">Only background-* declarations are applied; other CSS properties are ignored.</div>
         </label>
       </div>
       <div className="mt-3">

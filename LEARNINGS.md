@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.16.0
+Version: 0.18.0
 
-Updated: 2025-09-30T14:08:21.000Z
+Updated: 2025-10-02T12:47:30.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -19,5 +19,23 @@ Updated: 2025-09-30T14:08:21.000Z
 - Grid alignment nuance: For CSS grid, explicitly set content-start and items-start (and justify-start as needed) on grid containers to ensure items anchor to the top-left.
   Why: Prevents vertical centering or space-around artifacts so boards remain predictable and dense at a glance.
 
+- Independent styling: Area bgColor must not derive from hashtag color; maintain separate fields and apply only bgColor tint in Tagger.
+  Why: Visual clarity and per-area theming flexibility.
+- Page background parsing: Restrict to background-* declarations when applying user-provided CSS.
+  Why: Safety and predictability.
+- ESLint hygiene: Avoid any by shaping response types and guarding optional fields.
+  Why: Maintain clean builds and readability.
+
 - Process: Documentation governance enforcement
   Why: Consolidated docs, synchronized version/timestamps, and planned automation to prevent drift and ensure compliance.
+
+- Authentication: MessMass zero-trust implementation with dual gates (admin session + page passwords)
+  Why: Secure access to Tagger without complex user management; admin bypass for operational efficiency; 32-hex tokens for MessMass parity.
+- Cookie vs Edge runtime: runtime='nodejs' required for crypto.randomBytes in page-passwords route
+  Why: Edge runtime doesn't support Node.js crypto module; crypto.getRandomValues would require different token generation approach.
+- Header propagation in TaggerApp: All 19 fetch calls required auth header spreading via getAuthHeaders()
+  Why: Consistent enforcement across load/create/update/delete operations; render prop pattern provides clean separation.
+- File system cache issues: Next.js build cache persisted old file contents despite tool-based edits
+  Why: File system operations via tools may be cached; bash heredoc (`cat > file << 'EOF'`) forces immediate write to disk.
+- Render prop pattern: PasswordGate provides authentication context to children via function-as-children pattern
+  Why: Clean separation of concerns; auth logic encapsulated; TaggerApp receives only what it needs (getAuthHeaders function).

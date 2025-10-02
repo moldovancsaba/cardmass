@@ -15,6 +15,7 @@ interface Store {
   rows: number;
   cols: number;
   areas: Area[];
+  background?: string;
 }
 
 const STORAGE_KEY = "cardmass.grid.creator.v1";
@@ -35,6 +36,7 @@ const defaultStore: Store = {
   rows: 0,
   cols: 0,
   areas: [],
+  background: "",
 };
 
 export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legacy' | 'org'; orgUUID?: string } = {}) {
@@ -85,9 +87,16 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
       ;(async () => {
         try {
           const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(boardUUID)}`, { headers: { 'X-Organization-UUID': orgUUID }, cache: 'no-store' })
-          const data = await res.json()
-          if (!res.ok) throw new Error(data?.error?.message || data?.error || 'Load failed')
-          setStore({ version: 1, slug: data.slug || '', rows: Number(data.rows) || 0, cols: Number(data.cols) || 0, areas: Array.isArray(data.areas) ? data.areas : [] })
+          const data: { slug?: string; rows?: number; cols?: number; areas?: Area[]; background?: string; error?: { message?: string } } = await res.json()
+          if (!res.ok) {
+            let msg = 'Load failed'
+            if (data && typeof data === 'object' && 'error' in data) {
+              const e = (data as { error?: { message?: string } }).error
+              if (e && typeof e.message === 'string') msg = e.message
+            }
+            throw new Error(msg)
+          }
+          setStore({ version: 1, slug: data.slug || '', rows: Number(data.rows) || 0, cols: Number(data.cols) || 0, areas: Array.isArray(data.areas) ? data.areas : [], background: data.background || '' })
         } catch (e) { console.error(e) }
       })()
       return
@@ -208,7 +217,7 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
 
     setCurrentLabel("");
     clearSelection();
-  }, [selection, currentLabel, currentColor, overrideMode, clearSelection]);
+  }, [selection, currentLabel, currentColor, currentBgColor, currentRowFirst, overrideMode, clearSelection]);
 
   const removeArea = useCallback((id: string) => {
     setStore(s => ({ ...s, areas: s.areas.filter(a => a.id !== id) }));
@@ -300,6 +309,16 @@ export default function CreatorApp({ mode = 'legacy', orgUUID }: { mode?: 'legac
               onChange={e => setStore(s => ({ ...s, slug: e.target.value }))}
               placeholder="board-slug"
             />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium" title="Only background-* declarations are applied; other properties are ignored.">Board background (CSS)</label>
+            <textarea
+              className="border border-black/20 rounded px-2 py-1 font-mono text-[11px] min-h-[120px]"
+              value={store.background || ''}
+              onChange={e => setStore(s => ({ ...s, background: e.target.value }))}
+              placeholder={`background-color: #2A7B9B; /* Fallback solid color */\nbackground-image: \n  url("https://example.com/your-background.jpg"), \n  linear-gradient(90deg, rgba(42, 123, 155, 1) 0%, rgba(87, 199, 133, 1) 50%, rgba(237, 221, 83, 1) 100%);\n\n/* Optional positioning/repeat */\nbackground-repeat: no-repeat, no-repeat;\nbackground-size: cover, cover;\nbackground-position: center, center;`}
+            />
+            <div className="text-[10px] text-gray-500">Only background-* declarations are applied; other CSS properties are ignored.</div>
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium">Rows</label>
@@ -471,7 +490,7 @@ if (boardUUID) {
                     const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards/${encodeURIComponent(boardUUID)}`, {
                       method: 'PATCH',
                       headers: { 'content-type': 'application/json', 'X-Organization-UUID': orgUUID },
-                      body: JSON.stringify({ slug, rows, cols, areas: store.areas })
+                      body: JSON.stringify({ slug, rows, cols, areas: store.areas, background: store.background || '' })
                     })
                     const data = await res.json()
                     if (!res.ok) throw new Error(data?.error?.message || data?.error || 'Save failed')
@@ -484,7 +503,7 @@ if (boardUUID) {
                     const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}/boards`, {
                       method: "POST",
                       headers: { "content-type": "application/json", 'X-Organization-UUID': orgUUID },
-                      body: JSON.stringify({ slug, rows, cols, areas: store.areas }),
+                      body: JSON.stringify({ slug, rows, cols, areas: store.areas, background: store.background || '' }),
                     });
                     const data = await res.json();
                     if (!res.ok) throw new Error(data?.error?.message || data?.error || "Create failed");

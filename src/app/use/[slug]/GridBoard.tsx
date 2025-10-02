@@ -1,8 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Card as ApiCard } from '@/lib/types'
-import type { Card as UiCard } from '@/types/card'
 
 export type Box = { key: string; label: string; color: string; minR: number; minC: number; maxR: number; maxC: number }
 
@@ -150,48 +149,6 @@ export default function GridBoard({ boardSlug, rows, cols, boxes }: Props) {
     return 0
   }, [])
 
-  const onUpdate = useCallback(async (id: string, data: Partial<Pick<ApiCard, 'text' | 'status' | 'order'>>) => {
-    const res = await fetch(`/api/cards/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-    if (!res.ok) return
-    try { bcRef.current?.postMessage({ type: 'card:updated' }) } catch {}
-    try { window.dispatchEvent(new CustomEvent('card:updated')) } catch {}
-    const updated: ApiCard = await res.json()
-    // Update order within area (status ignored here)
-    const area = (updated.areaLabel || '').toLowerCase()
-    // Remove from all
-    setCardsByArea((prev) => {
-      const next: Record<string, ApiCard[]> = {}
-      for (const [k, arr] of Object.entries(prev)) next[k] = arr.filter(c => c.id !== id)
-      if (area) {
-        const arr = (next[area] || []).concat(updated)
-        arr.sort(byOrder)
-        next[area] = arr
-      }
-      return next
-    })
-  }, [])
-
-  const onDelete = useCallback(async (id: string) => {
-    await fetch(`/api/cards/${id}`, { method: 'DELETE' })
-    try { bcRef.current?.postMessage({ type: 'card:deleted' }) } catch {}
-    try { window.dispatchEvent(new CustomEvent('card:deleted')) } catch {}
-    setCardsByArea((prev) => {
-      const next: Record<string, ApiCard[]> = {}
-      for (const [k, arr] of Object.entries(prev)) next[k] = arr.filter(c => c.id !== id)
-      return next
-    })
-  }, [])
-
-  const onArchive = useCallback(async (id: string) => {
-    await fetch(`/api/cards/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ archived: true }) })
-    try { bcRef.current?.postMessage({ type: 'card:archived' }) } catch {}
-    try { window.dispatchEvent(new CustomEvent('card:archived')) } catch {}
-    setCardsByArea((prev) => {
-      const next: Record<string, ApiCard[]> = {}
-      for (const [k, arr] of Object.entries(prev)) next[k] = arr.filter(c => c.id !== id)
-      return next
-    })
-  }, [])
 
   const onContainerDragOver = useCallback((area: string) => {
     setTarget((prev) => ({ area, index: prev?.area === area ? (prev.index ?? null) : null }))
@@ -248,29 +205,12 @@ const onDrop = useCallback(async (targetArea: string) => {
     })
   }, [dragging, target, cardsByArea, computeOrder, boardSlug])
 
-  // Stats for bubble gradients per area
-  const stats = useMemo(() => {
-    const out: Record<string, { minAge: number; maxAge: number; minRot: number; maxRot: number }> = {}
-    for (const [area, arr] of Object.entries(cardsByArea)) {
-      if (!arr.length) { out[area] = { minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }; continue }
-      const ages = arr.map((c) => Date.now() - new Date(c.createdAt).getTime())
-      const rots = arr.map((c) => Date.now() - new Date(c.updatedAt).getTime())
-      out[area] = {
-        minAge: Math.min(...ages),
-        maxAge: Math.max(...ages),
-        minRot: Math.min(...rots),
-        maxRot: Math.max(...rots),
-      }
-    }
-    return out
-  }, [cardsByArea])
 
   return (
     <div className="grid gap-0 w-full h-full" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}>
       {boxes.map((b) => {
         const area = b.key
         const list = cardsByArea[area] || []
-        const areaStats = stats[area] || { minAge: 0, maxAge: 0, minRot: 0, maxRot: 0 }
         return (
           <div
             key={area}
@@ -289,44 +229,7 @@ const onDrop = useCallback(async (targetArea: string) => {
             <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none" style={{ backgroundColor: b.color, color: '#000' }}>#{b.label}</span>
 
             <div className="relative p-2 pt-8 space-y-2">
-{list.map((c, idx) => {
-                const ui: UiCard = { id: c.id, text: c.text, status: (c.status as UiCard['status']) || 'decide', order: c.order, createdAt: c.createdAt, updatedAt: c.updatedAt }
-                const onUpdateUi: (id: string, data: Partial<Pick<UiCard, 'text'|'status'|'order'>>) => Promise<void> = async (id, data) => {
-                  const payload: Partial<Pick<ApiCard, 'text'|'status'|'order'>> = {}
-                  if (typeof data.text === 'string') payload.text = data.text
-                  if (typeof data.order === 'number') payload.order = data.order
-                  if (data.status) payload.status = data.status as ApiCard['status']
-                  await onUpdate(id, payload)
-                }
-                const onDeleteUi: (id: string) => Promise<void> = async (id) => { await onDelete(id) }
-                const onArchiveUi: (id: string) => Promise<void> = async (id) => { await onArchive(id) }
-
-                // Build styled hashtags with colors from creator boards across the app
-                const styledChips = (() => {
-                  const out: { text: string; bg: string; fg: string }[] = []
-                  const ba = c.boardAreas || {}
-                  const seen = new Set<string>()
-                  function textFg(bg: string) {
-                    try {
-                      const hex = bg.startsWith('#') ? bg.slice(1) : bg
-                      const r = parseInt(hex.slice(0,2), 16), g = parseInt(hex.slice(2,4), 16), b = parseInt(hex.slice(4,6), 16)
-                      // Perceived luminance
-                      const L = 0.2126 * r + 0.7152 * g + 0.0722 * b
-                      return L > 150 ? '#000' : '#fff'
-                    } catch { return '#000' }
-                  }
-                  for (const [slugKey, lbl] of Object.entries(ba)) {
-                    const lc = (lbl || '').toLowerCase()
-                    if (!lc || lc.includes('spock')) continue
-                    const color = labelColorCache[slugKey]?.[lc] || '#e5e7eb'
-                    const key = `${lc}@${color}`
-                    if (seen.has(key)) continue
-                    seen.add(key)
-                    out.push({ text: `#${lbl}`, bg: color, fg: textFg(color) })
-                  }
-                  return out
-                })()
-
+{list.map((c) => {
                 return (
                   <div key={c.id} className="relative border border-gray-300 rounded px-2 py-1 text-xs bg-white text-black shadow-sm">
                     <div className="whitespace-pre-wrap break-words">{c.text}</div>
