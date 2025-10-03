@@ -1,6 +1,6 @@
 /**
- * WHAT: Comprehensive admin dashboard with links to all management functions
- * WHY: Centralized access point for all admin operations
+ * WHAT: Comprehensive admin dashboard with tabbed management interface
+ * WHY: Centralized access point for all admin operations: organizations, users, and overview
  */
 
 'use client'
@@ -8,6 +8,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ToastProvider } from '@/components/ToastProvider'
+import OrganizationsTab from './_components/OrganizationsTab'
+import SystemUsersTab from './_components/SystemUsersTab'
 
 interface AdminUser {
   name: string
@@ -19,6 +22,7 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [user, setUser] = useState<AdminUser | null>(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<'overview' | 'organizations' | 'users'>('overview')
 
   useEffect(() => {
     // WHAT: Check if user is authenticated
@@ -59,167 +63,212 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Logged in as <span className="font-medium">{user.name}</span> ({user.email})
-                {user.role === 'super-admin' && (
-                  <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">
-                    Super Admin
-                  </span>
-                )}
-              </p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          
-          {/* Organizations Management */}
-          <AdminCard
-            title="Organizations"
-            description="View and manage all organizations"
-            icon="🏢"
-            links={[
-              { href: '/api/v1/organizations', label: 'API: List Organizations', external: true },
-              { href: '/', label: 'View Home', external: false },
-            ]}
-          />
-
-          {/* User Management */}
-          <AdminCard
-            title="User Management"
-            description="Manage admin users and permissions"
-            icon="👥"
-            links={[
-              { href: '/admin/users', label: 'User Management UI', external: false, badge: 'Coming Soon', disabled: true },
-            ]}
-            info="Use CLI scripts for now: node scripts/create-admin-quick.mjs, node scripts/debug-users.mjs"
-          />
-
-          {/* Board Management */}
-          <AdminCard
-            title="Boards"
-            description="View and manage all boards across organizations"
-            icon="📋"
-            links={[
-              { href: '/api/v1/organizations', label: 'List All Orgs', external: true },
-            ]}
-            info="Navigate to specific organization to manage boards"
-          />
-
-          {/* Authentication */}
-          <AdminCard
-            title="Authentication"
-            description="Manage authentication and sessions"
-            icon="🔐"
-            links={[
-              { href: '/api/auth/check', label: 'Check Auth Status', external: true },
-            ]}
-            info="Current session is active. Use logout button to end session."
-          />
-
-          {/* Page Passwords */}
-          <AdminCard
-            title="Page Passwords"
-            description="Generate and manage board access passwords"
-            icon="🔑"
-            links={[
-              { href: '/admin/passwords', label: 'Password Management UI', external: false, badge: 'Coming Soon', disabled: true },
-            ]}
-            info="Use POST /api/page-passwords to generate passwords per board"
-          />
-
-          {/* Documentation */}
-          <AdminCard
-            title="Documentation"
-            description="View system documentation"
-            icon="📚"
-            links={[
-              { href: 'https://github.com/moldovancsaba/cardmass/blob/main/AUTHENTICATION_AND_ACCESS.md', label: 'Auth Guide', external: true },
-              { href: 'https://github.com/moldovancsaba/cardmass/blob/main/ARCHITECTURE.md', label: 'Architecture', external: true },
-              { href: 'https://github.com/moldovancsaba/cardmass/blob/main/README.md', label: 'README', external: true },
-            ]}
-          />
-
-          {/* Database */}
-          <AdminCard
-            title="Database"
-            description="Database operations and maintenance"
-            icon="💾"
-            info="MongoDB Atlas cluster. Use scripts for database operations."
-          />
-
-          {/* Scripts & Tools */}
-          <AdminCard
-            title="CLI Scripts"
-            description="Command-line management tools"
-            icon="⚙️"
-            info={
-              <div className="text-xs space-y-1">
-                <div><code className="bg-gray-100 px-1 rounded">node scripts/create-admin-quick.mjs</code> - Create admin</div>
-                <div><code className="bg-gray-100 px-1 rounded">node scripts/debug-users.mjs</code> - List users</div>
-                <div><code className="bg-gray-100 px-1 rounded">node scripts/admin/update-password.mjs</code> - Change password</div>
+    <ToastProvider>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Logged in as <span className="font-medium">{user.name}</span> ({user.email})
+                  {user.role === 'super-admin' && (
+                    <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">
+                      Super Admin
+                    </span>
+                  )}
+                </p>
               </div>
-            }
-          />
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </header>
 
-          {/* System Status */}
-          <AdminCard
-            title="System Status"
-            description="Application health and monitoring"
-            icon="📊"
-            info="All systems operational. Version 0.18.0"
-          />
-
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            <Link
-              href="/creator"
-              className="px-4 py-3 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-center"
-            >
-              Create Board
-            </Link>
-            <Link
-              href="/"
-              className="px-4 py-3 text-sm rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors text-center"
-            >
-              View Organizations
-            </Link>
-            <button
-              onClick={() => window.open('/api/v1/organizations', '_blank')}
-              className="px-4 py-3 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-center"
-            >
-              API Explorer
-            </button>
-            <button
-              onClick={() => alert('Feature coming soon!')}
-              className="px-4 py-3 text-sm rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors text-center"
-            >
-              Generate Password
-            </button>
+        {/* Tabs */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'overview'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('organizations')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'organizations'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Organizations
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'users'
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                System Users
+              </button>
+            </nav>
           </div>
         </div>
-      </main>
-    </div>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'organizations' && <OrganizationsTab />}
+          {activeTab === 'users' && <SystemUsersTab />}
+          {activeTab === 'overview' && <OverviewTab />}
+        </main>
+      </div>
+    </ToastProvider>
+  )
+}
+
+/**
+ * WHAT: Overview tab with cards showing key system areas
+ * WHY: Quick access to common admin functions and information
+ */
+function OverviewTab() {
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        {/* Organizations Management */}
+        <AdminCard
+          title="Organizations"
+          description="View and manage all organizations"
+          icon="🏢"
+          info="Switch to Organizations tab for full CRUD interface"
+        />
+
+        {/* User Management */}
+        <AdminCard
+          title="User Management"
+          description="Manage admin users and permissions"
+          icon="👥"
+          info="Switch to System Users tab for full user management"
+        />
+
+        {/* Board Management */}
+        <AdminCard
+          title="Boards"
+          description="View and manage all boards across organizations"
+          icon="📋"
+          links={[
+            { href: '/organization/admin', label: 'Organization Board Admin', external: false },
+          ]}
+          info="Navigate to specific organization to manage boards"
+        />
+
+        {/* Authentication */}
+        <AdminCard
+          title="Authentication"
+          description="Manage authentication and sessions"
+          icon="🔐"
+          links={[
+            { href: '/api/auth/check', label: 'Check Auth Status', external: true },
+          ]}
+          info="Current session is active. Use logout button to end session."
+        />
+
+        {/* Page Passwords */}
+        <AdminCard
+          title="Page Passwords"
+          description="Generate and manage board access passwords"
+          icon="🔑"
+          info="Use POST /api/page-passwords to generate passwords per board"
+        />
+
+        {/* Documentation */}
+        <AdminCard
+          title="Documentation"
+          description="View system documentation"
+          icon="📚"
+          links={[
+            { href: 'https://github.com/moldovancsaba/cardmass/blob/main/AUTHENTICATION_AND_ACCESS.md', label: 'Auth Guide', external: true },
+            { href: 'https://github.com/moldovancsaba/cardmass/blob/main/ARCHITECTURE.md', label: 'Architecture', external: true },
+            { href: 'https://github.com/moldovancsaba/cardmass/blob/main/README.md', label: 'README', external: true },
+          ]}
+        />
+
+        {/* Database */}
+        <AdminCard
+          title="Database"
+          description="Database operations and maintenance"
+          icon="💾"
+          info="MongoDB Atlas cluster. Use scripts for database operations."
+        />
+
+        {/* Scripts & Tools */}
+        <AdminCard
+          title="CLI Scripts"
+          description="Command-line management tools"
+          icon="⚙️"
+          info={
+            <div className="text-xs space-y-1">
+              <div><code className="bg-gray-100 px-1 rounded">node scripts/create-admin-quick.mjs</code> - Create admin</div>
+              <div><code className="bg-gray-100 px-1 rounded">node scripts/verify-db.mjs</code> - Verify DB</div>
+              <div><code className="bg-gray-100 px-1 rounded">node scripts/admin/update-password.mjs</code> - Change password</div>
+            </div>
+          }
+        />
+
+        {/* System Status */}
+        <AdminCard
+          title="System Status"
+          description="Application health and monitoring"
+          icon="📊"
+          info="All systems operational. Version 0.19.0"
+        />
+
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mt-8 bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Link
+            href="/creator"
+            className="px-4 py-3 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-center"
+          >
+            Create Board
+          </Link>
+          <Link
+            href="/"
+            className="px-4 py-3 text-sm rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors text-center"
+          >
+            View Organizations
+          </Link>
+          <button
+            onClick={() => window.open('/api/v1/organizations', '_blank')}
+            className="px-4 py-3 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-center"
+          >
+            API Explorer
+          </button>
+          <Link
+            href="/organization/admin"
+            className="px-4 py-3 text-sm rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors text-center"
+          >
+            Org Admin
+          </Link>
+        </div>
+      </div>
+    </>
   )
 }
 

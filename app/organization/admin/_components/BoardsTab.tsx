@@ -12,7 +12,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useOrg } from '@/lib/org-context'
 import { useToast } from '@/components/ToastProvider'
 import Link from 'next/link'
@@ -37,13 +37,12 @@ export default function BoardsTab() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingBoard, setEditingBoard] = useState<Board | null>(null)
 
-  useEffect(() => {
-    if (orgUUID) {
-      loadBoards()
-    }
-  }, [orgUUID])
-
-  async function loadBoards() {
+  /**
+   * WHAT: Memoize loadBoards so its identity is stable across renders
+   * WHY: Allows useEffect to safely depend on loadBoards, satisfying react-hooks/exhaustive-deps
+   *      without disabling and preventing stale orgUUID usage
+   */
+  const loadBoards = useCallback(async () => {
     if (!orgUUID) return
     
     setLoading(true)
@@ -64,7 +63,13 @@ export default function BoardsTab() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [orgUUID])
+
+  useEffect(() => {
+    if (orgUUID) {
+      loadBoards()
+    }
+  }, [orgUUID, loadBoards])
 
   async function handleDeleteBoard(boardUUID: string, boardName: string) {
     if (!orgUUID) return
