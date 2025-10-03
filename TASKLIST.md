@@ -16,17 +16,20 @@ Updated: 2025-10-02T12:47:30.000Z
   - Owner: csaba
   - Expected: 2025-10-10T16:00:00.000Z
 
-- P0 — Implement Desktop multicol masonry for Tagger areas (CSS-only)
+- P0 — ✅ COMPLETED Implement Desktop multicol masonry for Tagger areas (CSS-only)
   - Owner: ai
   - Expected: 2025-10-02T18:00:00.000Z
+  - Completed: 2025-10-03T18:00:00.000Z
 
-- P0 — Implement Stacked panes multicol masonry (CSS-only)
+- P0 — ✅ COMPLETED Implement Stacked panes multicol masonry (CSS-only)
   - Owner: ai
   - Expected: 2025-10-02T19:00:00.000Z
+  - Completed: 2025-10-03T18:00:00.000Z
 
-- P0 — Preserve DnD slots and area semantics
+- P0 — ✅ COMPLETED Preserve DnD slots and area semantics
   - Owner: ai
   - Expected: 2025-10-02T19:00:00.000Z
+  - Completed: 2025-10-03T18:00:00.000Z
 
 - P1 — Documentation updates (ARCHITECTURE, README, LEARNINGS, WARP)
   - Owner: ai
