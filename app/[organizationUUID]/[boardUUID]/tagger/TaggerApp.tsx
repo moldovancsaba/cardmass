@@ -853,8 +853,10 @@ return (
                    WHY: Provides Pinterest-style card packing without JS reflow while preserving DOM order for DnD
                    HOW: columnCount replaces grid for multi-col; single-col keeps grid for DnD slots */}
               <div 
-                className="absolute inset-0 overflow-auto p-2 pt-7 pb-2" 
+                className="absolute inset-0 p-2 pt-7 pb-2" 
                 style={{
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
                   ...(ENABLE_MASONRY && (areaCols[b.key] || viewportCols) > 1 ? {
                     columnCount: areaCols[b.key] || viewportCols,
                     columnGap: '8px'
@@ -867,7 +869,7 @@ return (
                     justifyContent: 'start',
                     alignItems: 'start'
                   })
-                }} 
+                }}
                 ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}
               >
                 <div className="contents">
