@@ -1,7 +1,36 @@
 # RELEASE_NOTES
 
-## [v0.19.0] — 2025-10-03T16:39:09.318Z
-- (update notes here)
+## [v0.19.0] — 2025-10-03T17:30:00.000Z
+- Added: Comprehensive three-level admin CRUD system
+  - System-level user management (super-admin only): create/update/delete users and super-admins; role changes; password regeneration with 32-hex tokens
+  - Organization CRUD: create/edit/delete organizations; toggle active status; full metadata management (name, slug, description, UUID)
+  - Organization-level user management: enhanced existing org user admin with memoized data loaders
+- Added: Tabbed admin dashboard (/admin/dashboard)
+  - Overview tab: Card-based navigation to all admin functions with quick actions
+  - Organizations tab: Full org CRUD interface with list, create, edit, delete, and status toggle
+  - System Users tab: Full user CRUD with role management, password reset, and delete (super-admin only)
+- Added: API routes for system user management
+  - GET /api/admin/users: List all system users (excludes password/token fields)
+  - POST /api/admin/users: Create new users or update existing (role, password)
+  - DELETE /api/admin/users/[userId]: Delete user with last-super-admin guard
+  - Authorization: Super-admin only (403 for non-super-admins)
+  - Password hashing: PBKDF2 with 10000 iterations, SHA-512, salted
+- Added: API routes for organization management
+  - PATCH /api/v1/organizations/[orgUUID]: Update org details (name, slug, description, isActive)
+  - DELETE /api/v1/organizations/[orgUUID]: Delete organization
+- Changed: Admin dashboard quick action buttons now use consistent dark gray background (bg-gray-700) with white text
+- Fixed: React hooks exhaustive-deps warnings
+  - Memoized loadBoards and loadUsers functions with useCallback in BoardsTab.tsx and UsersTab.tsx
+  - Updated useEffect dependency arrays to include memoized loaders
+  - Zero ESLint warnings in build output
+- Security: Guards implemented
+  - Super-admin-only routes with session validation
+  - Last super-admin deletion prevention (403 error)
+  - Password strength enforcement (minimum 8 characters)
+  - Secure password generation using crypto.getRandomValues
+- UX: Toast notifications, modal workflows, copy-to-clipboard for passwords, confirmation dialogs for destructive actions
+- Docs: Updated ARCHITECTURE.md with complete admin system documentation (sections 10.6 and 11)
+- Build: Clean compilation with zero warnings or errors
 
 ## [v0.19.0] — 2025-10-03T16:37:24.000Z
 - Added: Complete organization admin panel with full user and board management

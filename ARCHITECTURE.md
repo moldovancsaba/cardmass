@@ -57,6 +57,8 @@ Generated: 2025-10-03T16:37:24.000Z
   - GET /api/v1/organizations — list (public)
   - POST /api/v1/organizations — create (public); generates uuid; ISO timestamps
   - GET /api/v1/organizations/[orgUUID] — fetch by uuid (validate v4)
+  - PATCH /api/v1/organizations/[orgUUID] — update (name, slug, description, isActive); ISO timestamps
+  - DELETE /api/v1/organizations/[orgUUID] — delete organization
   - GET /api/v1/organizations/slug/[slug] — admin UX by slug (not for scoping)
 
 - Boards (org scoped; requires X-Organization-UUID header to match path)
@@ -163,7 +165,7 @@ a) users
 b) pagePasswords
 - See schema in section 10.3 above
 
-10.5 API Endpoints
+10.5 API Endpoints (Auth & Page Passwords)
 
 a) POST /api/auth/login
 - Body: { email: string, password: string }
@@ -198,6 +200,90 @@ e) PUT /api/page-passwords
 - Side effect: On successful validation, increments usageCount and updates lastUsedAt
 - Errors:
   - 400: Invalid body or password format
+
+10.6 Admin Management API (Super-Admin Only)
+
+a) GET /api/admin/users
+- Authorization: Super-admin only (403 if not super-admin)
+- Response: { users: Array<User> }
+- Returns: All system users (excluding password and token fields)
+- Used by: System Users tab in admin dashboard
+
+b) POST /api/admin/users
+- Authorization: Super-admin only (403 if not super-admin)
+- Body (create): { email: string, name: string, password: string, role?: 'user' | 'super-admin' }
+- Body (update): { userId: string, role?: 'user' | 'super-admin', password?: string }
+- Response (create): { success: true, message: 'User created', user: { email, name, role } }
+- Response (update): { success: true, message: 'User updated' }
+- Password hashing: PBKDF2 (10000 iterations, SHA-512) with salt
+- Minimum password length: 8 characters
+- Errors:
+  - 400: Missing required fields or invalid password length
+  - 409: User with email already exists (create only)
+
+c) DELETE /api/admin/users/[userId]
+- Authorization: Super-admin only (403 if not super-admin)
+- Response: { success: true, message: 'User deleted' }
+- Guard: Prevents deleting the last super-admin (returns 403)
+- Errors:
+  - 403: Cannot delete last super-admin
+  - 404: User not found
+
+11. Admin Dashboard (v0.19.0)
+
+11.1 Structure
+- Location: /admin/dashboard
+- Access: Requires admin session (redirects to /admin/login if not authenticated)
+- Interface: Tabbed layout with three main tabs
+  1. Overview: Card-based navigation to all admin functions
+  2. Organizations: Full CRUD for organization management
+  3. System Users: Full CRUD for user management (super-admin only)
+
+11.2 Organizations Tab
+- Components: app/admin/dashboard/_components/OrganizationsTab.tsx
+- Features:
+  - List all organizations with metadata (UUID, slug, description, active status, timestamps)
+  - Create new organizations (name, slug, description)
+  - Edit organization details (name, slug, description)
+  - Toggle active/inactive status
+  - Delete organizations (with confirmation)
+  - Open organization directly from list
+- API: Uses /api/v1/organizations routes
+- Permissions: All authenticated admins
+
+11.3 System Users Tab
+- Components: app/admin/dashboard/_components/SystemUsersTab.tsx
+- Features:
+  - List all system users with role display
+  - Create new users/super-admins with auto-generated 32-hex passwords
+  - Change user roles (user ↔ super-admin) via dropdown
+  - Regenerate passwords with copy-to-clipboard
+  - Delete users (with last super-admin guard)
+  - Display super-admin and user counts
+- API: Uses /api/admin/users routes
+- Permissions: Super-admin only
+- Password generation: crypto.getRandomValues + hex encoding (32 chars)
+
+11.4 Organization Users Management
+- Location: /organization/admin → User Management tab
+- Components: app/organization/admin/_components/UsersTab.tsx
+- Features:
+  - List users with access to specific organization
+  - Add users with org-admin or member roles
+  - Change user roles within organization
+  - Regenerate user passwords
+  - Remove users from organization (with super-admin guard)
+- API: Uses /api/v1/organizations/[orgUUID]/users routes
+- Permissions: Org-admins and super-admins
+- Context: OrgContextProvider (requires ?org=<orgUUID> query param)
+
+11.5 UI Components
+- Toast notifications: Integrated ToastProvider for all user feedback
+- Modals: Create/Edit modals for organizations and users
+- Password modals: Display regenerated passwords with copy-to-clipboard
+- Tables: Sortable lists with inline actions
+- Forms: Validated inputs with error handling
+- Guards: Client-side and server-side permission checks
   - 403: Password mismatch
 
 10.6 UI Components

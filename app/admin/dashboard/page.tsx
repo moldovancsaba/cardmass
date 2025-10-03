@@ -244,25 +244,25 @@ function OverviewTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Link
             href="/creator"
-            className="px-4 py-3 text-sm rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors text-center"
           >
             Create Board
           </Link>
           <Link
             href="/"
-            className="px-4 py-3 text-sm rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors text-center"
           >
             View Organizations
           </Link>
           <button
             onClick={() => window.open('/api/v1/organizations', '_blank')}
-            className="px-4 py-3 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors text-center"
           >
             API Explorer
           </button>
           <Link
             href="/organization/admin"
-            className="px-4 py-3 text-sm rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-gray-700 text-white hover:bg-gray-800 transition-colors text-center"
           >
             Org Admin
           </Link>
