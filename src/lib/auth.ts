@@ -135,7 +135,8 @@ export async function createAdminUser(params: {
   email: string;
   password: string;
   name: string;
-  role: 'admin' | 'super-admin';
+  role: 'user' | 'super-admin';
+  organizationAccess?: Array<{ organizationUUID: string; role: 'org-admin' | 'member' }>;
 }): Promise<{ success: boolean; error?: string; userId?: string }> {
   const db = await getDb();
   const usersCol = db.collection<UserDoc>(USERS_COLLECTION);
@@ -153,6 +154,7 @@ export async function createAdminUser(params: {
     password: hashPassword(params.password),
     name: params.name,
     role: params.role,
+    organizationAccess: params.organizationAccess || [],
     createdAt: now,
     updatedAt: now,
   });
@@ -191,4 +193,59 @@ export async function getAdminByEmail(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: _, ...safeUser } = user;
   return safeUser;
+}
+
+/**
+ * Check if user has access to a specific organization
+ * WHAT: Validates user's organizationAccess array contains the orgUUID
+ * WHY: Multi-tenant access control - users can only access assigned orgs
+ * @returns Role in organization ('super-admin', 'org-admin', 'member') or null if no access
+ */
+export async function checkOrgAccess(
+  userId: string,
+  organizationUUID: string
+): Promise<'super-admin' | 'org-admin' | 'member' | null> {
+  const db = await getDb();
+  const usersCol = db.collection<UserDoc>(USERS_COLLECTION);
+  
+  const user = await usersCol.findOne({ _id: new (await import('mongodb')).ObjectId(userId) });
+  if (!user) return null;
+  
+  // Super-admins have access to all organizations
+  if (user.role === 'super-admin') return 'super-admin';
+  
+  // Check organizationAccess array
+  const orgAccess = user.organizationAccess?.find(
+    access => access.organizationUUID === organizationUUID
+  );
+  
+  return orgAccess?.role || null;
+}
+
+/**
+ * Get all organizations a user has access to
+ * WHAT: Returns list of org UUIDs and roles user can access
+ * WHY: Powers organization selector page
+ */
+export async function getUserOrganizations(
+  userId: string
+): Promise<Array<{ organizationUUID: string; role: 'super-admin' | 'org-admin' | 'member' }>> {
+  const db = await getDb();
+  const usersCol = db.collection<UserDoc>(USERS_COLLECTION);
+  
+  const user = await usersCol.findOne({ _id: new (await import('mongodb')).ObjectId(userId) });
+  if (!user) return [];
+  
+  // Super-admins get all organizations
+  if (user.role === 'super-admin') {
+    const orgsCol = db.collection('organizations');
+    const allOrgs = await orgsCol.find({}).toArray();
+    return allOrgs.map(org => ({
+      organizationUUID: org.uuid,
+      role: 'super-admin' as const,
+    }));
+  }
+  
+  // Return user's organizationAccess array
+  return user.organizationAccess || [];
 }

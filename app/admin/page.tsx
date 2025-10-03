@@ -1,6 +1,9 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
-// Global /admin route removed. Return 404 for anonymity and to avoid leaked navigation.
+/**
+ * WHAT: /admin redirects to login (which then redirects to dashboard if authenticated)
+ * WHY: Provides discoverable admin entry point while maintaining security
+ */
 export default function AdminPage() {
-  return notFound();
+  redirect('/admin/login');
 }

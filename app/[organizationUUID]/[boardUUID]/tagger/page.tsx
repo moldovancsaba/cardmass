@@ -1,6 +1,8 @@
 import { isUUIDv4 } from '@/lib/validation'
 import { fetchWithOrg } from '@/lib/http/fetchWithOrg'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { validateAdminToken, checkOrgAccess } from '@/lib/auth'
 import TaggerWithAuth from './TaggerWithAuth'
 import type { Area } from './TaggerApp'
 
@@ -15,6 +17,23 @@ export default async function TaggerPage(ctx: { params: Promise<{ organizationUU
       <main className="min-h-dvh p-6"><h1 className="text-xl font-semibold">Invalid URL</h1></main>
     )
   }
+  
+  // WHAT: Check authentication and org access (in addition to PasswordGate)
+  // WHY: Users must have org access to view boards (password gate is secondary layer)
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin_session')?.value;
+  
+  if (token) {
+    const user = await validateAdminToken(token);
+    if (user && user._id) {
+      const orgRole = await checkOrgAccess(user._id.toString(), org);
+      if (!orgRole) {
+        // User is authenticated but doesn't have access to this org
+        redirect('/organizations');
+      }
+    }
+  }
+  // If no token, PasswordGate will handle auth prompt
 
   async function getBaseURL(): Promise<string> {
     const h = await headers()

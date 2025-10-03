@@ -1,16 +1,31 @@
-import SpockNav from "@/components/SpockNav";
+/**
+ * WHAT: Home page converted to login-first experience
+ * WHY: Authenticated users are routed based on role; unauthenticated users see login
+ */
 
-import OrgHome from '@/components/OrgHome'
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { validateAdminToken } from '@/lib/auth';
 
-export default function HomePage() {
-  return (
-    <main className="min-h-dvh bg-white">
-      <SpockNav />
-      <section className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-3xl font-bold mb-4">cardmass</h1>
-        <p className="mb-6">Manage organizations and boards (UUID routes, org-scoped).</p>
-        <OrgHome />
-      </section>
-    </main>
-  );
+export default async function HomePage() {
+  // WHAT: Check if user is already authenticated
+  const cookieStore = await cookies();
+  const token = cookieStore.get('admin_session')?.value;
+  
+  if (token) {
+    const user = await validateAdminToken(token);
+    
+    if (user) {
+      // WHAT: Route based on role
+      // WHY: Super-admins see global dashboard, others see org selector
+      if (user.role === 'super-admin') {
+        redirect('/admin/dashboard');
+      } else {
+        redirect('/organizations');
+      }
+    }
+  }
+  
+  // WHAT: No valid session, redirect to login
+  redirect('/admin/login');
 }

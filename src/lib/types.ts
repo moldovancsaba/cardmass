@@ -24,14 +24,30 @@ export interface Board {
   updatedAt: Date;
 }
 
-/** Admin user document (stored in MongoDB). WHAT: Represents an admin capable of bypassing page passwords. WHY: Enables zero-trust flow with admin-session. */
+/**
+ * Admin user document (stored in MongoDB)
+ * WHAT: Represents a user with authentication credentials and organization access
+ * WHY: Enables multi-tenant access control with role-based permissions
+ */
 export interface UserDoc {
   _id?: import('mongodb').ObjectId;
   email: string;
   name: string;
-  role: 'admin' | 'super-admin';
-  /** Per project convention: plaintext-like MD5-style token. */
+  /** Global role: 'super-admin' (all orgs), 'user' (specific orgs only) */
+  role: 'user' | 'super-admin';
+  /** Per project convention: MD5-hashed password */
   password: string;
+  /**
+   * Organization access control
+   * Array of { orgUUID, role } where role is 'org-admin' or 'member'
+   * - org-admin: Can manage users, boards, and passwords within the org
+   * - member: Can view and work on boards they have access to
+   * Empty array or missing = no org access (super-admin bypasses this)
+   */
+  organizationAccess?: Array<{
+    organizationUUID: string;
+    role: 'org-admin' | 'member';
+  }>;
   /** ISO 8601 with milliseconds, UTC */
   createdAt: string;
   /** ISO 8601 with milliseconds, UTC */

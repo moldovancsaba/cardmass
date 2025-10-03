@@ -1,0 +1,14 @@
+
+> cardmass@0.18.0 dev
+> NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000
+
+   ▲ Next.js 15.5.3
+   - Local:        http://localhost:4000
+   - Network:      http://192.168.0.189:4000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1506ms
+ ○ Compiling /api/auth/check ...
+ ✓ Compiled /api/auth/check in 573ms (301 modules)
+ GET /api/auth/check 200 in 809ms
