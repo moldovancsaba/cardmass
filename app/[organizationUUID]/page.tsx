@@ -100,7 +100,7 @@ export default async function OrganizationMainPage(ctx: { params: Promise<{ orga
             {(orgRole === 'org-admin' || orgRole === 'super-admin') && (
               <Link
                 className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-purple-100 to-purple-200 text-black border border-black/10 hover:from-purple-200 hover:to-purple-300"
-                href="/organization/admin"
+                href={`/organization/admin?org=${encodeURIComponent(org)}`}
               >
                 Admin Panel
               </Link>

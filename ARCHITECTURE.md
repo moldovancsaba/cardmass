@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: 0.18.0
-Generated: 2025-10-02T12:47:30.000Z
+Version: 0.19.0
+Generated: 2025-10-03T16:37:24.000Z
 
 1. Overview
 - Single-DB, multi-tenant architecture with strict organization scoping.
@@ -77,6 +77,7 @@ Generated: 2025-10-02T12:47:30.000Z
 5. Routing
 - Hashed board URL: /{organizationUUID}/{boardUUID}
 - Organization admin by slug (metadata): /organization/[slug]
+- Organization admin panel (org-scoped): /organization/admin?org={orgUUID}
 - Slugs never appear in routing for the main board view.
 
 6. Access guard (middleware)
@@ -99,7 +100,7 @@ Generated: 2025-10-02T12:47:30.000Z
 10.1 Overview
 - Zero-trust model: every protected page requires authentication via EITHER admin session OR valid page password
 - Based on MessMass AUTHENTICATION_AND_ACCESS.md specification
-- Implemented: v0.18.0
+- Implemented: v0.19.0
 - Scope (initial): Tagger pages /{organizationUUID}/{boardUUID}/tagger
 
 10.2 Admin Session
@@ -407,3 +408,112 @@ API Route Handler
 - No breadcrumbs (Navigation policy)
 - Version sync: package.json, all docs
 - Build verification: npm run build must pass before commit
+
+11. Organization Admin Panel (v0.19.0)
+
+11.1 Overview
+- Location: /organization/admin?org={orgUUID}
+- Access: org-admin and super-admin roles only
+- Purpose: Complete user and board management within organization scope
+- Integration: OrgContextProvider + ToastProvider wrapping
+
+11.2 Organization Context (src/lib/org-context.tsx)
+- WHAT: Client-side context provider for organization UUID management
+- WHY: Ensures consistent org scoping across admin panel; simplifies header injection
+- Strategy:
+  - Primary: Read orgUUID from URL query parameter ?org={uuid}
+  - Fallback: Persist to/from localStorage (key: cardmass.lastOrg)
+  - Validation: Only accepts valid UUID v4 format (via isUUIDv4)
+  - Auto-redirect: Updates URL when org changes
+- Hook: useOrg() returns { orgUUID, setOrgUUID, isLoading }
+- Header enforcement: All API calls automatically include X-Organization-UUID matching path segment
+
+11.3 Toast Notifications (src/components/ToastProvider.tsx)
+- WHAT: Minimal toast notification system for user feedback
+- WHY: No existing toast system found; required for async operation feedback
+- Features:
+  - Auto-dismiss after 5 seconds
+  - Variants: success (green), error (red), info (blue)
+  - Manual dismiss via close button
+  - Accessible, keyboard-friendly
+- Hook: useToast() returns { showToast(message, type?) }
+- Position: Fixed bottom-right
+
+11.4 User Management Tab (app/organization/admin/_components/UsersTab.tsx)
+
+Features:
+a) List Users
+- Endpoint: GET /api/v1/organizations/{orgUUID}/users
+- Display: table with email, name, role, actions
+- Loading/error states with retry
+
+b) Add User
+- Modal form: email (required), name (required), role (member|org-admin)
+- Password: auto-generated 32-hex token via crypto.getRandomValues()
+- Copy-to-clipboard: "won't be shown again" warning
+- Endpoint: POST /api/v1/organizations/{orgUUID}/users
+- Payload: { email, name, role, password }
+
+c) Edit User Role
+- Inline dropdown: member ↔ org-admin
+- Idempotent: POST /api/v1/organizations/{orgUUID}/users with { userId, role }
+- Real-time feedback via toast
+
+d) Regenerate Password
+- Confirmation dialog → generate new 32-hex token client-side
+- Endpoint: POST /api/v1/organizations/{orgUUID}/users with { userId, password }
+- Secure modal display with copy button
+
+e) Remove User
+- Confirmation dialog
+- Super-admin guard: disable for users with role='super-admin'
+- Tooltip: "Super-admins cannot be removed from orgs"
+- Endpoint: DELETE /api/v1/organizations/{orgUUID}/users/{userId}
+- Handle 403 gracefully
+
+11.5 Board Management Tab (app/organization/admin/_components/BoardsTab.tsx)
+
+Features:
+a) List Boards
+- Endpoint: GET /api/v1/organizations/{orgUUID}/boards
+- Display: table with slug, grid size (rows×cols), updated (ISO 8601 UTC), version, actions
+- Direct link: Open in Tagger at /{orgUUID}/{boardUUID}/tagger
+
+b) Quick Create Board
+- Inline modal: name/slug (optional), rows (1-20), cols (1-20)
+- Endpoint: POST /api/v1/organizations/{orgUUID}/boards
+- Payload: { slug?, rows, cols, areas: [] }
+- Alternative: "Open Creator" link to /{orgUUID}/creator
+
+c) Edit Board
+- Modal form: edit name/slug
+- Display UUID (read-only)
+- Endpoint: PATCH /api/v1/organizations/{orgUUID}/boards/{boardUUID}
+- Payload: { slug }
+
+d) Delete Board
+- Confirmation dialog: "This cannot be undone"
+- Endpoint: DELETE /api/v1/organizations/{orgUUID}/boards/{boardUUID}
+
+11.6 Security & Compliance
+- Header enforcement: All API calls include X-Organization-UUID matching path
+- Password security: 32-hex tokens (128-bit entropy), client-side generation, ephemeral display
+- Super-admin protection: Cannot be removed from organizations
+- ISO 8601 timestamps: All dates displayed with milliseconds in UTC
+- No breadcrumbs: Context-aware headers only
+- Code comments: What + why for all major decisions
+
+11.7 UX Patterns
+- Loading states: spinners/skeletons during fetch
+- Error states: inline messages with retry button
+- Confirmation dialogs: for all destructive actions
+- Toast feedback: success/error for all mutations
+- Disabled states: during async operations
+- Responsive tables: overflow-x-auto for mobile
+- Accessible modals: click-outside-to-close, focus management
+
+11.8 Integration Points
+- Entry: Organization page (app/[organizationUUID]/page.tsx) → "Admin Panel" button with ?org={orgUUID}
+- Visibility: Button only shown to org-admin and super-admin roles
+- Tab state: maintained in component state (not URL)
+- Context preservation: org query parameter persists across navigation

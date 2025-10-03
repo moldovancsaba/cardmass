@@ -1,39 +1,19 @@
 /**
- * WHAT: Organization admin management page
- * WHY: Org admins can manage users, boards, and passwords for their org
+ * WHAT: Organization admin management page with full user and board management
+ * WHY: Org admins need complete CRUD capabilities for users and boards within their organization
  */
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { OrgContextProvider } from '@/lib/org-context'
+import { ToastProvider } from '@/components/ToastProvider'
+import UsersTab from './_components/UsersTab'
+import BoardsTab from './_components/BoardsTab'
 
-interface UserInfo {
-  name: string
-  email: string
-  role: string
-}
-
-// Reserved for future full implementation
-// interface OrgUser {
-//   _id: string
-//   email: string
-//   name: string
-//   role: 'user' | 'super-admin'
-//   organizationAccess?: Array<{
-//     organizationUUID: string
-//     role: 'org-admin' | 'member'
-//   }>
-// }
-// interface Board {
-//   uuid: string
-//   slug?: string
-//   updatedAt?: string
-//   version?: number
-// }
-
-export default function OrganizationAdminPage() {
+function OrganizationAdminContent() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'users' | 'boards' | 'passwords'>('users')
@@ -129,51 +109,27 @@ export default function OrganizationAdminPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'users' && <UserManagementTab />}
-        {activeTab === 'boards' && <BoardManagementTab />}
+        {activeTab === 'users' && <UsersTab />}
+        {activeTab === 'boards' && <BoardsTab />}
         {activeTab === 'passwords' && <PasswordManagementTab />}
       </main>
     </div>
   )
 }
 
-function UserManagementTab() {
+export default function OrganizationAdminPage() {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Organization Users</h2>
-        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
-          Add User
-        </button>
-      </div>
-      <div className="text-center py-12 text-gray-500">
-        <p className="mb-4">User management UI coming soon</p>
-        <p className="text-sm">Use API endpoints for now:</p>
-        <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-          POST /api/v1/organizations/{`{orgUUID}`}/users
-        </code>
-      </div>
-    </div>
-  )
-}
-
-function BoardManagementTab() {
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Organization Boards</h2>
-        <Link
-          href="/creator"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm"
-        >
-          Create Board
-        </Link>
-      </div>
-      <div className="text-center py-12 text-gray-500">
-        <p className="mb-4">Board management UI available via Creator</p>
-        <p className="text-sm">Navigate to your organization page to see all boards</p>
-      </div>
-    </div>
+    <ToastProvider>
+      <Suspense fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-gray-600">Loading...</div>
+        </div>
+      }>
+        <OrgContextProvider>
+          <OrganizationAdminContent />
+        </OrgContextProvider>
+      </Suspense>
+    </ToastProvider>
   )
 }
 

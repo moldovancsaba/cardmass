@@ -1,5 +1,33 @@
 # RELEASE_NOTES
 
+## [v0.19.0] — 2025-10-03T16:39:09.318Z
+- (update notes here)
+
+## [v0.19.0] — 2025-10-03T16:37:24.000Z
+- Added: Complete organization admin panel with full user and board management
+  - Organization context provider (src/lib/org-context.tsx): URL query-first (?org=uuid) with localStorage fallback; automatic UUID v4 validation
+  - Toast notification system (src/components/ToastProvider.tsx): auto-dismissing toasts with success/error/info variants
+- Added: User Management tab (app/organization/admin/_components/UsersTab.tsx)
+  - List all users with organization access (email, name, role, actions)
+  - Add new users with auto-generated 32-hex passwords (MessMass convention); copy-to-clipboard workflow
+  - Edit user roles inline via dropdown (org-admin ↔ member); idempotent POST for add/update
+  - Regenerate passwords with secure display modal; warn "won't be shown again"
+  - Remove users with super-admin guard (cannot remove super-admins from orgs)
+  - Real-time feedback via toast notifications; error handling with retry
+- Added: Board Management tab (app/organization/admin/_components/BoardsTab.tsx)
+  - List boards with metadata (slug, grid size, version, ISO 8601 updated timestamp with milliseconds UTC)
+  - Quick create inline (name, rows, cols) + link to full Creator
+  - Edit board name/slug via modal
+  - Delete boards with confirmation dialog
+  - Direct links to open board in Tagger
+- Changed: Organization page (app/[organizationUUID]/page.tsx) now passes org UUID to admin panel link: /organization/admin?org={orgUUID}
+- Changed: Admin panel page (app/organization/admin/page.tsx) integrated with OrgContextProvider, ToastProvider, and new tab components
+- Security: All API calls include X-Organization-UUID header matching path segment (middleware guard compliance)
+- Security: Password generation uses crypto.getRandomValues; 32-char hex tokens (128-bit entropy)
+- Security: Super-admin protection prevents unauthorized user removals
+- UX: Loading states, error states with retry, confirmation dialogs for destructive actions, disabled states during API calls
+- Build: Clean Next.js build; 2 non-breaking ESLint warnings (useEffect dependencies)
+
 ## [v0.18.0] — 2025-10-02T12:47:30.000Z
 - Added: Zero-trust authentication system (MessMass specification)
   - Admin session: HttpOnly cookie 'admin-session' with base64 JSON token (sub, email, role, exp); 7-day expiry; SameSite=Lax, Secure in production

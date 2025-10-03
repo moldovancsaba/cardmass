@@ -12,3 +12,4 @@
  ○ Compiling /api/auth/check ...
  ✓ Compiled /api/auth/check in 573ms (301 modules)
  GET /api/auth/check 200 in 809ms
+[?25h
