@@ -1,9 +1,9 @@
 # cardmass
 
-Version: 0.20.1
-Updated: 2025-10-04T11:22:45.000Z
+Version: 0.21.0
+Updated: 2025-10-04T13:25:56.000Z
 
-![version](https://img.shields.io/badge/version-0.20.1-blue?style=flat-square)
+![version](https://img.shields.io/badge/version-0.21.0-blue?style=flat-square)
 
 Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
@@ -26,6 +26,19 @@ Quickstart
    - Optional: NEXT_PUBLIC_BASE_URL (for server-side fetch to self)
 3) Run development server
    - npm run dev (http://localhost:4000)
+
+Admin Password Reset
+If you forget your super admin password, use the password reset script:
+```bash
+node scripts/admin/update-password.mjs <your-email@example.com>
+```
+The script will:
+- Generate a new 32-character hex password
+- Hash it with MD5 before storing (matches auth system)
+- Display the plaintext password for you to use for login
+- Update the password in MongoDB users collection
+
+Note: Save the displayed password securely - it won't be shown again.
 
 Core concepts (universal references)
 - card: single element with content; drag, edit, archive

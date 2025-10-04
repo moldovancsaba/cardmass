@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.20.1
+Version: 0.21.0
 
-Updated: 2025-10-04T11:22:45.000Z
+Updated: 2025-10-04T13:25:56.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -74,3 +74,12 @@ Updated: 2025-10-04T11:22:45.000Z
   Features: Copy-to-clipboard for both password and URL with ?pw= parameter; regenerate option; admin bypass already existed in PasswordGate
   Pattern: Follows MessMass stat pages - password gate on page load, admin session check first, URL param validation second, password prompt third
   Impact: Enables board sharing without user accounts while maintaining security; admins never see password gates.
+
+- Maintenance script alignment with authentication: Password reset script must hash passwords identically to auth system
+  Why: update-password.mjs stored plaintext passwords while src/lib/auth.ts expected MD5 hashes, causing login failures
+  Root cause: Script generated random password but stored it directly without hashing (line 72: { $set: { password: newPassword } })
+  Solution: Added hashPassword() function matching auth.ts; store hashPassword(newPassword) in DB while displaying plaintext to operator
+  Key insight: Maintenance scripts that modify auth-related data MUST mirror the exact hashing/validation logic used by the runtime authentication system
+  Pattern: Import createHash from crypto; create identical hashPassword helper; hash before storing; display unhashed value for operator use
+  Impact: Password reset now works correctly; establishes pattern for all future auth-related maintenance scripts; prevents authentication mismatches
+  Security note: MD5 hashing is MVP-only (NOT cryptographically secure for production); consider bcrypt/argon2 for production deployment.

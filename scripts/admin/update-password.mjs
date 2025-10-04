@@ -12,7 +12,7 @@
  *   node scripts/admin/update-password.mjs admin@doneisbetter.com
  */
 
-import { randomBytes } from 'crypto'
+import { randomBytes, createHash } from 'crypto'
 import { MongoClient } from 'mongodb'
 import dotenv from 'dotenv'
 
@@ -32,6 +32,16 @@ if (!MONGODB_URI) {
  */
 function generatePassword() {
   return randomBytes(16).toString('hex')
+}
+
+/**
+ * WHAT: Hash password with MD5 to match server-side authentication
+ * WHY: The login flow in src/lib/auth.ts compares MD5 hashes; storing plaintext breaks login.
+ *      This matches the hashPassword function in src/lib/auth.ts for MVP parity.
+ *      NOTE: MD5 is NOT cryptographically secure; suitable for MVP only, not production.
+ */
+function hashPassword(plaintext) {
+  return createHash('md5').update(plaintext).digest('hex')
 }
 
 async function main() {
@@ -66,10 +76,11 @@ async function main() {
     const newPassword = generatePassword()
     const now = new Date().toISOString()
 
-    // Update password
+    // WHAT: Hash password with MD5 before persisting to database
+    // WHY: The login path compares MD5 hashes; storing plaintext breaks authentication
     await usersCol.updateOne(
       { _id: user._id },
-      { $set: { password: newPassword, updatedAt: now } }
+      { $set: { password: hashPassword(newPassword), updatedAt: now } }
     )
 
     console.log('\n✅ Password updated successfully!\n')

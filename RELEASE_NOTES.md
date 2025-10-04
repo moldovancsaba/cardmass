@@ -1,5 +1,18 @@
 # RELEASE_NOTES
 
+## [v0.21.0] — 2025-10-04T13:25:56.000Z
+- Fixed: Admin password reset script now correctly hashes passwords with MD5 before storing
+  - Root cause: update-password.mjs stored plaintext passwords instead of MD5 hashes
+  - Login system expects MD5-hashed passwords (per src/lib/auth.ts), causing authentication failures
+  - Added createHash import and hashPassword() function matching auth.ts implementation
+  - Database now stores MD5 hash while plaintext password is displayed to operator
+  - Added comprehensive code comments explaining what and why (mandatory comment standard)
+- Ops: Super admin password successfully reset for moldovancsaba@gmail.com
+  - Login verified and confirmed working via /api/auth/login endpoint
+- Impact: Password reset script now aligns with authentication system; future password resets will work correctly
+- Technical: MD5 hashing is for MVP only (NOT cryptographically secure for production)
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.20.1] — 2025-10-04T11:22:45.000Z
 - Fixed: User management action buttons now properly styled and visible
   - Changed from text-only links to proper button styling with backgrounds
