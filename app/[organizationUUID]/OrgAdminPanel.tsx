@@ -208,8 +208,8 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
                 <div className="flex items-center gap-2">
                   {!editing[b.uuid] && (
                     <>
-                      <a className="px-3 py-1 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/${encodeURIComponent(b.uuid)}/tagger`}>Tagger</a>
-                      <a className="px-3 py-1 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/creator?board=${encodeURIComponent(b.uuid)}`}>Edit</a>
+                      <a className="px-3 py-1 text-sm rounded-full bg-sky-600 !text-white hover:bg-sky-700 hover:!text-white transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/${encodeURIComponent(b.uuid)}/tagger`}>Tagger</a>
+                      <a className="px-3 py-1 text-sm rounded-full bg-sky-600 !text-white hover:bg-sky-700 hover:!text-white transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/creator?board=${encodeURIComponent(b.uuid)}`}>Edit</a>
                       <button className="px-3 py-1 text-sm rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setEditing((p) => ({ ...p, [b.uuid] : true }))}>Rename</button>
                       <button className="px-3 py-1 text-sm rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors" onClick={() => deleteBoard(b)}>Delete</button>
                     </>

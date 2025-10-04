@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.19.6
+Version: 0.19.7
 
-Updated: 2025-10-04T10:35:18.000Z
+Updated: 2025-10-04T10:48:12.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -61,3 +61,9 @@ Updated: 2025-10-04T10:35:18.000Z
   Pages affected: Dashboard quick actions, tabs, card links; Organization main page; Board list actions; Org settings; Organizations selector
   Solution: Comprehensive update to sky-600 (primary), gray-300 bordered (secondary), red-600 (destructive); added font-medium and white text throughout
   Impact: Professional, consistent, accessible button styling across entire application; all text readable with proper contrast.
+
+- Global anchor tag styling override: Link and <a> tags styled as buttons had dark blue text instead of white due to globals.css rule
+  Why: `a { color: #0369a1; }` in globals.css (line 51) overrides Tailwind's `text-white` utility on Link/anchor components
+  Affected: 8 button-styled links (Dashboard Quick Actions, Organization Creator/Admin Panel, Board Tagger/Edit)
+  Solution: Used Tailwind !important modifier (!text-white and hover:!text-white) to override global anchor styling with higher specificity
+  Impact: All button-styled links now display proper white text on blue backgrounds; maintains global link color for actual text links.

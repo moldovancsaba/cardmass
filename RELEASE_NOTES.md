@@ -1,5 +1,15 @@
 # RELEASE_NOTES
 
+## [v0.19.7] — 2025-10-04T10:48:12.000Z
+- Fixed: Link and anchor tag text colors now properly display white on blue button backgrounds
+  - Root cause: Global `a { color: #0369a1; }` style in globals.css was overriding button text colors
+  - All Link components with sky-600 bg now use `!text-white` and `hover:!text-white` with !important
+  - Fixed buttons: Dashboard Quick Actions (4), Organization Creator/Admin Panel (2), Board Tagger/Edit (2)
+  - Total: 8 link-based buttons now have proper white text on blue backgrounds
+- Technical: Used Tailwind !important modifier (!text-white) to override global anchor tag styling
+- Impact: All primary action buttons are now readable with proper white text on dark blue backgrounds
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.6] — 2025-10-04T10:35:18.000Z
 - Fixed: Complete button standardization across ALL pages and components
   - Dashboard Quick Actions: All 4 buttons now use sky-600 bg with white text
