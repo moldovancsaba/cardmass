@@ -1,5 +1,28 @@
 # RELEASE_NOTES
 
+## [v0.20.0] — 2025-10-04T11:15:30.000Z
+- Feature: MessMass-style board password generation UI
+  - Added 🔑 Password button to each board in the board list
+  - One-click password generation for shareable board access
+  - Modal displays: password (32-hex), shareable link with ?pw= parameter, copy buttons
+  - Regenerate option with confirmation
+  - Logged-in users automatically bypass password requirement
+  - Non-logged-in users see password gate on board access
+  - ShareableLinks include password as URL parameter for instant access
+- Technical Implementation:
+  - generateBoardPassword() function calls POST /api/page-passwords
+  - BoardPasswordModal component for password display with copy-to-clipboard
+  - Emerald-600 button color to distinguish from other actions
+  - Modal includes warning about password security
+- User Flow:
+  1. Click 🔑 Password button on any board
+  2. Password generated instantly (or retrieved if exists)
+  3. Copy password OR copy shareable link
+  4. Share with anyone - they can view board without logging in
+  5. Admins/logged-in users bypass password automatically
+- Impact: Enables secure board sharing without user account requirements
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.7] — 2025-10-04T10:48:12.000Z
 - Fixed: Link and anchor tag text colors now properly display white on blue button backgrounds
   - Root cause: Global `a { color: #0369a1; }` style in globals.css was overriding button text colors

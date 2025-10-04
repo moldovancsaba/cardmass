@@ -14,6 +14,16 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
   const [boards, setBoards] = useState<BoardItem[]>(initialBoards || [])
   const [editing, setEditing] = useState<Record<string, boolean>>({})
   const [renameValues, setRenameValues] = useState<Record<string, string>>({})
+  
+  // WHAT: Password modal state for displaying generated board passwords
+  // WHY: MessMass-style page password generation UI
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [passwordModalData, setPasswordModalData] = useState<{
+    boardSlug: string
+    password: string
+    shareableLink: string
+  } | null>(null)
+  const [generatingPassword, setGeneratingPassword] = useState<Record<string, boolean>>({})
 
   async function loadBoards() {
     try {
@@ -98,6 +108,44 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
       if (!res.ok) throw new Error(data?.error?.message || 'Delete failed')
       setBoards((prev) => prev.filter((x) => x.uuid !== b.uuid))
     } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Delete failed') }
+  }
+
+  /**
+   * WHAT: Generate or regenerate page password for a board
+   * WHY: MessMass-style password generation - shareable board access without requiring login
+   * HOW: Calls POST /api/page-passwords with pageId=boardUUID, shows result in modal
+   */
+  async function generateBoardPassword(b: BoardItem, regenerate: boolean = false) {
+    setGeneratingPassword((prev) => ({ ...prev, [b.uuid]: true }))
+    try {
+      const res = await fetch('/api/page-passwords', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          pageId: b.uuid,
+          pageType: 'tagger',
+          organizationUUID: org.uuid,
+          regenerate,
+        }),
+      })
+      
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'Failed to generate password')
+      
+      setPasswordModalData({
+        boardSlug: b.slug || b.uuid.slice(0, 8),
+        password: data.pagePassword.password,
+        shareableLink: data.shareableLink.url,
+      })
+      setShowPasswordModal(true)
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Password generation failed')
+    } finally {
+      setGeneratingPassword((prev) => ({ ...prev, [b.uuid]: false }))
+    }
   }
 
   // Auto-refresh: on mount and on 'board:created' — attach once and cleanup properly
@@ -210,6 +258,14 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
                     <>
                       <a className="px-3 py-1 text-sm rounded-full bg-sky-600 !text-white hover:bg-sky-700 hover:!text-white transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/${encodeURIComponent(b.uuid)}/tagger`}>Tagger</a>
                       <a className="px-3 py-1 text-sm rounded-full bg-sky-600 !text-white hover:bg-sky-700 hover:!text-white transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/creator?board=${encodeURIComponent(b.uuid)}`}>Edit</a>
+                      <button 
+                        className="px-3 py-1 text-sm rounded-full bg-emerald-600 !text-white hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50" 
+                        onClick={() => generateBoardPassword(b)} 
+                        disabled={generatingPassword[b.uuid]}
+                        title="Generate shareable password for this board"
+                      >
+                        {generatingPassword[b.uuid] ? '...' : '🔑 Password'}
+                      </button>
                       <button className="px-3 py-1 text-sm rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setEditing((p) => ({ ...p, [b.uuid] : true }))}>Rename</button>
                       <button className="px-3 py-1 text-sm rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors" onClick={() => deleteBoard(b)}>Delete</button>
                     </>
@@ -220,6 +276,133 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
           </ul>
         )}
       </section>
+
+      {/* Password Modal */}
+      {showPasswordModal && passwordModalData && (
+        <BoardPasswordModal
+          boardSlug={passwordModalData.boardSlug}
+          password={passwordModalData.password}
+          shareableLink={passwordModalData.shareableLink}
+          onClose={() => {
+            setShowPasswordModal(false)
+            setPasswordModalData(null)
+          }}
+          onRegenerate={() => {
+            setShowPasswordModal(false)
+            // Find the board and regenerate
+            const board = boards.find(b => 
+              passwordModalData.shareableLink.includes(b.uuid)
+            )
+            if (board) {
+              generateBoardPassword(board, true)
+            }
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+/**
+ * WHAT: Board password display modal
+ * WHY: MessMass-style password sharing UI - shows password and shareable link with copy buttons
+ */
+function BoardPasswordModal({
+  boardSlug,
+  password,
+  shareableLink,
+  onClose,
+  onRegenerate,
+}: {
+  boardSlug: string
+  password: string
+  shareableLink: string
+  onClose: () => void
+  onRegenerate: () => void
+}) {
+  const [copied, setCopied] = useState<'password' | 'link' | null>(null)
+
+  function copyToClipboard(text: string, type: 'password' | 'link') {
+    navigator.clipboard.writeText(text)
+    setCopied(type)
+    setTimeout(() => setCopied(null), 2000)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl p-6 max-w-2xl w-full m-4" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-lg font-semibold mb-4">Board Access Password</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Board: <span className="font-mono font-medium">{boardSlug}</span>
+        </p>
+
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+          <p className="text-sm text-yellow-800 mb-2">
+            ⚠️ <strong>Important:</strong> Save this password - anyone with it can view this board without logging in.
+          </p>
+          <p className="text-xs text-yellow-700">
+            Logged-in users will bypass the password automatically.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={password}
+                readOnly
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-mono text-sm"
+              />
+              <button
+                onClick={() => copyToClipboard(password, 'password')}
+                className="px-4 py-2 bg-sky-600 !text-white hover:bg-sky-700 rounded-md text-sm font-medium transition-colors"
+              >
+                {copied === 'password' ? '✓ Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+
+          {/* Shareable Link */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Shareable Link (with password)</label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={shareableLink}
+                readOnly
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-mono text-xs"
+              />
+              <button
+                onClick={() => copyToClipboard(shareableLink, 'link')}
+                className="px-4 py-2 bg-sky-600 !text-white hover:bg-sky-700 rounded-md text-sm font-medium transition-colors"
+              >
+                {copied === 'link' ? '✓ Copied!' : 'Copy Link'}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              This link includes the password as a URL parameter - recipients can access the board immediately
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+          <button
+            onClick={onRegenerate}
+            className="px-4 py-2 text-sm text-orange-600 hover:text-orange-700 hover:underline"
+          >
+            🔄 Regenerate Password
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

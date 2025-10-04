@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.19.7
+Version: 0.20.0
 
-Updated: 2025-10-04T10:48:12.000Z
+Updated: 2025-10-04T11:15:30.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -67,3 +67,10 @@ Updated: 2025-10-04T10:48:12.000Z
   Affected: 8 button-styled links (Dashboard Quick Actions, Organization Creator/Admin Panel, Board Tagger/Edit)
   Solution: Used Tailwind !important modifier (!text-white and hover:!text-white) to override global anchor styling with higher specificity
   Impact: All button-styled links now display proper white text on blue backgrounds; maintains global link color for actual text links.
+
+- MessMass-style board password UI: Implemented UI-based password generation directly from board list instead of API-only approach
+  Why: User requested MessMass-pattern: generate per-board passwords from UI, not via API endpoints; logged-in users bypass automatically
+  Implementation: Added 🔑 Password button to each board in OrgAdminPanel; calls POST /api/page-passwords; displays modal with password + shareable link
+  Features: Copy-to-clipboard for both password and URL with ?pw= parameter; regenerate option; admin bypass already existed in PasswordGate
+  Pattern: Follows MessMass stat pages - password gate on page load, admin session check first, URL param validation second, password prompt third
+  Impact: Enables board sharing without user accounts while maintaining security; admins never see password gates.
