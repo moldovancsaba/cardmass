@@ -1,5 +1,59 @@
 # WARP.DEV_AI_CONVERSATION
 
+Timestamp: 2025-10-04T08:43:25.000Z
+Author: ai
+
+Delivery — SPOCK Collapse Card Width Fix (v0.19.2) ✅
+- Fixed: Card width recalculation when SPOCK sidebar is collapsed
+- Problem: Hidden sidebar (display: none) retained 320px width value; ResizeObserver doesn't fire for hidden elements
+- Solution: Explicitly reset spockWidth to 0 when spockCollapsed=true; added dependency to useEffect
+- Impact: Cards now properly expand to use full board width when inbox is hidden
+- Build: Clean compilation; zero warnings
+- Governance: All docs updated with version 0.19.2 and ISO 8601 timestamps
+
+# WARP.DEV_AI_CONVERSATION
+
+Timestamp: 2025-10-04T08:36:01.000Z
+Author: ai
+
+Delivery — Area-Colored Card Backgrounds (v0.19.1) ✅
+- Changed: Tagger cards now inherit area hashtag/label color (Area.color) at 70% opacity
+- Applied to: Both stacked view (<1200px) and desktop grid view (≥1200px)
+- Added: hexToRgba70() helper with robust validation (supports #RGB and #RRGGBB), graceful fallback to neutral gray
+- Rationale: Visual consistency between area identity and card appearance; enhanced spatial recognition
+- Inbox: Cards remain white (unchanged)
+- Technical: Inline styles used because Tailwind cannot generate dynamic runtime rgba values
+- Comments: Added "what" and "why" throughout; text-black preserved for readability
+- Build: Clean Next.js compilation with zero warnings or errors
+- Governance: All docs updated (README, ARCHITECTURE, LEARNINGS, RELEASE_NOTES, ROADMAP, TASKLIST) with version 0.19.1 and ISO 8601 timestamps
+
+Plan — Area-Colored Card Backgrounds Implementation
+Timestamp: 2025-10-04T08:31:13.000Z
+Author: ai
+
+User Request: "make the card background color always the same as the actual area in the board we see but 70% transparent"
+Clarification: Use area's hashtag/label color (Area.color), not bgColor
+
+Execution Plan:
+1. ✅ Search for existing color utilities (reuse-before-creation)
+2. ✅ Implement hexToRgba70() helper in TaggerApp.tsx
+3. ✅ Update stacked view card rendering (line ~614)
+4. ✅ Update desktop grid view card rendering (line ~898)
+5. ✅ Verify inbox cards remain unchanged
+6. ✅ Add comprehensive comments (what/why)
+7. ✅ Type-check and build verification
+8. ✅ Manual verification readiness (dev server already running)
+9. ✅ Update all documentation (ROADMAP, TASKLIST, LEARNINGS, README, ARCHITECTURE, RELEASE_NOTES)
+10. ✅ Version management (0.19.1), build, commit, push to main
+
+Deliverables:
+- hexToRgba70() helper: converts hex to rgba(r,g,b,0.7) with fallback
+- Two card renderers updated with inline backgroundColor style
+- Full documentation refresh with ISO 8601 timestamps
+- Clean build and deployment to GitHub
+
+# WARP.DEV_AI_CONVERSATION
+
 Timestamp: 2025-10-02T12:47:30.000Z
 Author: ai
 
