@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.19.3
+Version: 0.19.4
 
-Updated: 2025-10-04T09:34:13.000Z
+Updated: 2025-10-04T09:55:37.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -44,3 +44,8 @@ Updated: 2025-10-04T09:34:13.000Z
   Why: Tailwind cannot generate dynamic runtime rgba values for arbitrary hex colors; inline style with computed rgba provides the flexibility needed while maintaining visual consistency with area identity.
   Approach: hexToRgba70() helper converts hex to rgba with 0.7 alpha; supports #RGB and #RRGGBB; fallback to neutral gray.
   Impact: Enhanced spatial recognition—cards visually belong to their area; text-black preserved for readability across all area colors.
+
+- Password regeneration API inconsistency: Organization users endpoint initially only supported role updates, not password updates
+  Why: /api/admin/users endpoint had password update logic, but /api/v1/organizations/[orgUUID]/users did not
+  Solution: Added password parameter support to org users endpoint; both role and password can be updated independently or together; super-admin password changes blocked for org admins (403); unified hashPassword implementation using crypto.pbkdf2Sync
+  Impact: Org admins can now successfully regenerate passwords for their organization members; consistent API behavior across admin and org contexts.

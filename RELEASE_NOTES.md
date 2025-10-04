@@ -1,5 +1,16 @@
 # RELEASE_NOTES
 
+## [v0.19.4] — 2025-10-04T09:55:37.000Z
+- Fixed: Password regeneration for organization users now works correctly
+  - Added password update support to `/api/v1/organizations/[orgUUID]/users` endpoint
+  - Org admins can now regenerate passwords for their organization members
+  - Super-admin passwords cannot be changed by org admins (security protection)
+  - API now accepts both `role` and `password` parameters independently or together
+  - Added secure password hashing using Node's crypto module with PBKDF2
+- Technical: Unified password hashing implementation across admin and org APIs
+- Rationale: Organization admins were getting "Failed to regenerate password" error because the API endpoint only supported role updates, not password updates
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.3] — 2025-10-04T09:34:13.000Z
 - Changed: Standardized button styling across all admin pages based on design system
   - Primary actions: bg-sky-500 (brand color) with hover:bg-sky-600

@@ -1,7 +1,7 @@
 /**
  * POST /api/v1/organizations/{orgUUID}/users
- * WHAT: Add or update user access to an organization
- * WHY: Org admins need to grant/manage access to their organization
+ * WHAT: Add or update user access to an organization (role and/or password)
+ * WHY: Org admins need to grant/manage access and reset passwords for their organization users
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,6 +10,17 @@ import { isUUIDv4 } from '@/lib/validation';
 import { validateAdminToken, checkOrgAccess } from '@/lib/auth';
 import type { UserDoc } from '@/lib/types';
 import { ObjectId } from 'mongodb';
+import * as crypto from 'crypto';
+
+/**
+ * WHAT: Generate secure password hash using Node's built-in crypto
+ * WHY: Password updates need secure hashing; bcrypt not compatible with Next.js edge runtime
+ */
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
+}
 
 /**
  * GET - List all users with access to this organization
@@ -119,16 +130,17 @@ export async function POST(
 
     // WHAT: Parse request body
     const body = await req.json();
-    const { userId, role } = body;
+    const { userId, role, password } = body;
 
-    if (!userId || !role) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'userId and role are required' },
+        { error: 'userId is required' },
         { status: 400 }
       );
     }
 
-    if (role !== 'org-admin' && role !== 'member') {
+    // WHAT: Validate role if provided
+    if (role && role !== 'org-admin' && role !== 'member') {
       return NextResponse.json(
         { error: 'role must be org-admin or member' },
         { status: 400 }
@@ -144,29 +156,58 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // WHAT: Add or update org access
-    const orgAccess = targetUser.organizationAccess || [];
-    const existingIndex = orgAccess.findIndex(a => a.organizationUUID === orgUUID);
+    // WHAT: Prevent password changes for super-admins by org admins
+    // WHY: Only super-admins should be able to change super-admin passwords
+    if (password && targetUser.role === 'super-admin' && orgRole !== 'super-admin') {
+      return NextResponse.json(
+        { error: 'Cannot change super-admin password' },
+        { status: 403 }
+      );
+    }
 
-    if (existingIndex >= 0) {
-      orgAccess[existingIndex].role = role;
-    } else {
-      orgAccess.push({ organizationUUID: orgUUID, role });
+    // WHAT: Build update fields object
+    const updateFields: Record<string, unknown> = {
+      updatedAt: new Date().toISOString(),
+    };
+
+    // WHAT: Update password if provided
+    // WHY: Org admins can regenerate passwords for their organization members
+    if (password && typeof password === 'string' && password.length >= 8) {
+      updateFields.password = hashPassword(password);
+    }
+
+    // WHAT: Update org access role if provided
+    if (role) {
+      const orgAccess = targetUser.organizationAccess || [];
+      const existingIndex = orgAccess.findIndex(a => a.organizationUUID === orgUUID);
+
+      if (existingIndex >= 0) {
+        orgAccess[existingIndex].role = role;
+      } else {
+        orgAccess.push({ organizationUUID: orgUUID, role });
+      }
+
+      updateFields.organizationAccess = orgAccess;
     }
 
     await usersCol.updateOne(
       { _id: new ObjectId(userId) },
-      {
-        $set: {
-          organizationAccess: orgAccess,
-          updatedAt: new Date().toISOString(),
-        },
-      }
+      { $set: updateFields }
     );
+
+    // WHAT: Build success message based on what was updated
+    let message = 'User updated';
+    if (password && role) {
+      message = 'Password and role updated successfully';
+    } else if (password) {
+      message = 'Password updated successfully';
+    } else if (role) {
+      message = `User ${role} access granted to organization`;
+    }
 
     return NextResponse.json({
       success: true,
-      message: `User ${role} access granted to organization`,
+      message,
     });
   } catch (error) {
     console.error('Add org user error:', error);
