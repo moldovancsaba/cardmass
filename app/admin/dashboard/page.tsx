@@ -340,7 +340,7 @@ function OverviewTab({ setActiveTab, organizations, user, stats }: OverviewTabPr
               <div className="pt-2 border-t border-gray-200 space-y-1">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Version</span>
-                  <span className="font-mono text-gray-900">0.22.0</span>
+                  <span className="font-mono text-gray-900">1.0.0</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Status</span>

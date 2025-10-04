@@ -1,5 +1,33 @@
 # RELEASE_NOTES
 
+## [v1.0.0] — 2025-10-04T18:54:11.000Z 🎉
+- **MAJOR RELEASE**: CardMass reaches production-ready v1.0.0
+- **Milestone**: Fully functional admin dashboard with live data and real actions
+- Feature: Admin dashboard cards now "alive" with real actions and dynamic data
+  - Organizations card: Shows total count + direct "Manage Organizations →" button
+  - User Management card: Shows total count + direct "Manage Users →" button
+  - Boards card: Dynamically loads and displays top 5 organizations as clickable links to each org's page
+  - Authentication card: Shows current user email, role, and live session status with green indicator
+  - Page Passwords card: Provides contextual guidance and "Go to Organizations →" button
+  - System Status card: Real-time stats (org count, user count), version display, operational status indicator
+- Changed: Quick Actions section completely redesigned
+  - Removed non-functional "Create Board" button (no context available)
+  - Removed "API Explorer" button (not human-readable)
+  - Added "📋 Manage Organizations" button (switches to Organizations tab)
+  - Added "👥 Manage Users" button (switches to System Users tab)
+  - Kept "🏠 Organization Selector" link to root page
+- Feature: Dynamic data loading on dashboard mount
+  - Fetches organizations list from API (top 5 displayed in Boards card)
+  - Fetches stats (organization count, user count) from multiple API endpoints
+  - All data loads automatically after authentication check
+- Impact: Dashboard is now fully functional with one-click access to all admin operations
+- Impact: Users see real-time counts and can navigate directly from overview cards
+- Impact: Eliminated dead-end cards and non-working buttons; every action is meaningful
+- UX: Tab switching now works via buttons in cards (no need to use top tabs)
+- Technical: Added state management for organizations and stats in AdminDashboard component
+- **Production Ready**: Complete authentication, CRUD operations, real-time data, professional UX
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.23.0] — 2025-10-04T18:49:45.000Z
 - Feature: Admin dashboard cards now "alive" with real actions and dynamic data
   - Organizations card: Shows total count + direct "Manage Organizations →" button

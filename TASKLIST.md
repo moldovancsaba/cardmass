@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 0.22.0
+Version: 1.0.0
 
-Updated: 2025-10-04T18:01:54.000Z
+Updated: 2025-10-04T18:54:11.000Z
 
 - P2 — Plan automation for doc sync (future)
   - Owner: csaba
