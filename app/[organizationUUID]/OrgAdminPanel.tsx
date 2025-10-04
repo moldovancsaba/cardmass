@@ -147,12 +147,12 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
             <button
               onClick={saveOrg}
               disabled={saving}
-              className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-emerald-100 to-emerald-200 text-black border border-black/10 hover:from-emerald-200 hover:to-emerald-300 disabled:opacity-50"
+              className="px-4 py-1.5 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >Save</button>
             <button
               onClick={deleteOrg}
               disabled={saving}
-              className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-red-100 to-red-200 text-black border border-black/10 hover:from-red-200 hover:to-red-300 disabled:opacity-50"
+              className="px-4 py-1.5 text-sm rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >Delete</button>
           </div>
         </div>
@@ -200,18 +200,18 @@ export default function OrgAdminPanel({ org, initialBoards }: { org: Org; initia
                         value={renameValues[b.uuid] ?? (b.slug || '')}
                         onChange={(e) => setRenameValues((prev) => ({ ...prev, [b.uuid]: e.target.value }))}
                       />
-                      <button className="px-3 py-1 text-sm rounded-full bg-gradient-to-r from-blue-100 to-blue-200 border border-black/10" onClick={() => renameBoard(b)}>Save</button>
-                      <button className="px-3 py-1 text-sm rounded-full bg-gradient-to-r from-gray-100 to-gray-200 border border-black/10" onClick={() => setEditing((p) => ({ ...p, [b.uuid]: false }))}>Cancel</button>
+                      <button className="px-3 py-1 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium" onClick={() => renameBoard(b)}>Save</button>
+                      <button className="px-3 py-1 text-sm rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setEditing((p) => ({ ...p, [b.uuid]: false }))}>Cancel</button>
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   {!editing[b.uuid] && (
                     <>
-                      <a className="px-3 py-1 text-sm rounded-full bg-gradient-to-r from-emerald-100 to-emerald-200 border border-black/10" href={`/${encodeURIComponent(org.uuid)}/${encodeURIComponent(b.uuid)}/tagger`}>Tagger</a>
-                      <a className="px-3 py-1 text-sm rounded-full bg-gradient-to-r from-indigo-100 to-indigo-200 border border-black/10" href={`/${encodeURIComponent(org.uuid)}/creator?board=${encodeURIComponent(b.uuid)}`}>Edit</a>
-                      <button className="px-3 py-1 text-sm rounded-full bg-gradient-to-r from-yellow-100 to-yellow-200 border border-black/10" onClick={() => setEditing((p) => ({ ...p, [b.uuid] : true }))}>Rename</button>
-                      <button className="px-3 py-1 text-sm rounded-full bg-gradient-to-r from-red-100 to-red-200 border border-black/10" onClick={() => deleteBoard(b)}>Delete</button>
+                      <a className="px-3 py-1 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/${encodeURIComponent(b.uuid)}/tagger`}>Tagger</a>
+                      <a className="px-3 py-1 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium" href={`/${encodeURIComponent(org.uuid)}/creator?board=${encodeURIComponent(b.uuid)}`}>Edit</a>
+                      <button className="px-3 py-1 text-sm rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setEditing((p) => ({ ...p, [b.uuid] : true }))}>Rename</button>
+                      <button className="px-3 py-1 text-sm rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors" onClick={() => deleteBoard(b)}>Delete</button>
                     </>
                   )}
                 </div>

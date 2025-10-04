@@ -101,7 +101,7 @@ export default function OrganizationsPage() {
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={() => router.push('/admin/login')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-medium"
           >
             Back to Login
           </button>
@@ -124,7 +124,7 @@ export default function OrganizationsPage() {
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-sm rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
             >
               Logout
             </button>
@@ -149,7 +149,7 @@ export default function OrganizationsPage() {
               <Link
                 key={org.organizationUUID}
                 href={`/${org.organizationUUID}`}
-                className="block bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg hover:border-indigo-300 transition-all"
+                className="block bg-white rounded-lg border border-gray-200 p-6 hover:shadow-lg hover:border-sky-400 transition-all"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="text-3xl">🏢</div>
@@ -182,7 +182,7 @@ export default function OrganizationsPage() {
                 )}
                 
                 <div className="mt-4 pt-4 border-t border-gray-100">
-                  <span className="text-xs text-indigo-600 font-medium">
+                  <span className="text-xs text-sky-600 font-medium">
                     Enter Organization →
                   </span>
                 </div>

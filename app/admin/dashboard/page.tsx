@@ -98,7 +98,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('overview')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'overview'
-                    ? 'border-indigo-500 text-indigo-600'
+                    ? 'border-sky-600 text-sky-700'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('organizations')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'organizations'
-                    ? 'border-indigo-500 text-indigo-600'
+                    ? 'border-sky-600 text-sky-700'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -118,7 +118,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('users')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'users'
-                    ? 'border-indigo-500 text-indigo-600'
+                    ? 'border-sky-600 text-sky-700'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -244,25 +244,25 @@ function OverviewTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Link
             href="/creator"
-            className="px-4 py-3 text-sm rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors text-center font-medium"
           >
             Create Board
           </Link>
           <Link
             href="/"
-            className="px-4 py-3 text-sm rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors text-center font-medium"
           >
             View Organizations
           </Link>
           <button
             onClick={() => window.open('/api/v1/organizations', '_blank')}
-            className="px-4 py-3 text-sm rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors text-center font-medium"
           >
             API Explorer
           </button>
           <Link
             href="/organization/admin"
-            className="px-4 py-3 text-sm rounded-lg bg-sky-500 text-white hover:bg-sky-600 transition-colors text-center"
+            className="px-4 py-3 text-sm rounded-lg bg-sky-600 text-white hover:bg-sky-700 transition-colors text-center font-medium"
           >
             Org Admin
           </Link>
@@ -313,7 +313,7 @@ function AdminCard({ title, description, icon, links, info }: AdminCardProps) {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+                className="inline-flex items-center gap-1 text-sm text-sky-600 hover:text-sky-800 hover:underline"
                 >
                   {link.label}
                   <span className="text-xs">↗</span>
@@ -321,7 +321,7 @@ function AdminCard({ title, description, icon, links, info }: AdminCardProps) {
               ) : (
                 <Link
                   href={link.href}
-                  className="inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 hover:underline"
+                  className="inline-flex items-center gap-1 text-sm text-sky-600 hover:text-sky-800 hover:underline"
                 >
                   {link.label}
                 </Link>

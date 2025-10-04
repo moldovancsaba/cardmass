@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: 0.19.5
-Generated: 2025-10-04T10:15:22.000Z
+Version: 0.19.6
+Generated: 2025-10-04T10:35:18.000Z
 
 1. Overview
 - Single-DB, multi-tenant architecture with strict organization scoping.

@@ -1,5 +1,24 @@
 # RELEASE_NOTES
 
+## [v0.19.6] — 2025-10-04T10:35:18.000Z
+- Fixed: Complete button standardization across ALL pages and components
+  - Dashboard Quick Actions: All 4 buttons now use sky-600 bg with white text
+  - Dashboard Tabs: Active tab color changed from indigo to sky-600/700
+  - Dashboard Card Links: Changed from indigo to sky-600 for consistency
+  - Organization Page: Creator, Admin Panel buttons now sky-600 with white text
+  - Organization Page: Back to Orgs button now secondary bordered style
+  - Board List Actions: Tagger, Edit buttons now sky-600 with white text
+  - Board List Actions: Rename button now secondary bordered style
+  - Board Rename Modal: Save button sky-600, Cancel button secondary bordered
+  - Organization Settings: Save button sky-600, Delete button red-600
+  - Organizations List: Logout button red-600, card hover border sky-400
+  - All primary action buttons: sky-600 background, white text, font-medium
+  - All secondary buttons: border-2 border-gray-300, gray-700 text
+  - All destructive buttons: red-600 background, white text
+- Rationale: Previous v0.19.3 only updated admin panel components, missed dashboard overview, organization pages, and board management UI
+- Impact: Consistent, readable, professional button styling across entire application
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.5] — 2025-10-04T10:15:22.000Z
 - Fixed: User removal in organization admin now works correctly
   - Changed API response field from `id` to `_id` to match component expectations

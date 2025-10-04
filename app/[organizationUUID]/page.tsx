@@ -92,21 +92,21 @@ export default async function OrganizationMainPage(ctx: { params: Promise<{ orga
           {/* Primary actions: org-scoped Creator & Admin (if authorized) */}
           <div className="flex items-center gap-2">
             <Link
-              className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-indigo-100 to-indigo-200 text-black border border-black/10 hover:from-indigo-200 hover:to-indigo-300"
+              className="px-4 py-1.5 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium"
               href={`/${encodeURIComponent(org)}/creator`}
             >
               Creator
             </Link>
             {(orgRole === 'org-admin' || orgRole === 'super-admin') && (
               <Link
-                className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-purple-100 to-purple-200 text-black border border-black/10 hover:from-purple-200 hover:to-purple-300"
+                className="px-4 py-1.5 text-sm rounded-full bg-sky-600 text-white hover:bg-sky-700 transition-colors font-medium"
                 href={`/organization/admin?org=${encodeURIComponent(org)}`}
               >
                 Admin Panel
               </Link>
             )}
             <Link
-              className="px-4 py-1.5 text-sm rounded-full bg-gradient-to-r from-gray-100 to-gray-200 text-black border border-black/10 hover:from-gray-200 hover:to-gray-300"
+              className="px-4 py-1.5 text-sm rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               href="/organizations"
             >
               ← Back to Orgs

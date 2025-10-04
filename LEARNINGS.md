@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.19.5
+Version: 0.19.6
 
-Updated: 2025-10-04T10:15:22.000Z
+Updated: 2025-10-04T10:35:18.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -55,3 +55,9 @@ Updated: 2025-10-04T10:15:22.000Z
   Error: "BSONError: input must be a 24 character hex string" when userId was undefined in DELETE/POST operations
   Solution: Changed API response from `{ id: ... }` to `{ _id: ... }` and added `isSuperAdmin` boolean for clarity
   Impact: User removal, password regeneration, and role changes all work correctly; unified field naming across all user management endpoints.
+
+- Button styling fragmentation: Initial button standardization (v0.19.3) only covered admin panel tabs, missed 15+ other pages
+  Why: Dashboard overview, organization pages, board management UI had inconsistent colors (indigo, purple, gray gradients) with poor contrast
+  Pages affected: Dashboard quick actions, tabs, card links; Organization main page; Board list actions; Org settings; Organizations selector
+  Solution: Comprehensive update to sky-600 (primary), gray-300 bordered (secondary), red-600 (destructive); added font-medium and white text throughout
+  Impact: Professional, consistent, accessible button styling across entire application; all text readable with proper contrast.
