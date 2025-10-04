@@ -1,7 +1,7 @@
 # TECH_STACK
 
-Version: 0.17.0
-Generated: 2025-10-01T12:34:55.000Z
+Version: 0.22.0
+Updated: 2025-10-04T18:01:54.000Z
 
 1. Overview
 - This document defines the official technology stack and versions for the cardmass project.

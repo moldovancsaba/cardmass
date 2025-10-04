@@ -1,12 +1,8 @@
 # TASKLIST
 
-Version: 0.21.0
+Version: 0.22.0
 
-Updated: 2025-10-04T13:25:56.000Z
-
-- P0 — Create and wire WARP.md into README and governance
-  - Owner: ai
-  - Expected: 2025-09-30T23:59:00.000Z
+Updated: 2025-10-04T18:01:54.000Z
 
 - P2 — Plan automation for doc sync (future)
   - Owner: csaba
@@ -15,22 +11,6 @@ Updated: 2025-10-04T13:25:56.000Z
 - P2 — Add .nvmrc and update TECH_STACK.md
   - Owner: csaba
   - Expected: 2025-10-10T16:00:00.000Z
-
-- P0 — Implement Desktop multicol masonry for Tagger areas (CSS-only)
-  - Owner: ai
-  - Expected: 2025-10-02T18:00:00.000Z
-
-- P0 — Implement Stacked panes multicol masonry (CSS-only)
-  - Owner: ai
-  - Expected: 2025-10-02T19:00:00.000Z
-
-- P0 — Preserve DnD slots and area semantics
-  - Owner: ai
-  - Expected: 2025-10-02T19:00:00.000Z
-
-- P1 — Documentation updates (ARCHITECTURE, README, LEARNINGS, WARP)
-  - Owner: ai
-  - Expected: 2025-10-01T12:45:00.000Z
 
 - P0 — ✅ COMPLETED Auth: Data models & helpers (users, pagePasswords, lib/auth.ts, lib/pagePassword.ts)
   - Owner: ai
@@ -52,8 +32,23 @@ Updated: 2025-10-04T13:25:56.000Z
   - Owner: ai
   - Completed: 2025-10-02T12:35:00.000Z
 
+- P0 — ✅ COMPLETED WARP.md creation and comprehensive documentation audit
+  - Owner: ai
+  - Completed: 2025-10-04T18:01:54.000Z
+  - Notes: Updated WARP.md with admin scripts and auth details; synchronized all doc versions to 0.22.0
+
+- P0 — ✅ COMPLETED Fix password reset script (hash with MD5)
+  - Owner: ai
+  - Completed: 2025-10-04T13:25:56.000Z
+  - Notes: Fixed update-password.mjs to hash passwords with MD5 before storing; reset super-admin password
+
 - P1 — ⏳ PENDING Manual QA against acceptance criteria
   - Owner: csaba
-  - Expected: 2025-10-03T18:00:00.000Z
+  - Expected: 2025-10-07T18:00:00.000Z
   - Notes: Test non-admin access, admin bypass, API enforcement, cookie properties
+
+- P3 — 🚫 DEFERRED CSS Masonry layout for Tagger
+  - Owner: n/a
+  - Deferred: 2025-10-04T18:01:54.000Z
+  - Notes: User decision to postpone masonry implementation indefinitely
 

@@ -1,5 +1,32 @@
 # RELEASE_NOTES
 
+## [v0.22.0] — 2025-10-04T18:01:54.000Z
+- Changed: Comprehensive documentation audit and synchronization across all project files
+  - WARP.md: Enhanced with detailed admin scripts section (create-user, update-password, test-login, purge-boards)
+  - WARP.md: Added Authentication & Access Control section with zero-trust model details
+  - WARP.md: Documented all database, migration, debug, and maintenance scripts
+  - TECH_STACK.md: Updated version and timestamp to 0.22.0
+  - NAMING_GUIDE.md: Updated version and timestamp to 0.22.0
+  - ARCHITECTURE.md: Updated version and timestamp to 0.22.0
+  - TASKLIST.md: Cleaned up overdue tasks, deferred CSS masonry implementation
+  - ROADMAP.md: Created v0.22.0 milestone for documentation excellence, deferred masonry to P3
+  - README.md: Version synchronized to 0.22.0
+  - LEARNINGS.md: Version synchronized to 0.22.0
+- Changed: TASKLIST.md cleanup
+  - Marked WARP.md creation as completed (2025-10-04T18:01:54.000Z)
+  - Marked password reset script fix as completed (2025-10-04T13:25:56.000Z)
+  - Deferred CSS masonry layout tasks indefinitely (user decision)
+  - Removed overdue P0 documentation tasks that are now complete
+  - Updated Manual QA deadline to 2025-10-07T18:00:00.000Z
+- Changed: ROADMAP.md restructure
+  - Created new v0.22.0 milestone: "Documentation Excellence" (completed)
+  - Deferred CSS masonry from P0 to P3 with clear rationale
+  - Removed outdated v0.19.0 documentation governance milestone
+- Impact: All documentation now version-synchronized at 0.22.0 with consistent UTC ISO 8601 timestamps
+- Impact: WARP.md serves as comprehensive developer onboarding guide with all operational scripts documented
+- Impact: Clear project priorities with CSS masonry officially deferred to focus on core features
+- Build: No code changes; documentation-only release
+
 ## [v0.21.0] — 2025-10-04T13:25:56.000Z
 - Fixed: Admin password reset script now correctly hashes passwords with MD5 before storing
   - Root cause: update-password.mjs stored plaintext passwords instead of MD5 hashes

@@ -1,12 +1,17 @@
 # WARP.md
 
-This file provides guidance to WARP (warp.dev) when working with code in this repository.
+Version: 0.22.0
+Updated: 2025-10-04T18:01:54.000Z
 
-Summary
-- Next.js 15 App Router app (React 19, TS 5, Tailwind v4) with a MongoDB backend
+This file provides guidance to WARP (warp.dev) and AI assistants when working with code in this repository.
+
+## Summary
+
+- Next.js 15 App Router app (React 19, TS 5, Tailwind v4) with MongoDB backend
 - Multi-tenant, UUID-first model: all org/board/card identifiers are UUID v4
 - Org-scoped APIs under /api/v1/organizations; requests must include X-Organization-UUID matching the org path segment (guarded by middleware)
-- Core UI: hashed routes /{organizationUUID}/{boardUUID}/tagger for N‑dimensional card placement; dedicated card pages at /{organizationUUID}/cards/{cardUUID}
+- Core UI: hashed routes /{organizationUUID}/{boardUUID}/tagger for N-dimensional card placement; dedicated card pages at /{organizationUUID}/cards/{cardUUID}
+- Authentication: Zero-trust with admin sessions (HttpOnly cookies) + per-board page passwords (32-hex tokens)
 - Governance: timestamps in ISO 8601 with milliseconds (UTC), no tests, no breadcrumbs, strict version/doc sync
 
 Common commands
@@ -18,26 +23,75 @@ Common commands
 - Lint: npm run lint
 - Purge DB (danger — drops the database): npm run db:purge
 
-Operational scripts (node)
-- Version/doc sync: node scripts/sync-version.mjs [--check]
-- DB verification (writes/updates/deletes a throwaway doc): node scripts/verify-db.mjs
-- Migration — add organizations and backfill UUIDs (dry run): MIGRATE_DRY_RUN=true node scripts/migrations/001-add-organizations-and-backfill-uuids.mjs
-  - Execute (no dry run): node scripts/migrations/001-add-organizations-and-backfill-uuids.mjs
-- Migration — backfill order per status: node scripts/migrate-add-order.mjs [--dry]
-- Migration — backfill uuid on legacy cards: node scripts/migrate-add-uuid.mjs [--dry]
-- Migration — normalize legacy statuses: node scripts/migrate-statuses.mjs
-- Admin — purge all boards (dry run): DRY_RUN=1 node scripts/admin/purge-boards.mjs
-  - Execute (danger): node scripts/admin/purge-boards.mjs --confirm ALL
-- Debug — list boards in org: node scripts/debug/print-boards.mjs <orgUUID>
-- Debug — show board details: node scripts/debug/print-board.mjs <boardUUID>
+## Operational Scripts (node)
 
-Environment
-- Required: MONGODB_URI
-- Optional: MONGODB_DBNAME (default: cardmass)
-- Optional: NEXT_PUBLIC_BASE_URL (server-side fetch to self when host headers are unavailable)
-- Node: >= 20.x (LTS)
+### Admin Scripts
+- **Create admin user**: `node scripts/admin/create-user.mjs [email] [name] [role]`
+  - Interactive prompts if args not provided
+  - Generates 32-hex password, outputs to stdout (store securely)
+  - Alternative: `node scripts/create-admin.mjs` (interactive) or `node scripts/create-admin-quick.mjs` (quick)
+- **Reset admin password**: `node scripts/admin/update-password.mjs <email>`
+  - Generates new 32-hex password, hashes with MD5 before storing
+  - Displays plaintext password for login (won't be shown again)
+  - Fixed in v0.21.0 to properly hash passwords matching auth system
+- **Test admin login**: `node scripts/test-login.mjs <email> <password>`
+  - Tests POST /api/auth/login, GET /api/auth/check, DELETE /api/auth/logout
+- **Purge all boards**: `DRY_RUN=1 node scripts/admin/purge-boards.mjs` (dry run)
+  - Execute (danger): `node scripts/admin/purge-boards.mjs --confirm ALL`
 
-Architecture (big picture)
+### Database Scripts
+- **Purge entire DB**: `npm run db:purge` (danger — drops the database)
+- **Verify DB connection**: `node scripts/verify-db.mjs` (writes/updates/deletes throwaway doc)
+- **Debug users**: `node scripts/debug-users.mjs` (lists all users with password hashes)
+
+### Migration Scripts
+- **Add organizations and backfill UUIDs**:
+  - Dry run: `MIGRATE_DRY_RUN=true node scripts/migrations/001-add-organizations-and-backfill-uuids.mjs`
+  - Execute: `node scripts/migrations/001-add-organizations-and-backfill-uuids.mjs`
+- **Backfill order per status**: `node scripts/migrate-add-order.mjs [--dry]`
+- **Backfill UUID on legacy cards**: `node scripts/migrate-add-uuid.mjs [--dry]`
+- **Normalize legacy statuses**: `node scripts/migrate-statuses.mjs`
+- **Migrate admin to super-admin**: `node scripts/migrate-admin-to-super-admin.mjs`
+- **Ensure org access field**: `node scripts/ensure-org-access-field.mjs`
+
+### Debug Scripts
+- **List boards in org**: `node scripts/debug/print-boards.mjs <orgUUID>`
+- **Show board details**: `node scripts/debug/print-board.mjs <boardUUID>`
+
+### Maintenance Scripts
+- **Clear spock area**: `node scripts/maintenance/clear-spock-area.mjs`
+- **Version/doc sync**: `node scripts/sync-version.mjs [--check]`
+
+## Environment Variables
+
+- **Required**:
+  - `MONGODB_URI` — MongoDB connection string
+- **Optional**:
+  - `MONGODB_DBNAME` — Database name (default: cardmass)
+  - `NEXT_PUBLIC_BASE_URL` — Server-side fetch to self when host headers unavailable
+- **Runtime**:
+  - Node.js: >= 20.x (LTS)
+  - Recommended: Add .nvmrc with Node 20 LTS version
+
+## Authentication & Access Control
+
+**Zero-Trust Model** (MessMass specification):
+- **Admin Sessions**: HttpOnly cookie `admin_session` (30-day expiry, SameSite=Lax)
+  - Login: `POST /api/auth/login` (email + MD5-hashed password)
+  - Logout: `DELETE /api/auth/login`
+  - Check: `GET /api/auth/check`
+- **Page Passwords**: Per-board 32-hex tokens for non-admin viewers
+  - Generate: `POST /api/page-passwords` (admin-only, returns password + shareable link)
+  - Validate: `PUT /api/page-passwords` (checks admin session OR page password)
+- **Access Rule**: Content accessible IFF (valid admin session) OR (valid page password)
+- **UI Components**:
+  - `PasswordGate.tsx` — Client-side access control wrapper (3 states: checking/locked/unlocked)
+  - Admin bypass: Logged-in admins skip password prompts automatically
+  - URL param support: `?pw=<32hex>` auto-validates on page load
+- **Server Enforcement**: All protected APIs check admin session OR X-Page-Password headers
+- **Security Note**: MD5 hashing is MVP-only (NOT cryptographically secure for production)
+
+## Architecture (Big Picture)
 - App Router (app/):
   - API surface: app/api/v1/organizations/*
     - Organizations: list/create/fetch/update/delete; admin-by-slug at app/api/v1/organizations/slug/[slug]
