@@ -132,11 +132,68 @@ export async function POST(
 
     // WHAT: Parse request body
     const body = await req.json();
-    const { userId, role, password } = body;
+    const { userId, email, name, role, password } = body;
 
+    const db = await getDb();
+    const usersCol = db.collection<UserDoc>('users');
+
+    // WHAT: Handle new user creation vs existing user update
+    // WHY: Org admins need to both create new users AND update existing ones
+    if (!userId && email && name && password) {
+      // CASE 1: Create new user with org access
+      
+      // Validate inputs
+      if (!role || (role !== 'org-admin' && role !== 'member')) {
+        return NextResponse.json(
+          { error: 'role must be org-admin or member for new users' },
+          { status: 400 }
+        );
+      }
+
+      if (password.length < 8) {
+        return NextResponse.json(
+          { error: 'password must be at least 8 characters' },
+          { status: 400 }
+        );
+      }
+
+      // Check if user already exists
+      const existing = await usersCol.findOne({ email });
+      if (existing) {
+        return NextResponse.json(
+          { error: 'User with this email already exists' },
+          { status: 409 }
+        );
+      }
+
+      // Create new user
+      const newUser = {
+        email,
+        name,
+        password: hashPassword(password),
+        role: 'user' as const, // New org users are regular users by default
+        organizationAccess: [
+          {
+            organizationUUID: orgUUID,
+            role: role as 'org-admin' | 'member',
+          },
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      await usersCol.insertOne(newUser);
+
+      return NextResponse.json({
+        success: true,
+        message: 'User created and added to organization',
+      }, { status: 201 });
+    }
+
+    // CASE 2: Update existing user
     if (!userId) {
       return NextResponse.json(
-        { error: 'userId is required' },
+        { error: 'userId is required for updates, or provide email/name/password to create new user' },
         { status: 400 }
       );
     }
@@ -148,10 +205,6 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    // WHAT: Update user's organizationAccess
-    const db = await getDb();
-    const usersCol = db.collection<UserDoc>('users');
 
     const targetUser = await usersCol.findOne({ _id: new ObjectId(userId) });
     if (!targetUser) {
