@@ -12,6 +12,7 @@ type Props = { orgUUID: string; boardUUID: string; rows: number; cols: number; a
 // Feature flag for progressive enhancement of masonry layout (CSS multicol)
 // WHAT: Enables Pinterest-like packing for multi-column areas using CSS multi-column.
 // WHY: Provides denser visual layout without JS reflow while preserving DOM order and DnD behavior.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ENABLE_MASONRY = true
 
 export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas, getAuthHeaders }: Props) {
@@ -849,29 +850,7 @@ return (
             >
               <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: `rgba(${parseInt((b.bgColor || '#e5e7eb').slice(1,3),16)}, ${parseInt((b.bgColor || '#e5e7eb').slice(3,5),16)}, ${parseInt((b.bgColor || '#e5e7eb').slice(5,7),16)}, 0.25)` }} />
               <span className="absolute top-1 left-1 text-[10px] font-mono px-1 rounded-sm pointer-events-none z-10" style={{ backgroundColor: b.color, color: b.textBlack ? '#000' : '#fff' }}>#{b.label}</span>
-              {/* WHAT: Use CSS masonry (multi-column) for multi-column areas when ENABLE_MASONRY is true
-                   WHY: Provides Pinterest-style card packing without JS reflow while preserving DOM order for DnD
-                   HOW: columnCount replaces grid for multi-col; single-col keeps grid for DnD slots */}
-              <div 
-                className="absolute inset-0 p-2 pt-7 pb-2" 
-                style={{
-                  overflowY: 'auto',
-                  overflowX: 'hidden',
-                  ...(ENABLE_MASONRY && (areaCols[b.key] || viewportCols) > 1 ? {
-                    columnCount: areaCols[b.key] || viewportCols,
-                    columnGap: '8px'
-                  } : {
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)`,
-                    gridAutoFlow: b.rowFirst ? 'row dense' : 'row',
-                    gap: '8px',
-                    alignContent: 'start',
-                    justifyContent: 'start',
-                    alignItems: 'start'
-                  })
-                }}
-                ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}
-              >
+              <div className="absolute inset-0 overflow-auto p-2 pt-7 pb-2 grid gap-2 content-start justify-start items-start" style={{ gridTemplateColumns: `repeat(${areaCols[b.key] || viewportCols}, ${cardWidth}px)`, gridAutoFlow: b.rowFirst ? 'row dense' : 'row' }} ref={(el)=>{ areaContentRefs.current[b.key]=el; if (el) el2key.current.set(el, b.key) }}>
                 <div className="contents">
                   <div
                     className={`relative ${draggingId ? 'h-8 sm:h-6' : 'h-4 sm:h-3'} transition-[height,background-color] duration-150 -mx-1 px-2 sm:mx-0 sm:px-0 ${dropHint && dropHint.area===b.key && dropHint.slot===0 ? 'bg-blue-100/70 rounded-md ring-1 ring-blue-300/50' : ''}`}
@@ -885,15 +864,7 @@ return (
                   </div>
 
                   {sortedAreaCards(b.label).map((c, idx) => (
-                    <div 
-                      key={`placed-wrap-${b.key}-${c.id}`}
-                      style={ENABLE_MASONRY && (areaCols[b.key] || viewportCols) > 1 ? {
-                        breakInside: 'avoid',
-                        display: 'inline-block',
-                        width: '100%',
-                        marginBottom: '8px'
-                      } : {}}
-                    >
+                    <div key={`placed-wrap-${b.key}-${c.id}`}>
                       <div
                         key={`placed-${b.key}-${c.id}`}
                         draggable

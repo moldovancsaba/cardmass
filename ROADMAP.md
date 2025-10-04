@@ -43,13 +43,12 @@ Updated: 2025-10-02T12:47:30.000Z
   - Expected: 2025-10-20T12:00:00.000Z
   - Notes: Keep commands/architecture current and aligned with governance (ISO timestamps, version/doc sync).
 
-- ✅ COMPLETED Masonry via CSS multicol for Tagger multi-column areas
+- Masonry via CSS multicol for Tagger multi-column areas
   - Owner: ai
   - Priority: P0
-  - Status: ✅ COMPLETED (v0.19.1 - 2025-10-03T18:00:00.000Z)
   - Expected: 2025-10-02T18:00:00.000Z
   - Dependencies: TaggerApp.tsx desktop/stacked rendering; DnD slots unchanged; cardWidth computation; Tailwind v4
-  - Notes: Feature-flagged (ENABLE_MASONRY=true). Implemented CSS multi-column with columnCount, columnGap, and break-inside:avoid. Row-first applies only to grid fallback; DOM order preserved; no new libraries. Works for both desktop (≥1200px) and stacked (<1200px) layouts.
+  - Notes: Feature-flagged (ENABLE_MASONRY). Row-first applies only to grid fallback; DOM order preserved; no new libraries.
 
 - Zero-Trust Authentication & Access (admin-session + page passwords)
   - Owner: ai
