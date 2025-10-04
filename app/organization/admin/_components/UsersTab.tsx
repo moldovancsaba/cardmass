@@ -234,23 +234,25 @@ export default function UsersTab() {
                         </select>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-sm text-right space-x-2">
-                      <button
-                        onClick={() => handleRegeneratePassword(user._id, user.email)}
-                        className="text-sky-600 hover:text-sky-800 hover:underline text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={user.isSuperAdmin}
-                        title={user.isSuperAdmin ? 'Cannot regenerate super-admin password' : 'Regenerate password'}
-                      >
-                        Reset Password
-                      </button>
-                      <button
-                        onClick={() => handleRemoveUser(user._id, user.email)}
-                        className="text-red-600 hover:text-red-800 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={user.isSuperAdmin}
-                        title={user.isSuperAdmin ? 'Cannot remove super-admins' : 'Remove user'}
-                      >
-                        Remove
-                      </button>
+                    <td className="py-3 px-4 text-sm text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleRegeneratePassword(user._id, user.email)}
+                          className="px-3 py-1 text-xs rounded bg-sky-600 !text-white hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          disabled={user.isSuperAdmin}
+                          title={user.isSuperAdmin ? 'Cannot regenerate super-admin password' : 'Regenerate password'}
+                        >
+                          Reset Password
+                        </button>
+                        <button
+                          onClick={() => handleRemoveUser(user._id, user.email)}
+                          className="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          disabled={user.isSuperAdmin}
+                          title={user.isSuperAdmin ? 'Cannot remove super-admins' : 'Remove user'}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

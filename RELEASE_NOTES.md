@@ -1,5 +1,15 @@
 # RELEASE_NOTES
 
+## [v0.20.1] — 2025-10-04T11:22:45.000Z
+- Fixed: User management action buttons now properly styled and visible
+  - Changed from text-only links to proper button styling with backgrounds
+  - Reset Password: sky-600 background with white text
+  - Remove/Delete: red-600 background with white text
+  - Added flexbox layout with gap-2 for proper spacing
+  - Applied to both Organization Users and System Users tabs
+- Impact: Buttons are now clearly visible, clickable, and follow design system
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.20.0] — 2025-10-04T11:15:30.000Z
 - Feature: MessMass-style board password generation UI
   - Added 🔑 Password button to each board in the board list

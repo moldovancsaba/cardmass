@@ -209,19 +209,21 @@ export default function SystemUsersTab() {
                     <td className="py-3 px-4 text-sm text-gray-600">
                       {user.createdAt ? new Date(user.createdAt).toISOString() : '—'}
                     </td>
-                    <td className="py-3 px-4 text-sm text-right space-x-2">
-                      <button
-                        onClick={() => handleRegeneratePassword(user._id, user.email)}
-                        className="text-sky-600 hover:text-sky-800 hover:underline text-xs"
-                      >
-                        Reset Password
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user._id, user.email)}
-                        className="text-red-600 hover:text-red-800 text-xs"
-                      >
-                        Delete
-                      </button>
+                    <td className="py-3 px-4 text-sm text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleRegeneratePassword(user._id, user.email)}
+                          className="px-3 py-1 text-xs rounded bg-sky-600 !text-white hover:bg-sky-700 transition-colors"
+                        >
+                          Reset Password
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user._id, user.email)}
+                          className="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
