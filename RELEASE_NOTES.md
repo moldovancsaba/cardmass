@@ -1,5 +1,21 @@
 # RELEASE_NOTES
 
+## [v0.19.1] — 2025-10-04T08:36:01.000Z
+- Changed: Tagger card backgrounds now inherit area hashtag color at 70% opacity
+  - Cards placed in areas display with the area's hashtag/label color (Area.color) at 70% transparency
+  - Applied to both stacked view (<1200px) and desktop grid view (≥1200px)
+  - Inbox cards remain white (unchanged)
+  - Fallback: neutral gray (rgba(229, 231, 235, 0.7)) for invalid/missing colors
+- Added: hexToRgba70() helper function in TaggerApp.tsx
+  - Converts hex color (#RGB or #RRGGBB) to rgba with 0.7 alpha
+  - Robust validation with graceful fallback
+  - Supports both 3-digit and 6-digit hex formats
+- Rationale: Visual consistency between area identity (hashtag color) and card appearance within that area
+  - Enhances spatial recognition: cards visually "belong" to their area
+  - 70% opacity maintains text readability (text-black preserved)
+  - Inline style used because Tailwind cannot generate dynamic runtime rgba values
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.0] — 2025-10-03T17:30:00.000Z
 - Added: Comprehensive three-level admin CRUD system
   - System-level user management (super-admin only): create/update/delete users and super-admins; role changes; password regeneration with 32-hex tokens

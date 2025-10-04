@@ -15,6 +15,36 @@ type Props = { orgUUID: string; boardUUID: string; rows: number; cols: number; a
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ENABLE_MASONRY = true
 
+/**
+ * WHAT: Converts a hex color (area.color) to rgba with 70% opacity for card backgrounds
+ * WHY: Cards should visually inherit their area's hashtag/label color while maintaining readability.
+ *      70% opacity ensures sufficient contrast with text and preserves visual hierarchy.
+ *      Fallback to neutral gray ensures graceful degradation when color is missing/invalid.
+ * @param hex - Hex color string (#RGB or #RRGGBB format)
+ * @returns rgba string with 0.7 alpha, or fallback gray if invalid
+ */
+function hexToRgba70(hex?: string): string {
+  const fallback = 'rgba(229, 231, 235, 0.7)' // neutral fallback (Tailwind gray-200 at 70%)
+  if (!hex || typeof hex !== 'string') return fallback
+  const normalized = hex.trim().toLowerCase()
+  const match = normalized.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i)
+  if (!match) return fallback
+  let r: number, g: number, b: number
+  const h = match[1]
+  if (h.length === 3) {
+    // Expand 3-digit hex: #abc -> #aabbcc
+    r = parseInt(h[0] + h[0], 16)
+    g = parseInt(h[1] + h[1], 16)
+    b = parseInt(h[2] + h[2], 16)
+  } else {
+    // Parse 6-digit hex: #aabbcc
+    r = parseInt(h.slice(0, 2), 16)
+    g = parseInt(h.slice(2, 4), 16)
+    b = parseInt(h.slice(4, 6), 16)
+  }
+  return `rgba(${r}, ${g}, ${b}, 0.7)`
+}
+
 export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas, getAuthHeaders }: Props) {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
@@ -55,6 +85,9 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas, getAu
   // WHAT: Tracks when a dragged card is hovering over the Inbox list so we can show a visible cue and allow dropping there.
   // WHY: Dropping into the Inbox should clear the card's placement for the current board (see onDrop below), aligning with the soft "SPOCK" inbox model.
   const [inboxHover, setInboxHover] = useState(false)
+  // WHAT: Track collapsed/expanded state of SPOCK sidebar (desktop ≥1200px only)
+  // WHY: Users want to hide the SPOCK inbox to give more screen space to the board area when needed, then restore it via a flag button.
+  const [spockCollapsed, setSpockCollapsed] = useState(false)
 
   const areaBoxes = useMemo(() => {
     type Box = { key: string; label: string; color: string; bgColor?: string; rowFirst?: boolean; textBlack: boolean; minR: number; minC: number; maxR: number; maxC: number }
@@ -380,11 +413,33 @@ return [bid, map, tmap] as const
   }
 
   return (
-    <div className="w-full h-screen grid grid-cols-1 min-[1200px]:grid-cols-[320px_1fr] gap-3">
+    <div className={`w-full h-screen grid gap-3 ${
+      spockCollapsed
+        ? 'grid-cols-1'
+        : 'grid-cols-1 min-[1200px]:grid-cols-[320px_1fr]'
+    }`}>
+      {/* Collapsed SPOCK flag button - appears on left edge when SPOCK is hidden */}
+      {spockCollapsed && (
+        <button
+          onClick={() => setSpockCollapsed(false)}
+          className="fixed left-0 top-1/2 -translate-y-1/2 bg-gray-700 text-white px-2 py-6 rounded-r-md shadow-lg hover:bg-gray-800 z-50 text-xs font-semibold hidden min-[1200px]:block"
+          aria-label="Expand Inbox"
+          title="Show Inbox"
+        >
+          📥<br/>I<br/>n<br/>b<br/>o<br/>x
+        </button>
+      )}
       {/* Left: Inbox & Create (desktop/≥1200px only) */}
-      <aside className="hidden min-[1200px]:flex min-[1200px]:order-1 min-[1200px]:relative min-[1200px]:border-r border-gray-200 p-3 overflow-hidden h-full flex-col">
+      <aside className={`${spockCollapsed ? 'hidden' : 'hidden min-[1200px]:flex'} min-[1200px]:order-1 min-[1200px]:relative min-[1200px]:border-r border-gray-200 p-3 overflow-hidden h-full flex-col`}>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold">Inbox</h2>
+          <button
+            onClick={() => setSpockCollapsed(true)}
+            className="text-sm font-semibold hover:text-gray-700 transition-colors"
+            aria-label="Collapse Inbox"
+            title="Hide Inbox to expand board area"
+          >
+            Inbox
+          </button>
           <button
             onClick={(e)=>{ e.preventDefault(); setShowInboxDetails(v=>!v) }}
             className="border border-gray-300 rounded px-2 py-0.5 text-xs bg-white hover:bg-black/5"
@@ -586,7 +641,8 @@ return (
                         draggable
                         onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
                         onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
-                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        style={{ backgroundColor: hexToRgba70(b.color) }}
                         title={c.text}
                       >
                         <div className="pr-0">
@@ -870,7 +926,8 @@ return (
                         draggable
                         onDragStart={(e)=>{ setDraggingId(c.uuid); try{ (e.dataTransfer as DataTransfer).setData('text/plain', c.uuid) }catch{} }}
                         onDragEnd={()=>{ setDraggingId(null); setDropHint(null) }}
-                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs bg-white/90 text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        className={`relative border border-gray-300 rounded px-2 py-1 text-xs text-black shadow-sm cursor-grab hover:bg-black/5 w-full ${draggingId===c.uuid ? 'opacity-60' : ''}`}
+                        style={{ backgroundColor: hexToRgba70(b.color) }}
                         title={c.text}
                       >
                         <div className="pr-0">
