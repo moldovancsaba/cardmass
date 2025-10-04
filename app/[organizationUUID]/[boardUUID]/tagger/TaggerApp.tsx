@@ -129,7 +129,13 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas, getAu
   }, [areaBoxes])
 
   // Observe SPOCK container widths (both desktop and stacked), take the max
+  // WHAT: Reset spockWidth to 0 when SPOCK is collapsed so cards can recalculate to use full area width
+  // WHY: Hidden elements retain their pre-collapse width, preventing card width from expanding when sidebar is hidden
   useEffect(() => {
+    if (spockCollapsed) {
+      setSpockWidth(0)
+      return
+    }
     const ro = new ResizeObserver(() => {
       try {
         const w1 = spockDesktopRef.current ? spockDesktopRef.current.getBoundingClientRect().width : 0
@@ -141,7 +147,7 @@ export default function TaggerApp({ orgUUID, boardUUID, rows, cols, areas, getAu
     try { if (spockDesktopRef.current) ro.observe(spockDesktopRef.current) } catch {}
     try { if (spockStackedRef.current) ro.observe(spockStackedRef.current) } catch {}
     return () => { try { ro.disconnect() } catch {} }
-  }, [])
+  }, [spockCollapsed])
 
   // Track viewport breakpoint cols (1/<640, 2/≥1280)
   useEffect(() => {

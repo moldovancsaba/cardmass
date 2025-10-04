@@ -1,5 +1,13 @@
 # RELEASE_NOTES
 
+## [v0.19.2] — 2025-10-04T08:43:25.000Z
+- Fixed: Card width recalculation when SPOCK sidebar is collapsed
+  - Cards now properly expand to use full available width when inbox is hidden
+  - spockWidth resets to 0 when spockCollapsed=true, triggering area width recalculation
+  - useEffect now depends on spockCollapsed state to trigger resize logic
+- Rationale: Hidden elements with `display: none` retain their pre-collapse dimensions, preventing ResizeObserver from detecting layout changes. Explicit width reset ensures card layout responds to sidebar visibility.
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.1] — 2025-10-04T08:36:01.000Z
 - Changed: Tagger card backgrounds now inherit area hashtag color at 70% opacity
   - Cards placed in areas display with the area's hashtag/label color (Area.color) at 70% transparency
