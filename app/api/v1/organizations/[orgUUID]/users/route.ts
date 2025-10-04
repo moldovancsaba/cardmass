@@ -71,14 +71,16 @@ export async function GET(
       .toArray();
 
     // WHAT: Return users without passwords
+    // WHY: Frontend component expects _id field (not id) for consistency with MongoDB ObjectId patterns
     const safeUsers = users.map(u => {
       const orgAccess = u.organizationAccess?.find(a => a.organizationUUID === orgUUID);
       return {
-        id: u._id?.toString(),
+        _id: u._id?.toString(),
         email: u.email,
         name: u.name,
         globalRole: u.role,
         orgRole: u.role === 'super-admin' ? 'super-admin' : orgAccess?.role || 'none',
+        isSuperAdmin: u.role === 'super-admin',
         createdAt: u.createdAt,
       };
     });

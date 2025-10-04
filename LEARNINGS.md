@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 0.19.4
+Version: 0.19.5
 
-Updated: 2025-10-04T09:55:37.000Z
+Updated: 2025-10-04T10:15:22.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -49,3 +49,9 @@ Updated: 2025-10-04T09:55:37.000Z
   Why: /api/admin/users endpoint had password update logic, but /api/v1/organizations/[orgUUID]/users did not
   Solution: Added password parameter support to org users endpoint; both role and password can be updated independently or together; super-admin password changes blocked for org admins (403); unified hashPassword implementation using crypto.pbkdf2Sync
   Impact: Org admins can now successfully regenerate passwords for their organization members; consistent API behavior across admin and org contexts.
+
+- User ID field naming mismatch: Organization users GET endpoint returned `id` but component expected `_id`
+  Why: Inconsistent field naming between API response and frontend component interface; /api/admin/users returns `_id` directly from MongoDB
+  Error: "BSONError: input must be a 24 character hex string" when userId was undefined in DELETE/POST operations
+  Solution: Changed API response from `{ id: ... }` to `{ _id: ... }` and added `isSuperAdmin` boolean for clarity
+  Impact: User removal, password regeneration, and role changes all work correctly; unified field naming across all user management endpoints.

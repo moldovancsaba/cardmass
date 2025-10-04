@@ -1,5 +1,14 @@
 # RELEASE_NOTES
 
+## [v0.19.5] — 2025-10-04T10:15:22.000Z
+- Fixed: User removal in organization admin now works correctly
+  - Changed API response field from `id` to `_id` to match component expectations
+  - Added `isSuperAdmin` boolean field to user response for clarity
+  - Root cause: Frontend component expected `user._id` but API returned `user.id`
+  - Error was: "BSONError: input must be a 24 character hex string" (userId was undefined)
+- Technical: Unified field naming across all user management APIs (_id for consistency)
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.4] — 2025-10-04T09:55:37.000Z
 - Fixed: Password regeneration for organization users now works correctly
   - Added password update support to `/api/v1/organizations/[orgUUID]/users` endpoint
