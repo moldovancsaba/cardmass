@@ -1,5 +1,24 @@
 # RELEASE_NOTES
 
+## [v0.19.3] — 2025-10-04T09:34:13.000Z
+- Changed: Standardized button styling across all admin pages based on design system
+  - Primary actions: bg-sky-500 (brand color) with hover:bg-sky-600
+  - Secondary actions: border-2 border-gray-300 with hover:bg-gray-50
+  - Destructive actions: bg-red-600 with hover:bg-red-700 (unchanged)
+  - Text/link buttons: text-sky-600 with hover:text-sky-800 and underline
+  - All buttons include proper disabled states (opacity-50, cursor-not-allowed)
+- Updated pages:
+  - /admin/dashboard - quick action buttons now use brand color
+  - /admin/login - login button uses brand color
+  - /admin/dashboard components (OrganizationsTab, SystemUsersTab)
+  - /organization/admin - Back button is now secondary style
+  - /organization/admin components (UsersTab, BoardsTab)
+  - All modal Cancel buttons now use bordered secondary style
+  - All modal primary action buttons use brand color
+  - "Open Creator" button changed to secondary style for visual hierarchy
+- Rationale: Improved contrast and readability; consistent use of brand color for primary actions; clear visual hierarchy between primary and secondary actions
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v0.19.2] — 2025-10-04T08:43:25.000Z
 - Fixed: Card width recalculation when SPOCK sidebar is collapsed
   - Cards now properly expand to use full available width when inbox is hidden

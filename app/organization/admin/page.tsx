@@ -61,7 +61,7 @@ function OrganizationAdminContent() {
             </div>
             <Link
               href="/organizations"
-              className="px-4 py-2 text-sm rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 text-sm rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Back to Organizations
             </Link>

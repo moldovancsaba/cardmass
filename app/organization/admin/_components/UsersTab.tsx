@@ -179,7 +179,7 @@ export default function UsersTab() {
         <p className="text-red-600 mb-4">{error}</p>
         <button
           onClick={loadUsers}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm"
+          className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 text-sm disabled:opacity-50"
         >
           Retry
         </button>
@@ -194,7 +194,7 @@ export default function UsersTab() {
           <h2 className="text-lg font-semibold text-gray-900">Organization Users</h2>
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm"
+            className="px-4 py-2 bg-sky-500 text-white rounded-lg hover:bg-sky-600 text-sm disabled:opacity-50"
           >
             + Add User
           </button>
@@ -237,7 +237,7 @@ export default function UsersTab() {
                     <td className="py-3 px-4 text-sm text-right space-x-2">
                       <button
                         onClick={() => handleRegeneratePassword(user._id, user.email)}
-                        className="text-indigo-600 hover:text-indigo-800 text-xs"
+                        className="text-sky-600 hover:text-sky-800 hover:underline text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={user.isSuperAdmin}
                         title={user.isSuperAdmin ? 'Cannot regenerate super-admin password' : 'Regenerate password'}
                       >
@@ -395,14 +395,14 @@ function AddUserModal({ orgUUID, onClose, onSuccess }: { orgUUID: string; onClos
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
+              className="px-4 py-2 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md disabled:opacity-50"
               disabled={submitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="px-4 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={submitting}
             >
               {submitting ? 'Creating...' : 'Create User'}
@@ -444,7 +444,7 @@ function PasswordModal({ password, onClose }: { password: string; onClose: () =>
           />
           <button
             onClick={copyPassword}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm"
+            className="px-4 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 text-sm"
           >
             Copy
           </button>
@@ -453,7 +453,7 @@ function PasswordModal({ password, onClose }: { password: string; onClose: () =>
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+            className="px-4 py-2 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md"
           >
             Close
           </button>
