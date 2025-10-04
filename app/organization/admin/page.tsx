@@ -77,7 +77,7 @@ function OrganizationAdminContent() {
               onClick={() => setActiveTab('users')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'users'
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-sky-600 text-sky-700'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -87,7 +87,7 @@ function OrganizationAdminContent() {
               onClick={() => setActiveTab('boards')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'boards'
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-sky-600 text-sky-700'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -97,7 +97,7 @@ function OrganizationAdminContent() {
               onClick={() => setActiveTab('passwords')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'passwords'
-                  ? 'border-indigo-500 text-indigo-600'
+                  ? 'border-sky-600 text-sky-700'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
