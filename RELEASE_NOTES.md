@@ -1,5 +1,28 @@
 # RELEASE_NOTES
 
+## [v1.1.0] — 2025-10-05T12:10:10.000Z 📚
+- Added: **Comprehensive USER_GUIDE.md** for end users (publicly available)
+  - Complete walkthrough of all CardMass features
+  - 12 major sections covering every aspect of the application
+  - Detailed explanation of core concepts (organizations, boards, cards, areas)
+  - **In-depth Spock Area documentation** explaining what it is, why it exists, and how to use it
+  - N-dimensional classification explained with examples
+  - Board sharing guide (passwords and shareable links)
+  - Tips and best practices for effective use
+  - Troubleshooting section with common issues
+  - Glossary of all terms
+  - Visual hierarchy with clear headers and examples
+- Feature: User-friendly documentation suitable for non-technical users
+  - Use cases and real-world examples
+  - Step-by-step instructions with screenshots descriptions
+  - Do's and Don'ts for each feature
+  - Daily, weekly, and monthly workflow suggestions
+- Changed: README.md now links to USER_GUIDE.md as first documentation item
+- Impact: Users can now fully understand and leverage all CardMass features without technical knowledge
+- Impact: Reduces onboarding time and support requests
+- Documentation: 630 lines covering everything from basics to advanced features
+- Build: Clean Next.js compilation with zero warnings or errors
+
 ## [v1.0.0] — 2025-10-04T18:54:11.000Z 🎉
 - **MAJOR RELEASE**: CardMass reaches production-ready v1.0.0
 - **Milestone**: Fully functional admin dashboard with live data and real actions
