@@ -1,7 +1,7 @@
 # CardMass User Guide
 
-**Version**: 1.0.0  
-**Updated**: 2025-10-05T12:10:10.000Z
+**Version**: 1.2.0  
+**Updated**: 2025-01-15T10:30:00.000Z
 
 Welcome to CardMass! This guide will help you understand how to use CardMass to organize and classify your cards across multiple dimensions.
 
@@ -105,22 +105,35 @@ The **Spock area** is a special virtual inbox that:
 
 ## Getting Started
 
-### Step 1: Access Your Organization
+### Step 1: Sign In
 
-1. Navigate to CardMass homepage
-2. You'll see a list of organizations you have access to
-3. Click on an organization to enter it
+1. Navigate to CardMass homepage at `https://cardmass.doneisbetter.com`
+2. You'll see a unified login page for all user types
+3. Enter your email and password
+4. Click **"Sign In"**
 
-### Step 2: Explore the Organization Dashboard
+**Note**: This login page works for all users - super-admins, organization admins, and members.
+
+### Step 2: Select Your Organization
+
+After successful login, you'll be directed to the **Organizations** page where you can:
+- See all organizations you have access to
+- View organization details (name, description)
+- See your role badge (Super Admin, Admin, or Member)
+- Click on any organization card to enter it
+
+### Step 3: Explore the Organization Dashboard
 
 Once inside an organization, you'll see:
-- List of existing boards
-- Button to create new boards
-- Organization settings (if you're an admin)
+- **Organization name** displayed prominently
+- **List of boards** with Tagger, Edit, and Password buttons
+- **Creator button** to create new boards
+- **Organization Settings button** (admins only) for management functions
+- **Back to Orgs** button to return to organization selector
 
-### Step 3: Create Your First Board
+### Step 4: Create Your First Board
 
-Click **"Create Board"** or **"Open Creator"** and define:
+Click **"Creator"** and define:
 1. **Board Name**: e.g., "Priority Classification"
 2. **Grid Size**: Number of rows and columns (e.g., 3x3)
 3. **Areas**: Label each grid cell with meaningful names
@@ -132,17 +145,47 @@ Click **"Create Board"** or **"Open Creator"** and define:
 
 ### Viewing Organizations
 
-- Navigate to the root page to see all organizations you have access to
+- Navigate to `/organizations` to see all organizations you have access to
 - Each organization card shows:
   - Organization name
+  - Slug (URL identifier)
   - Description (if set)
-  - Number of boards
+  - Your role badge
+
+### Organization Navigation
+
+The navigation flow is:
+1. **Login** (`/`) → Enter credentials
+2. **Organizations** (`/organizations`) → Select organization
+3. **Organization Main** (`/{orgUUID}`) → View boards and take actions
+4. **Organization Settings** (`/{orgUUID}/settings`) → Admin functions (admins only)
 
 ### Organization Roles
 
 - **Super Admin**: Full access to all organizations and system settings
-- **Org Admin**: Full access to a specific organization
+- **Org Admin**: Full access to a specific organization (can manage settings)
 - **Member**: View and edit access to a specific organization
+
+### Organization Settings (Admins Only)
+
+If you're an organization admin or super-admin, you'll see an **⚙️ Organization Settings** button on the organization main page. This opens a tabbed interface with:
+
+#### Tab 1: Organization Management
+- Edit organization name, slug, and description
+- Toggle organization active status
+- Save or delete the organization
+
+#### Tab 2: User Management
+- *Coming soon* - Manage user access and roles
+
+#### Tab 3: Board Management
+- Rename boards
+- Delete boards
+- View board metadata
+
+#### Tab 4: Access Passwords
+- *Coming soon* - Centralized password management
+- For now, generate passwords from the organization main page
 
 ---
 

@@ -1,5 +1,5 @@
 import SpockNav from "@/components/SpockNav";
-import OrgAdminPanel from "./OrgAdminPanel";
+import OrgBoardList from "./OrgBoardList";
 import { isUUIDv4 } from "@/lib/validation";
 import { fetchWithOrg } from "@/lib/http/fetchWithOrg";
 import { notFound, redirect } from "next/navigation";
@@ -21,12 +21,12 @@ export default async function OrganizationMainPage(ctx: { params: Promise<{ orga
   const token = cookieStore.get('admin_session')?.value;
   
   if (!token) {
-    redirect(`/admin/login?redirect=/${encodeURIComponent(org)}`);
+    redirect(`/?redirect=/${encodeURIComponent(org)}`);
   }
   
   const user = await validateAdminToken(token);
   if (!user || !user._id) {
-    redirect(`/admin/login?redirect=/${encodeURIComponent(org)}`);
+    redirect(`/?redirect=/${encodeURIComponent(org)}`);
   }
   
   // WHAT: Verify user has access to this organization
@@ -99,10 +99,10 @@ export default async function OrganizationMainPage(ctx: { params: Promise<{ orga
             </Link>
             {(orgRole === 'org-admin' || orgRole === 'super-admin') && (
               <Link
-                className="px-4 py-1.5 text-sm rounded-full bg-sky-600 !text-white hover:bg-sky-700 hover:!text-white transition-colors font-medium"
-                href={`/organization/admin?org=${encodeURIComponent(org)}`}
+                className="px-4 py-1.5 text-sm rounded-full bg-purple-600 !text-white hover:bg-purple-700 hover:!text-white transition-colors font-medium"
+                href={`/${encodeURIComponent(org)}/settings`}
               >
-                Admin Panel
+                ⚙️ Organization Settings
               </Link>
             )}
             <Link
@@ -114,8 +114,9 @@ export default async function OrganizationMainPage(ctx: { params: Promise<{ orga
           </div>
         </header>
 
-        {/* Creator lives at /{orgUUID}/creator; no inline board creation here. */}
-        <OrgAdminPanel org={{ uuid: org, name: orgData?.name || '', slug: orgData?.slug || '', description: orgData?.description || '', isActive: true }} initialBoards={boards} />
+        {/* WHAT: Simplified board list for main page - no organization editing */}
+        {/* WHY: Organization management moved to /{orgUUID}/settings */}
+        <OrgBoardList orgUUID={org} initialBoards={boards} />
       </section>
     </main>
   )

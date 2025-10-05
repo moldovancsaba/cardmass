@@ -38,7 +38,7 @@ export default function OrganizationsPage() {
         const authData = await authRes.json()
         
         if (!authData.authenticated) {
-          router.push('/admin/login?redirect=/organizations')
+          router.push('/?redirect=/organizations')
           return
         }
         
@@ -80,7 +80,7 @@ export default function OrganizationsPage() {
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
-      router.push('/admin/login')
+      router.push('/')
     } catch (error) {
       console.error('Logout failed:', error)
     }
@@ -100,7 +100,7 @@ export default function OrganizationsPage() {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={() => router.push('/admin/login')}
+            onClick={() => router.push('/')}
             className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-medium"
           >
             Back to Login

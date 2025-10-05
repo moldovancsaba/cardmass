@@ -1,5 +1,56 @@
 # RELEASE_NOTES
 
+## [v1.2.0] — 2025-01-15T10:30:00.000Z 🚀
+- **MAJOR UX REFACTOR**: Unified login and improved organization navigation
+- Feature: **Universal login page at root `/`** for all user types
+  - Single entry point for super-admins, org-admins, and members
+  - Removed admin-specific login redirects throughout the application
+  - Modern, clean login UI with proper error handling
+- Feature: **Simplified organization main page** at `/{orgUUID}`
+  - Removed organization editing fields (Name, Slug, Description, Active, Save/Delete)
+  - Focus on board list with clean, actionable interface
+  - Added prominent **⚙️ Organization Settings** button for admins
+  - Shows board list with Tagger, Edit, and Password actions
+  - Added "Back to Orgs" button for easy navigation
+- Feature: **New Organization Settings page** at `/{orgUUID}/settings`
+  - Dedicated admin interface with 4-tab design
+  - **Tab 1: Organization Management** - Name, slug, description, active status, save/delete
+  - **Tab 2: User Management** - Placeholder for upcoming user access controls
+  - **Tab 3: Board Management** - Rename and delete boards with live board list
+  - **Tab 4: Access Passwords** - Placeholder for centralized password management
+  - Only accessible to org-admins and super-admins
+  - "Back to Organization" button returns to main page (not org list)
+- Changed: Navigation flow completely redesigned
+  - `/` → Login for all users
+  - `/organizations` → Post-login landing with org selector
+  - `/{orgUUID}` → Organization main page (simplified, board-focused)
+  - `/{orgUUID}/settings` → Admin functions (admins only)
+- Changed: All authentication redirects now point to `/` instead of `/admin/login`
+  - Updated: `/organizations` page redirects
+  - Updated: `/{orgUUID}` page redirects
+  - Updated: `/{orgUUID}/settings` page redirects
+  - Logout now redirects to `/` for consistent UX
+- Technical: Created new components
+  - `app/UniversalLoginPage.tsx` - Universal login form for all user types
+  - `app/[organizationUUID]/OrgBoardList.tsx` - Simplified board list component
+  - `app/[organizationUUID]/settings/page.tsx` - Settings page wrapper
+  - `app/[organizationUUID]/settings/OrgSettingsTabs.tsx` - Tabbed settings interface
+- Changed: Organization main page (`/{orgUUID}/page.tsx`)
+  - Replaced `OrgAdminPanel` with `OrgBoardList` component
+  - Removed inline organization editing
+  - Added Settings button linking to `/{orgUUID}/settings`
+- Documentation: Updated USER_GUIDE.md
+  - New "Getting Started" section with unified login flow
+  - Updated "Organization Navigation" section with navigation flow diagram
+  - Added "Organization Settings" section documenting all 4 tabs
+  - Version bumped to 1.2.0
+- Documentation: Updated README.md to version 1.2.0
+- Impact: **Dramatically improved UX** with clear separation of viewing vs. managing
+- Impact: Unified authentication flow reduces confusion for all user types
+- Impact: Settings page provides comprehensive admin controls in one place
+- Impact: Cleaner organization main page focuses on primary user action (viewing boards)
+- Build: Clean Next.js compilation with 3 minor unused variable warnings (non-critical)
+
 ## [v1.1.0] — 2025-10-05T12:10:10.000Z 📚
 - Added: **Comprehensive USER_GUIDE.md** for end users (publicly available)
   - Complete walkthrough of all CardMass features

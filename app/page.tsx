@@ -1,11 +1,13 @@
 /**
- * WHAT: Home page converted to login-first experience
- * WHY: Authenticated users are routed based on role; unauthenticated users see login
+ * WHAT: Universal login page for all users at root /
+ * WHY: Single entry point for all user types (super-admin, org-admin, member)
+ * NOTE: After login, all users go to /organizations to select their organization
  */
 
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { validateAdminToken } from '@/lib/auth';
+import UniversalLoginPage from './UniversalLoginPage';
 
 export default async function HomePage() {
   // WHAT: Check if user is already authenticated
@@ -16,16 +18,12 @@ export default async function HomePage() {
     const user = await validateAdminToken(token);
     
     if (user) {
-      // WHAT: Route based on role
-      // WHY: Super-admins see global dashboard, others see org selector
-      if (user.role === 'super-admin') {
-        redirect('/admin/dashboard');
-      } else {
-        redirect('/organizations');
-      }
+      // WHAT: All authenticated users go to /organizations
+      // WHY: Unified experience - choose organization regardless of role
+      redirect('/organizations');
     }
   }
   
-  // WHAT: No valid session, redirect to login
-  redirect('/admin/login');
+  // WHAT: No valid session, show universal login form
+  return <UniversalLoginPage />;
 }
