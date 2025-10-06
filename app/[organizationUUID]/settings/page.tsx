@@ -35,30 +35,26 @@ export default async function OrganizationSettingsPage(ctx: { params: Promise<{ 
     redirect(`/${encodeURIComponent(org)}`);
   }
 
-  type Org = { uuid: string; name: string; slug: string; description?: string; isActive?: boolean }
+  // WHAT: Fetch boards data for the settings tabs
+  // WHY: Organization data will be fetched by the client component tabs
   type BoardItem = { uuid: string; slug?: string; updatedAt?: string; version?: number }
-
-  let orgData: Org | null = null
   let boards: BoardItem[] = []
-
-  // Fetch organization data
-  // WHAT: Use absolute URL for server-side fetch
-  // WHY: Server components need full URL, not relative paths
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4000')
-  try {
-    const res = await fetch(`${baseUrl}/api/v1/organizations/${encodeURIComponent(org)}`, { cache: 'no-store' })
-    if (res.ok) orgData = await res.json()
-  } catch (err) {
-    console.error('Failed to fetch org data:', err)
-  }
   
-  // Fetch boards
+  // Fetch boards (non-critical, tabs will handle empty state)
   try {
     boards = await fetchWithOrg<BoardItem[]>(`/api/v1/organizations/${encodeURIComponent(org)}/boards`, org, { cache: 'no-store' })
-  } catch {}
+  } catch {
+    // Boards fetch failure is non-fatal - tabs will show empty state
+  }
 
-  if (!orgData) {
-    return notFound()
+  // WHAT: Create a minimal org object with the UUID we already have
+  // WHY: The tabs component will fetch full org details from the API
+  const orgData = {
+    uuid: org,
+    name: '',  // Will be loaded by tabs component
+    slug: '',
+    description: undefined,
+    isActive: true
   }
 
   return (
@@ -70,7 +66,7 @@ export default async function OrganizationSettingsPage(ctx: { params: Promise<{ 
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Organization Settings</h1>
               <p className="text-sm text-gray-600 mt-1">
-                {orgData.name}
+                Loading...
               </p>
             </div>
             <div className="flex items-center gap-2">
