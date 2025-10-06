@@ -42,8 +42,11 @@ export default async function OrganizationSettingsPage(ctx: { params: Promise<{ 
   let boards: BoardItem[] = []
 
   // Fetch organization data
+  // WHAT: Use absolute URL for server-side fetch
+  // WHY: Server components need full URL, not relative paths
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4000'
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:4000'}/api/v1/organizations/${encodeURIComponent(org)}`, { cache: 'no-store' })
+    const res = await fetch(`${baseUrl}/api/v1/organizations/${encodeURIComponent(org)}`, { cache: 'no-store' })
     if (res.ok) orgData = await res.json()
   } catch {}
   
