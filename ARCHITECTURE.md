@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: 1.0.0
-Updated: 2025-10-04T18:54:11.000Z
+Version: 1.2.1
+Updated: 2025-10-07T10:45:00.000Z
 
 1. Overview
 - Single-DB, multi-tenant architecture with strict organization scoping.
@@ -96,6 +96,72 @@ Updated: 2025-10-04T18:54:11.000Z
 
 9. Version & governance
 - Follow Versioning and Release Protocol. Ensure version is consistent in package.json and all docs. All timestamps are ISO 8601 with ms, UTC.
+
+9.1 Server/Client Component Pattern (MANDATORY)
+- Golden Rule: "Server components authenticate, client components hydrate"
+- Enforced: 2025-10-07 after comprehensive audit (commits 4d4e04a, b49baae)
+- Status: 100% compliance across all 10 page components
+
+9.1.1 Pattern Definition
+- Server components (page.tsx files): ONLY handle authentication and authorization
+  - Validate URL parameters (isUUIDv4, etc.)
+  - Check authentication token from cookies
+  - Validate user access (validateAdminToken, checkOrgAccess)
+  - Redirect if unauthorized
+  - Pass ONLY IDs to client components
+  - NEVER fetch API data
+  - NEVER call notFound() after redirect()
+
+- Client components: Handle ALL data fetching with proper error handling
+  - Marked with 'use client'
+  - Use useState for data, loading, error states
+  - Fetch data in useEffect
+  - Display loading state while fetching
+  - Display error state with retry button
+  - Display success state when data loaded
+
+9.1.2 Why This Pattern
+- Prevents 404 bugs: React Server Components can send BOTH redirect() and notFound() in same response stream
+- Prevents silent failures: Server-side fetches fail unpredictably on Vercel due to baseUrl/networking issues
+- Enables proper error handling: Client components can show loading states, error messages, and retry buttons
+- Separates concerns: Auth logic separate from data fetching logic
+
+9.1.3 Compliant Pages (All 10)
+1. app/page.tsx - Root login (server auth only)
+2. app/organizations/page.tsx - Org selector (client component)
+3. app/admin/dashboard/page.tsx - Admin dashboard (client component)
+4. app/[organizationUUID]/settings/page.tsx - Settings (server auth, client tabs fetch data)
+5. app/[organizationUUID]/creator/page.tsx - Creator (server auth only, added 2025-10-07)
+6. app/[organizationUUID]/cards/[cardUUID]/page.tsx - Card details (server auth, CardDetailsClient fetches)
+7. app/[organizationUUID]/hashtags/[hashtagUUID]/page.tsx - Hashtag (server auth, HashtagDetailsClient fetches)
+8. app/organization/[slug]/page.tsx - Slug redirect (graceful error handling)
+9. app/[organizationUUID]/page.tsx - Org main (server auth, OrgHeader + OrgBoardList fetch data)
+10. app/[organizationUUID]/[boardUUID]/tagger/page.tsx - Tagger (server auth, TaggerWithAuth fetches)
+
+9.1.4 Security Fixes (2025-10-07)
+Fixed 3 pages that had NO authentication (anyone could access):
+- creator/page.tsx - Added token + org access validation
+- cards/[cardUUID]/page.tsx - Added token + org access validation
+- hashtags/[hashtagUUID]/page.tsx - Added token + org access validation
+
+9.1.5 Client Components Created
+- CardDetailsClient.tsx - Fetches card + board area styling
+- HashtagDetailsClient.tsx - Fetches hashtag + card list + board styling
+- OrgHeader.tsx - Fetches org name for display
+- TaggerWithAuth.tsx - Updated to fetch board data itself
+
+9.1.6 Documentation
+- docs/SERVER_CLIENT_PATTERNS.md - Complete pattern guide
+- docs/AUDIT_SERVER_CLIENT_PATTERN.md - Detailed violation analysis
+- docs/AUDIT_SUMMARY.md - Executive summary
+- LEARNINGS.md - Comprehensive audit entry
+
+9.1.7 Enforcement
+- Code review checklist: "Follows server/client pattern?"
+- All new pages MUST follow this pattern
+- Test in 3 environments: local dev + Vercel preview + Vercel production
+- NEVER mix auth and data fetching in server components
+- Reference: docs/SERVER_CLIENT_PATTERNS.md for examples
 
 10. Authentication & Access (MessMass zero-trust implementation)
 

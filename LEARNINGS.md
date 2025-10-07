@@ -97,3 +97,39 @@ Updated: 2025-10-06T19:59:00.000Z
     4. Client component pattern: useEffect data fetch → loading state → error state → success render
     5. Always test: (a) local build (b) Vercel preview (c) Vercel production - each has different baseUrl behavior
   Impact: Settings page now works reliably in all environments; established pattern prevents similar issues across all protected pages; documented for team knowledge.
+
+- Server/Client Pattern Audit & Enforcement (2025-10-07): Comprehensive codebase audit revealed 6 pages violating "server authenticates, client hydrates" pattern
+  Why: Settings page 404 bug was symptom of systemic pattern violation; needed to prevent recurrence across all pages
+  Scope: Audited 10 page components; found 4 compliant, 6 non-compliant (3 with critical security issues)
+  Security issues found:
+    1. creator/page.tsx - NO authentication (anyone could create boards in any organization)
+    2. cards/[cardUUID]/page.tsx - NO authentication (anyone could view card details with UUID)
+    3. hashtags/[hashtagUUID]/page.tsx - NO authentication (anyone could view hashtag data with UUID)
+  Pattern violations found:
+    4. organization/[slug]/page.tsx - Throws on fetch error (could cause 500 errors)
+    5. [organizationUUID]/page.tsx - Server-side fetch of org data (same pattern that caused settings 404)
+    6. [boardUUID]/tagger/page.tsx - Server-side fetch of board data
+  Solution approach:
+    - Priority 1 (Security - 30min): Added full authentication to 3 publicly accessible pages
+    - Priority 2 (Bug prevention - 2hrs): Created client components for data fetching (CardDetailsClient, HashtagDetailsClient)
+    - Priority 3 (Pattern compliance - 1hr): Refactored org main page and tagger to use client-side data fetching
+  Fixes implemented:
+    1. creator/page.tsx - Added token validation + checkOrgAccess before rendering
+    2. cards/[cardUUID]/page.tsx - Server wrapper (auth only) + CardDetailsClient.tsx (data fetching with loading/error states)
+    3. hashtags/[hashtagUUID]/page.tsx - Server wrapper (auth only) + HashtagDetailsClient.tsx (data fetching with loading/error states)
+    4. organization/[slug]/page.tsx - Added try-catch with graceful notFound() fallback instead of throw
+    5. [organizationUUID]/page.tsx - Created OrgHeader.tsx client component for org name fetching; removed server-side data fetch
+    6. [boardUUID]/tagger/page.tsx - Updated TaggerWithAuth.tsx to fetch board data itself with proper loading states
+  Pattern enforcement:
+    - Server components: Validate URL → Check auth → Redirect if unauthorized → Pass IDs only to client
+    - Client components: useEffect fetch → Loading state → Error state → Success render with retry button
+    - NEVER call notFound() after redirect() - causes race condition in React Server Components
+    - NEVER fetch API data in server components - fails unpredictably on Vercel
+  Documentation created:
+    - docs/SERVER_CLIENT_PATTERNS.md - Complete pattern guide with examples, testing checklist, enforcement rules
+    - docs/AUDIT_SERVER_CLIENT_PATTERN.md - Detailed line-by-line violation analysis for each page
+    - docs/AUDIT_SUMMARY.md - Executive summary with prioritized remediation plan
+  Testing requirements: All fixes must be tested in local dev + Vercel preview + Vercel production (each has different baseUrl behavior)
+  Impact: 100% pattern compliance achieved (10/10 pages); 3 critical security vulnerabilities closed; 404 bug risk eliminated across entire application; comprehensive documentation ensures pattern adherence for all future development.
+  Build verification: All pages compile successfully; sizes increased appropriately (org main 2.42→2.87kB, tagger 8.48→8.92kB showing client components added)
+  Commits: 4d4e04a (priority 1+2 fixes), b49baae (priority 3 completion)
