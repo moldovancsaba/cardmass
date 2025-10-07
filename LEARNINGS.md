@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 1.0.0
+Version: 1.2.1
 
-Updated: 2025-10-04T18:54:11.000Z
+Updated: 2025-10-06T19:59:00.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -83,3 +83,17 @@ Updated: 2025-10-04T18:54:11.000Z
   Pattern: Import createHash from crypto; create identical hashPassword helper; hash before storing; display unhashed value for operator use
   Impact: Password reset now works correctly; establishes pattern for all future auth-related maintenance scripts; prevents authentication mismatches
   Security note: MD5 hashing is MVP-only (NOT cryptographically secure for production); consider bcrypt/argon2 for production deployment.
+
+- Server Component API fetches + notFound() = Silent 404 Bug: Settings page returned 404 despite existing on server
+  Why: Server component attempted server-side fetch to API endpoint during render; fetch failed on Vercel (baseUrl misconfiguration); code called notFound() when orgData was null; this happened AFTER authentication redirect() calls; React Server Components sent BOTH redirect (307) and notFound (404) in same response stream; 404 won the render race
+  Symptoms: curl showed HTTP 307 redirect headers (auth working) but HTML body contained 404 page; browser displayed cached 404; happened consistently across all organizations; local builds worked but Vercel production failed
+  Root cause: Triple fault: (1) Server-side fetch failed silently due to VERCEL_URL env var issues (2) No error handling for failed fetch (3) Called notFound() instead of gracefully degrading
+  Solution: Removed server-side API fetch entirely; pass minimal org object with UUID only; let client-side component fetch full data with proper loading states; never call notFound() after authentication checks
+  Pattern established: Server components should ONLY handle authentication/authorization; data fetching belongs in client components with proper error boundaries
+  Prevention rules:
+    1. NEVER call notFound() after redirect() in same component - causes race condition
+    2. NEVER fetch API data in server components unless absolutely critical and properly error-handled
+    3. Server component pattern: auth check → redirect if unauthorized → render minimal shell → let client fetch data
+    4. Client component pattern: useEffect data fetch → loading state → error state → success render
+    5. Always test: (a) local build (b) Vercel preview (c) Vercel production - each has different baseUrl behavior
+  Impact: Settings page now works reliably in all environments; established pattern prevents similar issues across all protected pages; documented for team knowledge.
