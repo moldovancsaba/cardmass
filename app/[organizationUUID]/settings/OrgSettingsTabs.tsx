@@ -541,8 +541,16 @@ function BoardsTab({ orgUUID, initialBoards }: { orgUUID: string; initialBoards:
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Board Management</h3>
-        <p className="text-sm text-gray-500">{boards.length} {boards.length === 1 ? 'board' : 'boards'}</p>
+        <div>
+          <h3 className="text-lg font-semibold">Board Management</h3>
+          <p className="text-sm text-gray-500 mt-1">{boards.length} {boards.length === 1 ? 'board' : 'boards'}</p>
+        </div>
+        <button
+          onClick={() => window.location.href = `/${encodeURIComponent(orgUUID)}/creator`}
+          className="px-4 py-2 text-sm rounded-lg bg-sky-600 !text-white hover:bg-sky-700 hover:!text-white transition-colors font-medium"
+        >
+          + Add Board
+        </button>
       </div>
 
       {boards.length === 0 ? (
@@ -611,20 +619,28 @@ function BoardsTab({ orgUUID, initialBoards }: { orgUUID: string; initialBoards:
 
 /**
  * TAB 4: Access Passwords (Page Passwords)
- * WHAT: Manage board access passwords for sharing
- * WHY: Central place to view and manage all page passwords
+ * WHAT: Information about password management
+ * WHY: Directs users to Board List for password generation
  */
 function PasswordsTab({ orgUUID }: { orgUUID: string }) {
   return (
     <div className="text-center py-12">
-      <div className="text-4xl mb-4">🔑</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">Access Passwords</h3>
-      <p className="text-gray-600 mb-4">
+      <div className="text-6xl mb-4">🔑</div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-3">Access Passwords</h3>
+      <p className="text-gray-600 mb-6 max-w-md mx-auto">
         Password management coming soon.
       </p>
-      <p className="text-sm text-gray-500">
-        Generate and manage board access passwords from the Board List on the organization main page.
-      </p>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-lg mx-auto">
+        <p className="text-sm text-blue-800">
+          <strong>Current workflow:</strong> Generate and manage board access passwords from the Board List on the organization main page.
+        </p>
+        <button
+          onClick={() => window.location.href = `/${encodeURIComponent(orgUUID)}`}
+          className="mt-4 px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
+        >
+          Go to Organization Main Page →
+        </button>
+      </div>
     </div>
   )
 }
