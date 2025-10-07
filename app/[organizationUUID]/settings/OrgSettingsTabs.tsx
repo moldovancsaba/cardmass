@@ -11,7 +11,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 type Org = { uuid: string; name: string; slug: string; description?: string; isActive?: boolean }
 type BoardItem = { uuid: string; slug?: string; updatedAt?: string; version?: number }
 
-type TabId = 'org' | 'users' | 'boards' | 'passwords'
+type TabId = 'org' | 'users' | 'boards'
 
 export default function OrgSettingsTabs({ 
   org, 
@@ -28,7 +28,6 @@ export default function OrgSettingsTabs({
     { id: 'org', label: 'Organization', icon: '🏢' },
     { id: 'users', label: 'Users', icon: '👥' },
     { id: 'boards', label: 'Boards', icon: '📋' },
-    { id: 'passwords', label: 'Passwords', icon: '🔑' },
   ]
 
   return (
@@ -57,10 +56,9 @@ export default function OrgSettingsTabs({
 
       {/* Tab Content */}
       <div className="p-6">
-        {activeTab === 'org' && <OrganizationTab org={org} />}
+        {activeTab === 'org' && <OrganizationTab orgUUID={org.uuid} />}
         {activeTab === 'users' && <UsersTab orgUUID={org.uuid} />}
         {activeTab === 'boards' && <BoardsTab orgUUID={org.uuid} initialBoards={initialBoards} />}
-        {activeTab === 'passwords' && <PasswordsTab orgUUID={org.uuid} />}
       </div>
     </div>
   )
@@ -71,11 +69,39 @@ export default function OrgSettingsTabs({
  * WHAT: Edit organization details - name, slug, description, active status
  * WHY: Central place for organization configuration
  */
-function OrganizationTab({ org }: { org: Org }) {
-  const [form, setForm] = useState<Org>({ ...org })
+function OrganizationTab({ orgUUID }: { orgUUID: string }) {
+  const [form, setForm] = useState<Org>({ uuid: orgUUID, name: '', slug: '', description: '', isActive: true })
+  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  // WHAT: Fetch organization data on mount
+  // WHY: Server only passes UUID, need full org details for form
+  useEffect(() => {
+    async function fetchOrg() {
+      try {
+        const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}`, {
+          headers: { 'X-Organization-UUID': orgUUID },
+          cache: 'no-store'
+        })
+        if (!res.ok) throw new Error('Failed to load organization')
+        const data = await res.json()
+        setForm({
+          uuid: orgUUID,
+          name: data.name || '',
+          slug: data.slug || '',
+          description: data.description || '',
+          isActive: data.isActive ?? true
+        })
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load organization')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchOrg()
+  }, [orgUUID])
 
   const pillStyle = useMemo(() => {
     const name = form.name || ''
@@ -93,9 +119,9 @@ function OrganizationTab({ org }: { org: Org }) {
     setError(null)
     setSuccess(false)
     try {
-      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(org.uuid)}`, {
+      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'X-Organization-UUID': org.uuid },
+        headers: { 'Content-Type': 'application/json', 'X-Organization-UUID': orgUUID },
         body: JSON.stringify({ 
           name: form.name, 
           slug: form.slug, 
@@ -121,9 +147,9 @@ function OrganizationTab({ org }: { org: Org }) {
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(org.uuid)}`, { 
+      const res = await fetch(`/api/v1/organizations/${encodeURIComponent(orgUUID)}`, { 
         method: 'DELETE', 
-        headers: { 'X-Organization-UUID': org.uuid } 
+        headers: { 'X-Organization-UUID': orgUUID } 
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error?.message || 'Delete failed')
@@ -133,6 +159,10 @@ function OrganizationTab({ org }: { org: Org }) {
     } finally {
       setSaving(false)
     }
+  }
+
+  if (loading) {
+    return <div className="text-center py-12 text-gray-600">Loading organization details...</div>
   }
 
   return (
@@ -613,34 +643,6 @@ function BoardsTab({ orgUUID, initialBoards }: { orgUUID: string; initialBoards:
           ))}
         </ul>
       )}
-    </div>
-  )
-}
-
-/**
- * TAB 4: Access Passwords (Page Passwords)
- * WHAT: Information about password management
- * WHY: Directs users to Board List for password generation
- */
-function PasswordsTab({ orgUUID }: { orgUUID: string }) {
-  return (
-    <div className="text-center py-12">
-      <div className="text-6xl mb-4">🔑</div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-3">Access Passwords</h3>
-      <p className="text-gray-600 mb-6 max-w-md mx-auto">
-        Password management coming soon.
-      </p>
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-lg mx-auto">
-        <p className="text-sm text-blue-800">
-          <strong>Current workflow:</strong> Generate and manage board access passwords from the Board List on the organization main page.
-        </p>
-        <button
-          onClick={() => window.location.href = `/${encodeURIComponent(orgUUID)}`}
-          className="mt-4 px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors font-medium"
-        >
-          Go to Organization Main Page →
-        </button>
-      </div>
     </div>
   )
 }

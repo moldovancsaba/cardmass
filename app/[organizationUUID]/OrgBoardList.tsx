@@ -140,7 +140,7 @@ export default function OrgBoardList({ orgUUID, initialBoards }: { orgUUID: stri
                 </a>
                 <a 
                   className="px-4 py-2 text-sm rounded-full bg-indigo-600 !text-white hover:bg-indigo-700 hover:!text-white transition-colors font-medium" 
-                  href={`/${encodeURIComponent(orgUUID)}/creator?board=${encodeURIComponent(b.uuid)}`}
+                  href={`/${encodeURIComponent(orgUUID)}/settings`}
                 >
                   ✏️ Edit
                 </a>
