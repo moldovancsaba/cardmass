@@ -3,6 +3,8 @@
 Version: 1.2.1
 Updated: 2025-10-07T10:45:00.000Z
 
+> Reference: `HANDBOOK.md` is the canonical source; this file provides deep-dive appendices for architecture topics.
+
 1. Overview
 - Single-DB, multi-tenant architecture with strict organization scoping.
 - UUID-first design: organizations, boards, and cards are identified by UUID v4.

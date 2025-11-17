@@ -4,6 +4,8 @@ Version: 1.0.0
 
 Updated: 2025-10-04T18:54:11.000Z
 
+> Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
+
 - P2 — Plan automation for doc sync (future)
   - Owner: csaba
   - Expected: 2025-10-15T18:00:00.000Z

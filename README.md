@@ -8,7 +8,10 @@ Updated: 2025-01-15T10:30:00.000Z
 
 Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
+> **Single source of truth:** Start with `HANDBOOK.md`. It unifies product direction, architecture, governance, and roadmap details. All other docs act as appendices.
+
 Links
+- HANDBOOK.md — **canonical reference for product + engineering**
 - USER_GUIDE.md — **comprehensive user guide for end users** (boards, cards, Spock, sharing)
 - ARCHITECTURE.md — glossary, data model, and file map
 - ROADMAP.md — forward-looking plan (grouped by milestone)

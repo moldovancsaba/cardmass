@@ -3,6 +3,8 @@
 **Version**: 1.2.0  
 **Updated**: 2025-01-15T10:30:00.000Z
 
+> For overarching product + development context, begin with `HANDBOOK.md`. This guide focuses on end-user workflows.
+
 Welcome to CardMass! This guide will help you understand how to use CardMass to organize and classify your cards across multiple dimensions.
 
 ---

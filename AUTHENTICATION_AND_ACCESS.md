@@ -3,6 +3,8 @@
 **Version**: 0.17.0  
 **Last Updated**: 2025-10-02T11:20:26.000Z
 
+> Summary guidance lives in `HANDBOOK.md` §3. This document dives into full authentication specs.
+
 ## Overview
 
 CardMass implements a zero-trust authentication and access control system inspired by MessMass. The system enables:
