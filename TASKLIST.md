@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 1.3.0
+Version: 1.4.0
 
-Updated: 2025-12-18T14:52:38.000Z
+Updated: 2025-12-20T20:45:00.000Z
 
 > Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
 
@@ -43,6 +43,11 @@ Updated: 2025-12-18T14:52:38.000Z
   - Owner: ai
   - Completed: 2025-10-04T13:25:56.000Z
   - Notes: Fixed update-password.mjs to hash passwords with MD5 before storing; reset super-admin password
+
+- P0 — ✅ COMPLETED Board UUID Migration (boardAreas rekey from slug to UUID)
+  - Owner: ai
+  - Completed: 2025-12-20T20:45:00.000Z
+  - Notes: Created migration script 002; verified all 23 active cards already use UUID keys; documented UUID-first architecture
 
 - P1 — ⏳ PENDING Manual QA against acceptance criteria
   - Owner: csaba

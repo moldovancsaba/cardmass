@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 1.3.0
+Version: 1.4.0
 
-Updated: 2025-12-18T14:52:38.000Z
+Updated: 2025-12-20T20:45:00.000Z
 
 > Source: consult `HANDBOOK.md` §5 for the authoritative roadmap summary. This file expands each milestone.
 
@@ -27,11 +27,11 @@ Updated: 2025-12-18T14:52:38.000Z
   - Expected: 2025-10-15T18:00:00.000Z
   - Notes: Keep ROADMAP/TASKLIST forward-looking and synced; align with timestamp policy.
 
-- Board placements keyed by boardUUID (follow-up)
+- ✅ Board placements keyed by boardUUID
   - Owner: ai
   - Priority: P0
-  - Expected: 2025-10-15T12:00:00.000Z
-  - Notes: Migrate boardAreas to be keyed by boardUUID; update API and UI.
+  - Status: COMPLETED (2025-12-20T20:45:00.000Z)
+  - Notes: Verified via migration script 002. All 23 active cards already use UUID keys. TaggerApp has been using UUID-based keys since implementation. Migration script created and validated. Documentation updated to reflect UUID-first architecture.
 
 - Add .nvmrc (Node 20) and reflect in TECH_STACK.md
   - Owner: csaba

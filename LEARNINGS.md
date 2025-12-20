@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 1.3.0
+Version: 1.4.0
 
-Updated: 2025-12-18T14:52:38.000Z
+Updated: 2025-12-20T20:45:00.000Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -133,3 +133,12 @@ Updated: 2025-12-18T14:52:38.000Z
   Impact: 100% pattern compliance achieved (10/10 pages); 3 critical security vulnerabilities closed; 404 bug risk eliminated across entire application; comprehensive documentation ensures pattern adherence for all future development.
   Build verification: All pages compile successfully; sizes increased appropriately (org main 2.42→2.87kB, tagger 8.48→8.92kB showing client components added)
   Commits: 4d4e04a (priority 1+2 fixes), b49baae (priority 3 completion)
+
+- Board UUID Migration (boardAreas keying): Investigation revealed system already fully migrated (2025-12-20T20:45:00.000Z)
+  Why: ROADMAP listed "Board placements keyed by boardUUID" as P0 overdue task; documentation stated boardAreas used slug keys
+  Investigation findings: (1) TaggerApp.tsx:385 already sends boardUUID as key (not slug) (2) TaggerApp reads placements via boardUUID (3) All hashtag/card detail components treat boardAreas keys as UUIDs (4) API parameter name `boardSlug` is misleading - actually generic key (5) Legacy GridBoard uses slug keys but is deprecated
+  Migration script results: 23 cards processed, 0 needed migration, 0 orphaned references
+  Root cause: Documentation drift - code was already UUID-first but docs stated slug-based
+  Solution: Created migration script 002 (idempotent, dry-run mode); updated types.ts and ARCHITECTURE.md to clarify UUID requirement; marked ROADMAP task as completed
+  Pattern: When investigating "migration needed" tasks, verify current state in code first - documentation may lag behind implementation
+  Impact: Zero data migration needed; documentation now accurately reflects UUID-first architecture; migration script available for future use if legacy data appears

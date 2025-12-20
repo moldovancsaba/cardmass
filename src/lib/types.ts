@@ -89,10 +89,11 @@ export interface CardDoc {
    */
   areaLabel?: string;
   /**
-   * Per-board placements: mapping from board slug -> canonical area label on that board.
+   * Per-board placements: mapping from board UUID -> canonical area label on that board.
    * Why: Enables N-dimensional classification; spock is never persisted (empty mapping implies spock fallback where available).
+   * Keys MUST be valid UUID v4 (board.uuid), NOT board slugs.
    */
-  boardAreas?: Record<string, string>;
+  boardAreas?: Record<string, string>
   /**
    * Hide card from all interactive listings without deleting it.
    * Why: Archive keeps data for future reference or sharing while removing it from day-to-day flows.
@@ -110,6 +111,7 @@ export interface Card {
   boardSlug?: string;
   /** @deprecated — see Card.boardAreas */
   areaLabel?: string;
+  /** Per-board placements keyed by board UUID (v4), not slug */
   boardAreas?: Record<string, string>;
   isArchived?: boolean;
 }
