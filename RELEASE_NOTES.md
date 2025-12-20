@@ -1,5 +1,27 @@
 # RELEASE_NOTES
 
+## [v1.4.0] — 2025-12-20T20:45:00.000Z 🔧
+- **Migration:** Board UUID keying verified and documented
+  - Created migration script 002 to convert boardAreas keys from board slug to board UUID
+  - Dry-run and execution confirmed all 23 active cards already use UUID keys
+  - No data migration was needed - TaggerApp has been using UUID keys since implementation
+  - Root cause: Documentation drift - code was UUID-first but docs stated slug-based
+- **Documentation:** Complete UUID-first architecture alignment
+  - Updated types.ts to clarify "boardAreas keys MUST be valid UUID v4, NOT board slugs"
+  - Updated ARCHITECTURE.md placement definition and limitations section
+  - Updated WARP.md data model description
+  - Updated ROADMAP.md to mark board UUID task as completed
+  - Updated TASKLIST.md with completion entry
+  - Added comprehensive LEARNINGS.md entry documenting investigation and findings
+- **Technical:** Migration script features
+  - Idempotent design (safe to re-run)
+  - Dry-run mode via MIGRATE_DRY_RUN=true
+  - Validates UUID v4 format before processing
+  - Handles orphaned references (slug keys with no matching board)
+  - Detailed logging and summary report
+- **Impact:** Documentation now accurately reflects system state; migration tooling available for future use
+- **Build:** Clean Next.js compilation with zero warnings or errors
+
 ## [v1.3.0] — 2025-12-18T14:52:38.000Z 📦
 - Maintenance: Updated package-lock.json dependency metadata
   - Added `peer: true` flags to multiple dependencies for npm v7+ compatibility

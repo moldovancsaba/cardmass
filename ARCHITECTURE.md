@@ -17,7 +17,7 @@ Updated: 2025-12-18T14:52:38.000Z
 - board: a page defined by a grid of areas around the same initiative. Identified by uuid (UUID v4). slug is metadata.
 - area: a labeled territory on a board. Area labels are canonical (lowercase) and drive per-board placements. Each area includes independent styling fields: bgColor? (fill tint), textBlack? (label readability), rowFirst? (dense packing hint).
 - card: a single element with content. Cards are classifiable across boards via per-board placements.
-- placement: per-board assignment of a card to an area on a specific board (persisted in boardAreas[boardSlug] = areaLabel). Never persist 'spock'.
+- placement: per-board assignment of a card to an area on a specific board (persisted in boardAreas[boardUUID] = areaLabel, keyed by board UUID v4). Never persist 'spock'.
 - spock: a virtual inbox area per board, used for display when a card has no placement on that board. Never persisted.
 
 3. Data model (MongoDB)
@@ -51,7 +51,7 @@ Updated: 2025-12-18T14:52:38.000Z
   - createdAt / updatedAt: Date (server) / ISO (client)
   - boardSlug?: string (legacy; creation source, optional)
   - areaLabel?: string (deprecated; legacy single label)
-  - boardAreas?: Record<string, string>
+  - boardAreas?: Record<string, string> (keys are board UUIDs, NOT slugs)
   - Indexes: { uuid: 1 } unique, { organizationId: 1, status: 1, updatedAt: -1 }
 
 4. API surface (App Router)
@@ -89,8 +89,9 @@ Updated: 2025-12-18T14:52:38.000Z
 - Defense-in-depth: handlers also validate ids and organizationId ownership before reads/writes.
 
 7. Current limitations and next steps
-- boardAreas are still keyed by board slug (compat). A follow-up migration will introduce placements keyed by boardUUID.
-- Legacy routes remain until Sunset; UI no longer depends on them.
+- boardAreas are keyed by board UUID (verified via migration 002). All active cards use UUID-based keys.
+- Legacy GridBoard (src/app/use/[slug]/) may still write slug-based keys but is deprecated.
+- Legacy routes remain until Sunset; main UI (TaggerApp) uses UUID-first architecture exclusively.
 
 8. Operational scripts
 - scripts/migrations/001-add-organizations-and-backfill-uuids.mjs — creates organizations collection, backfills uuids and organizationId on boards/cards, and ensures indexes. Supports MIGRATE_DRY_RUN.
