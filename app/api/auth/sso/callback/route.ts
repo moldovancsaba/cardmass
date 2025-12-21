@@ -36,14 +36,14 @@ export async function GET(request: NextRequest) {
     if (error) {
       console.error('[SSO Callback] OAuth error:', error);
       return NextResponse.redirect(
-        new URL('/login?error=oauth_denied', request.url)
+        new URL('/?error=oauth_denied', request.url)
       );
     }
 
     // WHAT: Validate required parameters
     if (!code || !encodedState) {
       return NextResponse.redirect(
-        new URL('/login?error=invalid_callback', request.url)
+        new URL('/?error=invalid_callback', request.url)
       );
     }
 
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     if (!state) {
       console.error('[SSO Callback] Invalid state parameter');
       return NextResponse.redirect(
-        new URL('/login?error=invalid_state', request.url)
+        new URL('/?error=invalid_state', request.url)
       );
     }
 
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     if (!codeVerifier) {
       console.error('[SSO Callback] Missing PKCE verifier');
       return NextResponse.redirect(
-        new URL('/login?error=missing_verifier', request.url)
+        new URL('/?error=missing_verifier', request.url)
       );
     }
 
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
 
       // WHAT: Other non-access statuses
       return NextResponse.redirect(
-        new URL('/login?error=no_access', request.url)
+        new URL('/?error=no_access', request.url)
       );
     }
 
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('[SSO Callback] Error:', error);
     return NextResponse.redirect(
-      new URL('/login?error=auth_failed', request.url)
+      new URL('/?error=auth_failed', request.url)
     );
   }
 }
