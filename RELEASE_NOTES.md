@@ -1,5 +1,14 @@
 # RELEASE_NOTES
 
+## [v1.16.1] — 2025-12-21T21:37:07.691Z 🔧
+- **Deployment Fix:** Resolved 404 error on production home page
+  - Moved src/app/page.tsx → app/page.tsx (SSO login page)
+  - Root cause: Next.js prioritizes app/ over src/app/ when both directories exist
+  - All application routes are in app/, so home page must be in app/page.tsx
+  - Production now correctly serves SSO login page instead of 404
+- **Impact:** https://cardmass.doneisbetter.com now displays SSO login correctly
+- **Build:** Clean Next.js compilation with zero errors
+
 ## [v1.16.0] — 2025-12-21T21:31:11.890Z 🔐
 - **Critical Fix:** Removed legacy login that was blocking SSO visibility in production
   - Deleted app/page.tsx (legacy universal login with email/password form)
