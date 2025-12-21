@@ -1,5 +1,8 @@
 # Quick Start: Multi-Tenant Access Control
 
+**Version:** 1.7.0  
+**Updated:** 2025-12-21T13:36:32.549Z
+
 ## 🚀 Get Started in 5 Minutes
 
 ### Step 1: Update Your Existing Admin User
