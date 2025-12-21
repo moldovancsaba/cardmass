@@ -1,7 +1,7 @@
 # Authentication and Access Control
 
-**Version**: 0.17.0  
-**Last Updated**: 2025-10-02T11:20:26.000Z
+**Version**: 1.7.0  
+**Last Updated**: 2025-12-21T13:36:32.549Z
 
 > Summary guidance lives in `HANDBOOK.md` §3. This document dives into full authentication specs.
 
