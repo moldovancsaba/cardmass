@@ -1,18 +1,18 @@
 # TECH_STACK
 
-Version: 1.5.0
-Updated: 2025-12-21T00:31:56.039Z
+Version: 1.6.0
+Updated: 2025-12-21T08:57:34.301Z
 
 1. Overview
 - This document defines the official technology stack and versions for the cardmass project.
 - All changes to the stack must be documented here and comply with the Technology Stack Compliance Policy.
 
 2. Languages and Runtimes
-- Node.js: >= 20.x (LTS)
+- Node.js: >= 20.x (LTS) — See .nvmrc for specific version (20.18.1)
 - TypeScript: ^5
 
 3. Frameworks and Libraries
-- Next.js: 15.5.3 (App Router)
+- Next.js: 15.5.9 (App Router)
 - React: 19.1.0
 - react-dom: 19.1.0
 - Tailwind CSS: ^4
@@ -42,6 +42,3 @@ Updated: 2025-12-21T00:31:56.039Z
   1) Rationale and impact analysis
   2) Compatibility check
   3) Formal approval and documentation in this file
-
-8. Future Work
-- Add .nvmrc (Node 20 LTS) and keep this file updated accordingly.

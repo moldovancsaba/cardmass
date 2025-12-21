@@ -1,18 +1,20 @@
 # TASKLIST
 
-Version: 1.5.0
+Version: 1.6.0
 
-Updated: 2025-12-21T00:31:56.039Z
+Updated: 2025-12-21T08:57:34.301Z
 
 > Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
 
-- P2 — Plan automation for doc sync (future)
+- P2 — ✅ COMPLETED Add .nvmrc and update TECH_STACK.md
   - Owner: csaba
-  - Expected: 2025-10-15T18:00:00.000Z
+  - Completed: 2025-12-21T08:55:00.000Z
+  - Notes: Created .nvmrc with Node 20.18.1 (LTS); updated TECH_STACK.md with Next.js 15.5.9 and .nvmrc reference
 
-- P2 — Add .nvmrc and update TECH_STACK.md
+- P2 — ✅ COMPLETED Plan automation for doc sync
   - Owner: csaba
-  - Expected: 2025-10-10T16:00:00.000Z
+  - Completed: 2025-12-21T08:55:00.000Z
+  - Notes: Automation already comprehensive via sync-version-timestamps.mjs, pre-commit hook, and npm scripts; no additional work required
 
 - P0 — ✅ COMPLETED Auth: Data models & helpers (users, pagePasswords, lib/auth.ts, lib/pagePassword.ts)
   - Owner: ai

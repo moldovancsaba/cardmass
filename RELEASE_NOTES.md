@@ -1,5 +1,24 @@
 # RELEASE_NOTES
 
+## [v1.6.0] — 2025-12-21T08:55:00.000Z ✅
+- **Task Completion:** Two P2 tasks completed from TASKLIST.md
+- **Environment:** Added .nvmrc with Node 20.18.1 (LTS)
+  - Enables consistent Node version across development environments
+  - Supports nvm/fnm automatic version switching
+  - Aligned with WARP.md recommendation (Node.js >= 20.x LTS)
+- **Documentation:** Updated TECH_STACK.md
+  - Next.js version updated: 15.5.3 → 15.5.9 (reflects security patches)
+  - Added .nvmrc reference in Languages and Runtimes section
+  - Removed outdated Future Work section mentioning .nvmrc
+- **Assessment:** Doc sync automation task validated as complete
+  - sync-version-timestamps.mjs provides comprehensive automation
+  - Pre-commit hook enforces versioning protocol
+  - npm scripts cover all version management scenarios
+  - No additional automation required
+- **Security:** Next.js 15.5.9 includes critical CVE fixes (CVE-2025-55182, CVE-2025-66478)
+- **Impact:** Development environment consistency improved; tech stack documentation up to date
+- **Build:** Clean Next.js compilation with zero errors (same warnings as v1.5.0)
+
 ## [v1.5.0] — 2025-12-21T00:31:56.039Z 🤖
 - **Automation:** Comprehensive version/timestamp synchronization system
   - Created sync-version-timestamps.mjs script with automatic version bumping (--patch, --minor, --major)
