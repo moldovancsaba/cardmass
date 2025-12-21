@@ -1,7 +1,7 @@
 # WARP.md
 
-Version: 1.10.0
-Updated: 2025-12-21T18:48:13.758Z
+Version: 1.11.0
+Updated: 2025-12-21T18:54:08.396Z
 
 > Reference: `HANDBOOK.md` describes the unified workflow. This file details day-to-day commands and scripts.
 
@@ -55,6 +55,12 @@ Common commands
 - **Normalize legacy statuses**: `node scripts/migrate-statuses.mjs`
 - **Migrate admin to super-admin**: `node scripts/migrate-admin-to-super-admin.mjs`
 - **Ensure org access field**: `node scripts/ensure-org-access-field.mjs`
+- **Migrate users to SSO**: `node scripts/migrate-users-to-sso.mjs`
+  - Dry run (default): Shows what would be migrated without making changes
+  - Execute: `node scripts/migrate-users-to-sso.mjs --execute`
+  - Requires SSO admin session cookie (instructions provided by script)
+  - Creates SSO users and grants CardMass app permissions
+  - Maps roles: super-admin → superadmin, user → user/admin based on org access
 
 ### Debug Scripts
 - **List boards in org**: `node scripts/debug/print-boards.mjs <orgUUID>`
