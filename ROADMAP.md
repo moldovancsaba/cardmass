@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 1.13.0
+Version: 1.14.0
 
-Updated: 2025-12-21T21:07:34.496Z
+Updated: 2025-12-21T21:20:18.326Z
 
 > Source: consult `HANDBOOK.md` §5 for the authoritative roadmap summary. This file expands each milestone.
 

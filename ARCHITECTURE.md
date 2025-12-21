@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: 1.13.0
-Updated: 2025-12-21T21:07:34.496Z
+Version: 1.14.0
+Updated: 2025-12-21T21:20:18.326Z
 
 > Reference: `HANDBOOK.md` is the canonical source; this file provides deep-dive appendices for architecture topics.
 
