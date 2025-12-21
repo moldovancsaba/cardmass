@@ -7,20 +7,17 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams?.get('redirect') || '/admin/dashboard';
 
   // WHAT: Check if already authenticated and redirect
   useEffect(() => {
+    // Legacy admin session check (maintain backward compatibility)
     fetch('/api/auth/check')
       .then(res => res.json())
       .then(data => {
@@ -31,37 +28,11 @@ function LoginForm() {
       .catch(() => {});
   }, [router, redirect]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setIsSubmitting(true);
-
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        // WHAT: Redirect to dashboard (or specified redirect) on successful login
-        router.push(redirect);
-      } else {
-        setError(data.error || 'Login failed');
-      }
-    } catch {
-      setError('An error occurred. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
 
   function handleSSOLogin() {
     // WHAT: Redirect to SSO OAuth login with return URL
     // WHY: Preserve intended destination after authentication
-    const returnTo = searchParams?.get('redirect') || '/';
+    const returnTo = searchParams?.get('redirect') || '/organizations';
     window.location.href = `/api/auth/sso/login?return_to=${encodeURIComponent(returnTo)}`;
   }
 
@@ -78,7 +49,7 @@ function LoginForm() {
             </p>
           </div>
 
-          {/* SSO Login (Primary) */}
+          {/* SSO Login (Only) */}
           <div className="mb-6">
             <button
               type="button"
@@ -92,68 +63,9 @@ function LoginForm() {
             </p>
           </div>
 
-          {/* Divider */}
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or use legacy login</span>
-            </div>
-          </div>
-
-          {/* Legacy Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                disabled={isSubmitting}
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isSubmitting ? 'Signing in...' : 'Sign In (Legacy)'}
-            </button>
-          </form>
-
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-xs text-gray-500 text-center">
-              CardMass v1.11.0 — Multi-dimensional Card Classification
+              CardMass v1.14.0 — SSO-first Authentication
             </p>
           </div>
         </div>
