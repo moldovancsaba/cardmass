@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 1.16.1
+Version: 1.17.0
 
-Updated: 2025-12-21T21:37:07.691Z
+Updated: 2025-12-21T21:40:45.921Z
 
 > Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
 
