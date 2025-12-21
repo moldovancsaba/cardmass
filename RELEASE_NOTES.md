@@ -1,5 +1,31 @@
 # RELEASE_NOTES
 
+## [v1.17.0] — 2025-12-21T21:40:45.921Z 🧹
+- **MAJOR CLEANUP:** Comprehensive deprecation audit and code hygiene overhaul
+  - Removed entire src/app/ directory (112KB) - deprecated App Router v1 structure
+  - Removed pages/ directory (4KB) - Pages Router not used in App Router architecture
+  - Removed app/api/auth/login route - legacy MD5 email/password authentication (superseded by SSO)
+  - Removed backup files: app/api/page-passwords/route.ts.bak, src/lib/auth.ts.old
+  - Kept /api/auth/check and /api/auth/logout (still needed for SSO session management)
+- **Removed Deprecated Code:**
+  - src/app/admin/page.tsx (duplicate)
+  - src/app/api/boards/[slug]/route.ts (old board API)
+  - src/app/api/cards/[id]/route.ts, src/app/api/cards/route.ts (old card APIs)
+  - src/app/card/id/[id]/page.tsx (old card detail page)
+  - src/app/creator/ (duplicate of app/creator)
+  - src/app/kanban/ (old kanban UI, no longer used)
+  - src/app/use/[slug]/ (old board embed)
+  - src/app/layout.tsx, globals.css, favicon.ico (duplicates)
+  - pages/_document.tsx (Pages Router remnant)
+- **Active Codebase:** Single source of truth structure
+  - app/ - Current App Router pages and API routes (SSO-first)
+  - src/components/ - Reusable UI components
+  - src/lib/ - Shared libraries (auth, db, validation, SSO, etc.)
+  - src/types/ - TypeScript type definitions
+- **Authentication:** SSO-only login UI, legacy session APIs retained for compatibility
+- **Impact:** Eliminated ~116KB of deprecated/duplicate code; improved maintainability; reduced confusion
+- **Build:** Clean Next.js compilation with zero errors (same warnings as v1.16.1)
+
 ## [v1.16.1] — 2025-12-21T21:37:07.691Z 🔧
 - **Deployment Fix:** Resolved 404 error on production home page
   - Moved src/app/page.tsx → app/page.tsx (SSO login page)
