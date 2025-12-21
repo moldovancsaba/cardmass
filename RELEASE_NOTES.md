@@ -1,5 +1,8 @@
 # RELEASE_NOTES
 
+## [v1.12.0] — 2025-12-21T19:20:07.781Z
+- (update notes here)
+
 ## [v1.11.0] — 2025-12-21T18:54:08.396Z
 - (update notes here)
 
