@@ -79,6 +79,7 @@ See `AUTHENTICATION_AND_ACCESS.md` for deep dive and troubleshooting.
 || Manual QA of zero-trust access | P1 | ⏳ PENDING | Validate admin bypass, password gate, API enforcement. |
 || Maintain WARP.md | P2 | ⏳ ONGOING | Keep workflows/scripts current. |
 || CSS Masonry for Tagger | P3 | 🚫 DEFERRED | Feature-flagged idea, currently parked. |
+|| SSO Integration (DoneIsBetter Auth) | P0 | 🚧 PLANNED (Q1 2026) | Migrate to OAuth2/OIDC; unified login; app-level permissions. |
 
 **Process:** When adding or changing items, update this table first, then sync `ROADMAP.md`/`TASKLIST.md`.
 
