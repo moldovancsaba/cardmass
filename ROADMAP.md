@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 1.4.0
+Version: 1.5.0
 
-Updated: 2025-12-20T20:45:00.000Z
+Updated: 2025-12-21T00:31:56.039Z
 
 > Source: consult `HANDBOOK.md` §5 for the authoritative roadmap summary. This file expands each milestone.
 
@@ -21,11 +21,11 @@ Updated: 2025-12-20T20:45:00.000Z
   - v0.19.0 docs baseline
 
 ### Items
-- Automate version/timestamp/doc synchronization (script + pre-commit hook)
+- ✅ Automate version/timestamp/doc synchronization (script + pre-commit hook)
   - Owner: ai
   - Priority: P0
-  - Expected: 2025-10-15T18:00:00.000Z
-  - Notes: Keep ROADMAP/TASKLIST forward-looking and synced; align with timestamp policy.
+  - Status: COMPLETED (2025-12-21T00:31:56.039Z)
+  - Notes: Created sync-version-timestamps.mjs with automatic version bumping (--patch/--minor/--major). Added pre-commit hook and npm scripts. Prevents documentation drift and enforces versioning protocol automatically.
 
 - ✅ Board placements keyed by boardUUID
   - Owner: ai

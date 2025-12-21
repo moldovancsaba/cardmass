@@ -1,14 +1,20 @@
 {
   "name": "cardmass",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "scripts": {
-    "dev": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000",
-    "dev:turbo": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev --turbopack -p 4000",
+    "dev": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000",
+    "dev:turbo": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev --turbopack -p 4000",
     "build": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next build",
     "start": "next start -p 4000",
     "lint": "eslint .",
-    "db:purge": "node scripts/purge-db.mjs"
+    "db:purge": "node scripts/purge-db.mjs",
+    "version:check": "node scripts/sync-version-timestamps.mjs --check",
+    "version:sync": "node scripts/sync-version-timestamps.mjs",
+    "version:patch": "node scripts/sync-version-timestamps.mjs --patch",
+    "version:minor": "node scripts/sync-version-timestamps.mjs --minor",
+    "version:major": "node scripts/sync-version-timestamps.mjs --major",
+    "hooks:install": "bash scripts/install-hooks.sh"
   },
   "dependencies": {
     "next": "15.5.9",

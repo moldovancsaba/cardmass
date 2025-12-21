@@ -1,5 +1,30 @@
 # RELEASE_NOTES
 
+## [v1.5.0] — 2025-12-21T00:31:56.039Z 🤖
+- **Automation:** Comprehensive version/timestamp synchronization system
+  - Created sync-version-timestamps.mjs script with automatic version bumping (--patch, --minor, --major)
+  - Updates version numbers across all 9 documentation files (README, ARCHITECTURE, ROADMAP, TASKLIST, LEARNINGS, RELEASE_NOTES, WARP, TECH_STACK, NAMING_GUIDE)
+  - Updates timestamps to ISO 8601 with milliseconds (UTC) automatically
+  - Supports validation mode (--check) for CI/pre-commit hooks
+  - Automatically creates RELEASE_NOTES.md entries for version bumps
+- **Git Hooks:** Pre-commit automation
+  - Created pre-commit hook that automatically bumps MINOR version and syncs all docs
+  - Created install-hooks.sh installer script
+  - Enforces versioning protocol: MINOR bump before every commit
+- **npm Scripts:** Convenient version management
+  - `npm run version:check` - Validate sync status
+  - `npm run version:sync` - Sync current version to all docs
+  - `npm run version:patch` - Bump patch version (x.y.Z) - for dev
+  - `npm run version:minor` - Bump minor version (x.Y.0) - for commits
+  - `npm run version:major` - Bump major version (X.0.0) - explicit only
+  - `npm run hooks:install` - Install git hooks
+  - `npm run dev` now automatically bumps PATCH before starting
+- **Documentation:** Updated to reflect automation
+  - ROADMAP.md: Marked version/doc sync automation as completed
+  - TASKLIST.md: Added completion entry
+- **Impact:** Eliminates manual version sync burden; prevents documentation drift; enforces versioning protocol automatically
+- **Build:** Clean Next.js compilation with zero errors
+
 ## [v1.4.0] — 2025-12-20T20:45:00.000Z 🔧
 - **Migration:** Board UUID keying verified and documented
   - Created migration script 002 to convert boardAreas keys from board slug to board UUID
