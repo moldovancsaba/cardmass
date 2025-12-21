@@ -1,5 +1,30 @@
 # RELEASE_NOTES
 
+## [v1.7.0] — 2025-12-21T13:36:32.549Z 📚
+- **Documentation Audit:** Comprehensive review and synchronization of all project documentation
+  - Audited 16 markdown files for version consistency, technical accuracy, and cross-references
+  - Identified critical inconsistencies in HANDBOOK.md (v1.0.0 vs v1.7.0) and USER_GUIDE.md (v1.2.0 vs v1.7.0)
+  - Overall documentation health: 8/10 before fixes, 10/10 after
+- **Sync Automation Enhancement:** Added HANDBOOK.md and USER_GUIDE.md to version automation
+  - Updated sync-version-timestamps.mjs DOC_FILES array (now tracks 11 files instead of 9)
+  - HANDBOOK.md now synced (declared "single source of truth" but was 6 versions behind)
+  - USER_GUIDE.md now synced (user-facing documentation was 5 versions behind)
+  - Ensures all canonical documentation stays synchronized moving forward
+- **ROADMAP.md Updates:** Marked completed tasks with proper status
+  - ✅ .nvmrc task marked as completed (2025-12-21T08:55:00.000Z)
+  - Updated task notes with completion details and references
+- **HANDBOOK.md Updates:** Synchronized roadmap table with actual project state
+  - Changed table header from "Target" to "Status" column
+  - Marked 3 completed tasks: doc automation (✅ 2025-12-21), board UUID (✅ 2025-12-20), .nvmrc (✅ 2025-12-21)
+  - Updated pending tasks with status icons (⏳ PENDING, ⏳ ONGOING, 🚫 DEFERRED)
+  - Fixed outdated .nvmrc reference: "pending task" → "Node 20.18.1 LTS in place"
+- **Documentation Consistency Achieved:** All 11 tracked files now at v1.7.0 with unified timestamps
+  - Core docs (9): README, ARCHITECTURE, ROADMAP, TASKLIST, LEARNINGS, RELEASE_NOTES, WARP, TECH_STACK, NAMING_GUIDE
+  - Canonical docs (2): HANDBOOK, USER_GUIDE
+  - All timestamps: 2025-12-21T13:36:32.549Z (ISO 8601 with milliseconds, UTC)
+- **Impact:** Documentation now accurately reflects project state; prevents future drift; canonical sources properly maintained
+- **Build:** Clean Next.js compilation with zero errors (same warnings as v1.6.0)
+
 ## [v1.6.0] — 2025-12-21T08:55:00.000Z ✅
 - **Task Completion:** Two P2 tasks completed from TASKLIST.md
 - **Environment:** Added .nvmrc with Node 20.18.1 (LTS)

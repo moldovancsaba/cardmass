@@ -1,7 +1,7 @@
 # TECH_STACK
 
-Version: 1.6.0
-Updated: 2025-12-21T08:57:34.301Z
+Version: 1.7.0
+Updated: 2025-12-21T13:36:32.549Z
 
 1. Overview
 - This document defines the official technology stack and versions for the cardmass project.

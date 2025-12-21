@@ -87,6 +87,8 @@ const DOC_FILES = [
   'WARP.md',
   'TECH_STACK.md',
   'NAMING_GUIDE.md',
+  'HANDBOOK.md',
+  'USER_GUIDE.md',
 ]
 
 /**

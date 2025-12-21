@@ -1,7 +1,7 @@
 # CardMass User Guide
 
-**Version**: 1.2.0  
-**Updated**: 2025-01-15T10:30:00.000Z
+**Version**: 1.7.0  
+**Updated**: 2025-12-21T13:36:32.549Z
 
 > For overarching product + development context, begin with `HANDBOOK.md`. This guide focuses on end-user workflows.
 
