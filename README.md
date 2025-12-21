@@ -1,10 +1,10 @@
 # cardmass
 
 
-Version: 1.16.0
-Updated: 2025-12-21T21:31:11.890Z
+Version: 1.16.1
+Updated: 2025-12-21T21:37:07.691Z
 
-![version](https://img.shields.io/badge/version-1.16.0-green?style=flat-square)
+![version](https://img.shields.io/badge/version-1.16.1-green?style=flat-square)
 
 Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
