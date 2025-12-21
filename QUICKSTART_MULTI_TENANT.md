@@ -33,7 +33,7 @@ npm run dev
 
 ### Step 3: Test Super-Admin Flow
 
-1. Visit **http://localhost:4000**
+1. Visit **http://localhost:6000**
 2. You'll be redirected to `/admin/login`
 3. Login with: `admin@cardmass.com` / `admin123`
 4. You'll land on `/admin/dashboard`
@@ -62,7 +62,7 @@ Enter:
 
 ```bash
 # Replace YOUR_ORG_UUID and USER_ID
-curl -X POST http://localhost:4000/api/v1/organizations/YOUR_ORG_UUID/users \
+curl -X POST http://localhost:6000/api/v1/organizations/YOUR_ORG_UUID/users \
   -H "Content-Type: application/json" \
   -b "admin_session=YOUR_SESSION_COOKIE" \
   -d '{
@@ -153,24 +153,24 @@ node scripts/debug-users.mjs
 
 ### Check Organizations
 ```bash
-curl http://localhost:4000/api/v1/organizations | jq
+curl http://localhost:6000/api/v1/organizations | jq
 ```
 
 ### Check Who Has Access to an Org
 ```bash
-curl http://localhost:4000/api/v1/organizations/YOUR_ORG_UUID/users \
+curl http://localhost:6000/api/v1/organizations/YOUR_ORG_UUID/users \
   -b "admin_session=YOUR_TOKEN" | jq
 ```
 
 ### Check Your Session
 ```bash
-curl http://localhost:4000/api/auth/check \
+curl http://localhost:6000/api/auth/check \
   -b "admin_session=YOUR_TOKEN" | jq
 ```
 
 ### Check Your Organizations
 ```bash
-curl http://localhost:4000/api/auth/organizations \
+curl http://localhost:6000/api/auth/organizations \
   -b "admin_session=YOUR_TOKEN" | jq
 ```
 

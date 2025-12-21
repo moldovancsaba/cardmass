@@ -1,7 +1,7 @@
 # TECH_STACK
 
-Version: 1.7.0
-Updated: 2025-12-21T13:36:32.549Z
+Version: 1.8.0
+Updated: 2025-12-21T18:31:24.915Z
 
 1. Overview
 - This document defines the official technology stack and versions for the cardmass project.
@@ -22,9 +22,10 @@ Updated: 2025-12-21T13:36:32.549Z
 
 4. Module System and Bundling
 - Module System: ES Modules (Next.js default)
-- Dev Server: next dev (port 4000)
+- Dev Server: next dev (port 6000)
 - Build: next build
-- Start: next start (port 4000)
+- Start: next start (port 6000)
+- Port Range Preference: 6000-6300
 
 5. Package Manager
 - npm (default)

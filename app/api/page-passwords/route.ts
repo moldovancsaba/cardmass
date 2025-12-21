@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const host =
       request.headers.get('x-forwarded-host') ||
       request.headers.get('host') ||
-      'localhost:4000'
+      'localhost:6000'
     const baseUrl = `${protocol}://${host}`
 
     const organizationUUID = String(body?.organizationUUID || '').trim()

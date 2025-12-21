@@ -1,12 +1,12 @@
 {
   "name": "cardmass",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "private": true,
   "scripts": {
-    "dev": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 4000",
-    "dev:turbo": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev --turbopack -p 4000",
+    "dev": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 6000",
+    "dev:turbo": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev --turbopack -p 6000",
     "build": "NEXT_CACHE_DIR=/tmp/cardmass-next-cache next build",
-    "start": "next start -p 4000",
+    "start": "next start -p 6000",
     "lint": "eslint .",
     "db:purge": "node scripts/purge-db.mjs",
     "version:check": "node scripts/sync-version-timestamps.mjs --check",
@@ -17,11 +17,12 @@
     "hooks:install": "bash scripts/install-hooks.sh"
   },
   "dependencies": {
+    "dotenv": "^16",
+    "jose": "^5.10.0",
+    "mongodb": "^6",
     "next": "15.5.9",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "dotenv": "^16",
-    "mongodb": "^6"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

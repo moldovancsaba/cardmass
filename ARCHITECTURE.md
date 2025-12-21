@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: 1.7.0
-Updated: 2025-12-21T13:36:32.549Z
+Version: 1.8.0
+Updated: 2025-12-21T18:31:24.915Z
 
 > Reference: `HANDBOOK.md` is the canonical source; this file provides deep-dive appendices for architecture topics.
 
@@ -432,7 +432,7 @@ c) Error responses
 
 Admin login:
 ```bash
-curl -X POST http://localhost:4000/api/auth/login \
+curl -X POST http://localhost:6000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@doneisbetter.com","password":"753f54954c5b09718890ef5f5d16fe4a"}' \
   -c cookies.txt
@@ -440,12 +440,12 @@ curl -X POST http://localhost:4000/api/auth/login \
 
 Auth check:
 ```bash
-curl http://localhost:4000/api/auth/check -b cookies.txt
+curl http://localhost:6000/api/auth/check -b cookies.txt
 ```
 
 Generate page password (admin):
 ```bash
-curl -X POST http://localhost:4000/api/page-passwords \
+curl -X POST http://localhost:6000/api/page-passwords \
   -H "Content-Type: application/json" \
   -b cookies.txt \
   -d '{"pageId":"<boardUUID>","pageType":"tagger","organizationUUID":"<orgUUID>"}'
@@ -453,7 +453,7 @@ curl -X POST http://localhost:4000/api/page-passwords \
 
 Fetch board with password:
 ```bash
-curl http://localhost:4000/api/v1/organizations/<orgUUID>/boards/<boardUUID>?scope=tagger \
+curl http://localhost:6000/api/v1/organizations/<orgUUID>/boards/<boardUUID>?scope=tagger \
   -H "X-Organization-UUID: <orgUUID>" \
   -H "X-Page-Id: <boardUUID>" \
   -H "X-Page-Type: tagger" \
