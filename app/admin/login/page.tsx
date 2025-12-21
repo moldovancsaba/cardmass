@@ -9,6 +9,7 @@
 
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@/components/Button';
 
 function LoginForm() {
   const router = useRouter();
@@ -51,13 +52,9 @@ function LoginForm() {
 
           {/* SSO Login (Only) */}
           <div className="mb-6">
-            <button
-              type="button"
-              onClick={handleSSOLogin}
-              className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-sm"
-            >
+            <Button onClick={handleSSOLogin} fullWidth>
               Sign in with SSO
-            </button>
+            </Button>
             <p className="text-xs text-gray-500 text-center mt-2">
               Single Sign-On for all DoneIsBetter apps
             </p>

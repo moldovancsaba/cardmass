@@ -1,5 +1,22 @@
 # RELEASE_NOTES
 
+## [v1.18.0] — 2025-12-21T22:13:35.068Z 🎨
+- **DESIGN SYSTEM:** Established centralized design system to eliminate hardcoded styles
+  - Created Button component (src/components/Button.tsx) with 5 variants and 3 sizes
+  - Created DESIGN_SYSTEM.md documentation with philosophy, guidelines, and anti-patterns
+  - Variants: primary (blue gradient), secondary (gray), danger (red), ghost, outline
+  - Sizes: sm, md (default), lg
+  - Supports both button and link rendering (as="button" or as="link")
+- **Philosophy:** NO hardcoded styles, ALL styles in centralized components, REUSE everything
+- **Fixed:** SSO login button text color (was blue, now correctly white via Button component)
+- **Refactored:**
+  - app/page.tsx - Replaced hardcoded Link with Button component
+  - app/admin/login/page.tsx - Replaced hardcoded button with Button component
+- **Documentation:** Comprehensive design system guide with colors, typography, spacing, forms, layout
+- **Impact:** Foundation for maintainable, consistent UI; eliminates style duplication
+- **Migration Plan:** Phase 2-4 defined to gradually replace all hardcoded buttons across codebase
+- **Build:** Clean Next.js compilation with zero errors
+
 ## [v1.17.1] — 2025-12-21T22:04:14.780Z 🔧
 - **SSO Error Handling:** Fixed authentication error redirects and user feedback
   - Changed all SSO callback error redirects from /login → / (home page)

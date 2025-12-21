@@ -1,8 +1,8 @@
 'use client'
 
 import SpockNav from "@/components/SpockNav";
-import Link from 'next/link'
 import OrgHome from '@/components/OrgHome'
+import { Button } from '@/components/Button'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
@@ -38,12 +38,9 @@ function HomePageContent() {
 
         {/* Primary SSO login CTA */}
         <div className="mb-8">
-          <Link
-            href="/api/auth/sso/login?return_to=/organizations"
-            className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-3 text-white font-medium shadow-sm hover:from-blue-700 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-          >
+          <Button as="link" href="/api/auth/sso/login?return_to=/organizations">
             Sign in with SSO
-          </Link>
+          </Button>
           <p className="mt-2 text-xs text-gray-500">Single Sign-On for all DoneIsBetter apps</p>
         </div>
 
