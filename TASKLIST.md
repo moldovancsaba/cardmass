@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 1.8.0
+Version: 1.9.0
 
-Updated: 2025-12-21T18:31:24.915Z
+Updated: 2025-12-21T18:40:49.970Z
 
 > Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
 
@@ -70,20 +70,20 @@ Updated: 2025-12-21T18:31:24.915Z
 
 > Full implementation plan in ROADMAP.md → "Q1 2026 — SSO Integration (DoneIsBetter Authentication)"
 
-- P0 — ⏳ PLANNED SSO Phase 1.1: Register OAuth Client
+- P0 — ✅ COMPLETED SSO Phase 1.1: Register OAuth Client
   - Owner: csaba + ai
-  - Expected: 2026-01-15T18:00:00.000Z
-  - Notes: Create CardMass OAuth client in SSO admin UI; obtain client_id + client_secret; configure redirect URIs
+  - Completed: 2025-12-21T18:39:00.000Z
+  - Notes: Registered CardMass OAuth client in SSO admin UI; obtained client_id (da8ad396-5bb2-41ea-8404-3c4203cd8c0d) + client_secret; configured redirect URIs (https://cardmass.doneisbetter.com/auth/callback, https://cardmass.doneisbetter.com/api/auth/callback)
 
-- P0 — ⏳ PLANNED SSO Phase 1.2: Configure Environment Variables
+- P0 — ✅ COMPLETED SSO Phase 1.2: Configure Environment Variables
   - Owner: csaba + ai
-  - Expected: 2026-01-15T18:00:00.000Z
-  - Notes: Add SSO_BASE_URL, SSO_CLIENT_ID, SSO_CLIENT_SECRET to .env.local and Vercel; keep legacy MONGODB_URI during migration
+  - Completed: 2025-12-21T18:40:00.000Z
+  - Notes: Added SSO_BASE_URL, SSO_CLIENT_ID, SSO_CLIENT_SECRET, SSO_REDIRECT_URI to .env.local; kept legacy MONGODB_URI for parallel auth during migration
 
-- P0 — ⏳ PLANNED SSO Phase 1.3: Install SSO Libraries
+- P0 — ✅ COMPLETED SSO Phase 1.3: Install SSO Libraries
   - Owner: ai
-  - Expected: 2026-01-15T18:00:00.000Z
-  - Notes: Install jose (JWT verification) and optionally openid-client; update TECH_STACK.md
+  - Completed: 2025-12-21T18:20:00.000Z
+  - Notes: Installed jose@5.10.0 (JWT verification for RS256); updated TECH_STACK.md with dependency documentation
 
 - P0 — ⏳ PLANNED SSO Phase 2.1: Create SSO Helper Library
   - Owner: ai

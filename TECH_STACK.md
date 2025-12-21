@@ -1,7 +1,7 @@
 # TECH_STACK
 
-Version: 1.8.0
-Updated: 2025-12-21T18:31:24.915Z
+Version: 1.9.0
+Updated: 2025-12-21T18:40:49.970Z
 
 1. Overview
 - This document defines the official technology stack and versions for the cardmass project.
@@ -19,6 +19,7 @@ Updated: 2025-12-21T18:31:24.915Z
 - ESLint: ^9 (eslint-config-next: 15.5.3)
 - MongoDB Driver (Node.js): ^6
 - dotenv: ^16
+- jose: ^5.10.0 (JWT verification for SSO RS256 tokens)
 
 4. Module System and Bundling
 - Module System: ES Modules (Next.js default)
@@ -34,6 +35,10 @@ Updated: 2025-12-21T18:31:24.915Z
 - MONGODB_URI — MongoDB connection string
 - MONGODB_DBNAME — Optional explicit DB name
 - NEXT_PUBLIC_BASE_URL — Optional, used for server-side fetch to self
+- SSO_BASE_URL — SSO service base URL (https://sso.doneisbetter.com)
+- SSO_CLIENT_ID — OAuth2 client ID (UUID)
+- SSO_CLIENT_SECRET — OAuth2 client secret (UUID)
+- SSO_REDIRECT_URI — OAuth2 redirect URI for local dev
 
 7. Conventions and Compliance
 - Timestamps must be ISO 8601 with milliseconds in UTC across code and docs.
