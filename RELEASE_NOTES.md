@@ -1,5 +1,17 @@
 # RELEASE_NOTES
 
+## [v1.17.1] — 2025-12-21T22:04:14.780Z 🔧
+- **SSO Error Handling:** Fixed authentication error redirects and user feedback
+  - Changed all SSO callback error redirects from /login → / (home page)
+  - Added error message display on home page for failed auth attempts
+  - Error messages: auth_failed, oauth_denied, invalid_callback, invalid_state, missing_verifier, no_access
+  - Made home page client-side to support URL parameter handling with Suspense
+- **User Experience:** Clear error messages displayed to users when SSO authentication fails
+- **Note:** OAuth "invalid_redirect_uri" error requires registering redirect URIs in SSO app settings:
+  - Local: http://localhost:6000/api/auth/callback, http://localhost:6000/api/auth/sso/callback
+  - Production: https://cardmass.doneisbetter.com/api/auth/callback, https://cardmass.doneisbetter.com/api/auth/sso/callback
+- **Build:** Clean Next.js compilation with zero errors
+
 ## [v1.17.0] — 2025-12-21T21:40:45.921Z 🧹
 - **MAJOR CLEANUP:** Comprehensive deprecation audit and code hygiene overhaul
   - Removed entire src/app/ directory (112KB) - deprecated App Router v1 structure
