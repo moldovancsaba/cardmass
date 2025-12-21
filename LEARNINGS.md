@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 1.4.0
+Version: 1.5.0
 
-Updated: 2025-12-20T20:45:00.000Z
+Updated: 2025-12-21T00:31:56.039Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -142,3 +142,12 @@ Updated: 2025-12-20T20:45:00.000Z
   Solution: Created migration script 002 (idempotent, dry-run mode); updated types.ts and ARCHITECTURE.md to clarify UUID requirement; marked ROADMAP task as completed
   Pattern: When investigating "migration needed" tasks, verify current state in code first - documentation may lag behind implementation
   Impact: Zero data migration needed; documentation now accurately reflects UUID-first architecture; migration script available for future use if legacy data appears
+
+- Version/Timestamp Automation System (2025-12-21T00:31:56.039Z): Implemented comprehensive automation to prevent documentation drift
+  Why: Board UUID migration revealed documentation lag (docs stated slug-based, code was UUID-first); needed to prevent future drift
+  Problem: Manual version syncing across 9 documentation files was error-prone and time-consuming; versioning protocol required PATCH before dev, MINOR before commit
+  Solution: Created sync-version-timestamps.mjs with automatic version bumping (--patch/--minor/--major), pre-commit hook, and npm scripts
+  Features: (1) Updates version in package.json + 9 docs (2) Updates ISO 8601 timestamps (3) Creates RELEASE_NOTES entries (4) Validation mode for CI (5) npm run dev auto-bumps PATCH (6) pre-commit hook auto-bumps MINOR
+  Pattern: Automation enforces governance rules that humans forget; pre-commit hooks are better than documentation reminders
+  Implementation: Used regex patterns for "Version: X.Y.Z" and "Updated: ISO timestamp" lines; special case for README badge; idempotent (safe to re-run)
+  Impact: Zero manual version sync needed; documentation always current; versioning protocol enforced automatically; prevents drift that caused Board UUID confusion

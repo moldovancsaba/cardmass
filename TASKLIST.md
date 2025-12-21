@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 1.4.0
+Version: 1.5.0
 
-Updated: 2025-12-20T20:45:00.000Z
+Updated: 2025-12-21T00:31:56.039Z
 
 > Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
 
@@ -48,6 +48,11 @@ Updated: 2025-12-20T20:45:00.000Z
   - Owner: ai
   - Completed: 2025-12-20T20:45:00.000Z
   - Notes: Created migration script 002; verified all 23 active cards already use UUID keys; documented UUID-first architecture
+
+- P0 — ✅ COMPLETED Automate version/timestamp/doc synchronization
+  - Owner: ai
+  - Completed: 2025-12-21T00:31:56.039Z
+  - Notes: Created sync-version-timestamps.mjs, pre-commit hook, install script, and npm scripts; enforces versioning protocol automatically
 
 - P1 — ⏳ PENDING Manual QA against acceptance criteria
   - Owner: csaba
