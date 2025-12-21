@@ -1,7 +1,7 @@
 # NAMING_GUIDE
 
-Version: 1.10.0
-Updated: 2025-12-21T18:48:13.758Z
+Version: 1.11.0
+Updated: 2025-12-21T18:54:08.396Z
 
 1. Purpose
 - Establish clear, consistent naming across components, files, types, functions, and routes.
