@@ -66,3 +66,67 @@ Updated: 2025-12-21T13:36:32.549Z
   - Deferred: 2025-10-04T18:01:54.000Z
   - Notes: User decision to postpone masonry implementation indefinitely
 
+## SSO Integration (Q1 2026)
+
+> Full implementation plan in ROADMAP.md → "Q1 2026 — SSO Integration (DoneIsBetter Authentication)"
+
+- P0 — ⏳ PLANNED SSO Phase 1.1: Register OAuth Client
+  - Owner: csaba + ai
+  - Expected: 2026-01-15T18:00:00.000Z
+  - Notes: Create CardMass OAuth client in SSO admin UI; obtain client_id + client_secret; configure redirect URIs
+
+- P0 — ⏳ PLANNED SSO Phase 1.2: Configure Environment Variables
+  - Owner: csaba + ai
+  - Expected: 2026-01-15T18:00:00.000Z
+  - Notes: Add SSO_BASE_URL, SSO_CLIENT_ID, SSO_CLIENT_SECRET to .env.local and Vercel; keep legacy MONGODB_URI during migration
+
+- P0 — ⏳ PLANNED SSO Phase 1.3: Install SSO Libraries
+  - Owner: ai
+  - Expected: 2026-01-15T18:00:00.000Z
+  - Notes: Install jose (JWT verification) and optionally openid-client; update TECH_STACK.md
+
+- P0 — ⏳ PLANNED SSO Phase 2.1: Create SSO Helper Library
+  - Owner: ai
+  - Expected: 2026-01-22T18:00:00.000Z
+  - Notes: src/lib/sso/client.ts with PKCE generation, OAuth flow, token management, JWT parsing
+
+- P0 — ⏳ PLANNED SSO Phase 2.2: Create SSO Permission Library
+  - Owner: ai
+  - Expected: 2026-01-22T18:00:00.000Z
+  - Notes: src/lib/sso/permissions.ts with app permission queries, access requests, role checks, sync logic
+
+- P0 — ⏳ PLANNED SSO Phase 2.3: Implement OAuth2 API Routes
+  - Owner: ai
+  - Expected: 2026-01-29T18:00:00.000Z
+  - Notes: Create /api/auth/sso/login, /api/auth/sso/callback, /api/auth/sso/logout routes with full OAuth flow + permission checks
+
+- P0 — ⏳ PLANNED SSO Phase 2.4: Create Session Management
+  - Owner: ai
+  - Expected: 2026-01-29T18:00:00.000Z
+  - Notes: src/lib/sso/session.ts with MongoDB sessions collection; store tokens + app permissions
+
+- P0 — ⏳ PLANNED SSO Phase 2.5: Create SSO UI Components
+  - Owner: ai
+  - Expected: 2026-02-05T18:00:00.000Z
+  - Notes: SSOLoginButton, /access-pending page, /access-revoked page
+
+- P0 — ⏳ PLANNED SSO Phase 3: Implement Dual Auth Mode
+  - Owner: ai
+  - Expected: 2026-02-12T18:00:00.000Z
+  - Notes: Support both legacy and SSO auth simultaneously; fallback logic; migration UI at /settings/account
+
+- P0 — ⏳ PLANNED SSO Phase 4: Role Mapping & Authorization Updates
+  - Owner: ai
+  - Expected: 2026-02-19T18:00:00.000Z
+  - Notes: Map legacy roles to SSO roles; update all auth checks; implement permission sync background job
+
+- P0 — ⏳ PLANNED SSO Phase 5: Testing & Rollout
+  - Owner: csaba + ai
+  - Expected: 2026-02-26T18:00:00.000Z
+  - Notes: Complete testing checklist; internal testing; beta rollout; gradual migration of legacy users
+
+- P0 — ⏳ PLANNED SSO Phase 6: Documentation & Cleanup
+  - Owner: ai
+  - Expected: 2026-02-28T18:00:00.000Z
+  - Notes: Update all docs (AUTHENTICATION_AND_ACCESS.md, WARP.md, USER_GUIDE.md, etc.); create SSO_MIGRATION_GUIDE.md
+
