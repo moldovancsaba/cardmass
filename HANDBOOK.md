@@ -1,7 +1,7 @@
 # CardMass Handbook
 
-**Version:** 1.0.0  
-**Updated:** 2025-11-17T12:00:00.000Z
+**Version:** 1.7.0  
+**Updated:** 2025-12-21T13:36:32.549Z
 
 > This handbook is the single source of truth for both the product direction and the development workflow. All feature discussions, architectural changes, and delivery plans should start here. Supporting documents (README, ARCHITECTURE, ROADMAP, etc.) now act as appendices linked throughout this file.
 
@@ -36,7 +36,7 @@ See `USER_GUIDE.md` for end-user walkthrough details.
 ## 2. Architecture & Stack
 
 - **Framework:** Next.js 15 (App Router) with React 19, TypeScript 5, Tailwind CSS v4.
-- **Runtime:** Node.js ≥ 20 (ESM). Add `.nvmrc` pointing at Node 20 LTS (pending task).
+- **Runtime:** Node.js ≥ 20 (ESM). `.nvmrc` with Node 20.18.1 LTS in place.
 - **Data:** MongoDB with UUID-first collections for organizations, boards, cards, pagePasswords, users.
 - **Routing:** Hashed board URL pattern `/{organizationUUID}/{boardUUID}`; slugs metadata only.
 - **Server/Client Pattern:** “Server authenticates, client fetches.” Page server components do only auth + param validation, passing IDs into client components that handle data fetching/loading/error states (`docs/SERVER_CLIENT_PATTERNS.md`).
@@ -71,14 +71,14 @@ See `AUTHENTICATION_AND_ACCESS.md` for deep dive and troubleshooting.
 
 ## 5. Roadmap & Active Workstreams
 
-| Item | Priority | Target | Notes |
-| --- | --- | --- | --- |
-| Automate doc version/timestamp sync | P0 | 2025-10-15T18:00:00Z | Script + hook to enforce governance. |
-| Board placements keyed by boardUUID | P0 | 2025-10-15T12:00:00Z | Migration + UI update; removes slug dependency. |
-| Add `.nvmrc` (Node 20) | P1 | 2025-10-10T16:00:00Z | Keeps local/dev parity. |
-| Manual QA of zero-trust access | P1 | 2025-10-07T18:00:00Z | Validate admin bypass, password gate, API enforcement. |
-| Maintain WARP.md | P2 | 2025-10-20T12:00:00Z | Keep workflows/scripts current. |
-| CSS Masonry for Tagger | P3 (Deferred) | — | Feature-flagged idea, currently parked. |
+|| Item | Priority | Status | Notes |
+|| --- | --- | --- | --- |
+|| Automate doc version/timestamp sync | P0 | ✅ COMPLETED (2025-12-21) | Script + hook enforcing governance. |
+|| Board placements keyed by boardUUID | P0 | ✅ COMPLETED (2025-12-20) | All cards use UUID keys; migration script created. |
+|| Add `.nvmrc` (Node 20) | P1 | ✅ COMPLETED (2025-12-21) | Node 20.18.1 LTS in .nvmrc; TECH_STACK.md updated. |
+|| Manual QA of zero-trust access | P1 | ⏳ PENDING | Validate admin bypass, password gate, API enforcement. |
+|| Maintain WARP.md | P2 | ⏳ ONGOING | Keep workflows/scripts current. |
+|| CSS Masonry for Tagger | P3 | 🚫 DEFERRED | Feature-flagged idea, currently parked. |
 
 **Process:** When adding or changing items, update this table first, then sync `ROADMAP.md`/`TASKLIST.md`.
 

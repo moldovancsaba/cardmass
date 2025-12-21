@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 1.6.0
+Version: 1.7.0
 
-Updated: 2025-12-21T08:57:34.301Z
+Updated: 2025-12-21T13:36:32.549Z
 
 > Source: consult `HANDBOOK.md` §5 for the authoritative roadmap summary. This file expands each milestone.
 
@@ -33,10 +33,11 @@ Updated: 2025-12-21T08:57:34.301Z
   - Status: COMPLETED (2025-12-20T20:45:00.000Z)
   - Notes: Verified via migration script 002. All 23 active cards already use UUID keys. TaggerApp has been using UUID-based keys since implementation. Migration script created and validated. Documentation updated to reflect UUID-first architecture.
 
-- Add .nvmrc (Node 20) and reflect in TECH_STACK.md
+- ✅ Add .nvmrc (Node 20) and reflect in TECH_STACK.md
   - Owner: csaba
   - Priority: P1
-  - Expected: 2025-10-10T16:00:00.000Z
+  - Status: COMPLETED (2025-12-21T08:55:00.000Z)
+  - Notes: Created .nvmrc with Node 20.18.1 (LTS); updated TECH_STACK.md with Next.js 15.5.9 and .nvmrc reference
 
 - Maintain and refresh WARP.md based on evolving workflows and scripts
   - Owner: ai
