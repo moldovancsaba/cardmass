@@ -115,7 +115,7 @@ node scripts/create-admin-quick.mjs
 
 Then grant org access via API:
 ```bash
-curl -X POST http://localhost:6000/api/v1/organizations/{orgUUID}/users \
+curl -X POST http://localhost:3000/api/v1/organizations/{orgUUID}/users \
   -H "Content-Type: application/json" \
   -b "admin_session=YOUR_TOKEN" \
   -d '{
@@ -153,7 +153,7 @@ Same as org admin but use `role: "member"` in organizationAccess.
 
 ### Flow 1: Super-Admin
 
-1. Visit `http://localhost:6000`
+1. Visit `http://localhost:3000`
 2. Redirects to `/admin/login`
 3. Login with super-admin credentials
 4. Redirects to `/admin/dashboard`
@@ -163,7 +163,7 @@ Same as org admin but use `role: "member"` in organizationAccess.
 
 ### Flow 2: Organization Admin
 
-1. Visit `http://localhost:6000`
+1. Visit `http://localhost:3000`
 2. Login
 3. Redirects to `/organizations`
 4. See only assigned organizations

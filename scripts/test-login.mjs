@@ -12,7 +12,7 @@
  *   node scripts/test-login.mjs admin@doneisbetter.com 753f54954c5b09718890ef5f5d16fe4a
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:6000'
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
 async function testLogin(email, password) {
   console.log('🔐 Testing admin login...\n')

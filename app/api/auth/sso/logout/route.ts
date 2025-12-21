@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     const baseUrl =
       request.headers.get('x-forwarded-host') ||
       request.headers.get('host') ||
-      'localhost:6000';
+      'localhost:3000';
     const protocol = request.headers.get('x-forwarded-proto') || 'http';
     const postLogoutRedirectUri = `${protocol}://${baseUrl}/login`;
 

@@ -132,7 +132,7 @@ Prompts for:
 
 **Via API** (admin-only):
 ```bash
-curl -X POST http://localhost:6000/api/page-passwords \
+curl -X POST http://localhost:3000/api/page-passwords \
   -H "Content-Type: application/json" \
   -b "admin_session=<token>" \
   -d '{

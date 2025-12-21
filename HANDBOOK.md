@@ -62,7 +62,7 @@ See `AUTHENTICATION_AND_ACCESS.md` for deep dive and troubleshooting.
 
 1. **Plan:** Log intents in `WARP.DEV_AI_CONVERSATION.md` with ISO timestamps.
 2. **Docs First:** Update this Handbook with any new product or architecture decisions. Secondary docs (README, etc.) reference sections here.
-3. **Build:** `npm install`, `npm run dev` (port 6000), `npm run build` before any commit/PR.
+3. **Build:** `npm install`, `npm run dev` (port 3000), `npm run build` before any commit/PR.
 4. **Scripts:** Admin helpers under `scripts/`; refer to `WARP.md` for one-line descriptions and flags.
 5. **Testing:** Manual only. Follow acceptance criteria per ROADMAP/TASKLIST entries.
 6. **Delivery:** Update `RELEASE_NOTES.md` upon completing tasks; keep `ROADMAP.md` and `TASKLIST.md` forward-looking but summarized below.
