@@ -1,7 +1,7 @@
 # WARP.md
 
-Version: 1.9.0
-Updated: 2025-12-21T18:40:49.970Z
+Version: 1.10.0
+Updated: 2025-12-21T18:48:13.758Z
 
 > Reference: `HANDBOOK.md` describes the unified workflow. This file details day-to-day commands and scripts.
 

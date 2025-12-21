@@ -1,8 +1,8 @@
 # TASKLIST
 
-Version: 1.9.0
+Version: 1.10.0
 
-Updated: 2025-12-21T18:40:49.970Z
+Updated: 2025-12-21T18:48:13.758Z
 
 > Source: `HANDBOOK.md` §5 lists the canonical active workstreams; this file tracks granular tasks.
 
@@ -85,25 +85,25 @@ Updated: 2025-12-21T18:40:49.970Z
   - Completed: 2025-12-21T18:20:00.000Z
   - Notes: Installed jose@5.10.0 (JWT verification for RS256); updated TECH_STACK.md with dependency documentation
 
-- P0 — ⏳ PLANNED SSO Phase 2.1: Create SSO Helper Library
+- P0 — ✅ COMPLETED SSO Phase 2.1: Create SSO Helper Library
   - Owner: ai
-  - Expected: 2026-01-22T18:00:00.000Z
-  - Notes: src/lib/sso/client.ts with PKCE generation, OAuth flow, token management, JWT parsing
+  - Completed: 2025-12-21T18:45:00.000Z
+  - Notes: Implemented src/lib/sso/client.ts with PKCE generation, OAuth2 flow (authorize URL, token exchange, refresh, revoke), JWT parsing/verification (RS256 via jose), state management (CSRF + return URL), open redirect protection
 
-- P0 — ⏳ PLANNED SSO Phase 2.2: Create SSO Permission Library
+- P0 — ✅ COMPLETED SSO Phase 2.2: Create SSO Permission Library
   - Owner: ai
-  - Expected: 2026-01-22T18:00:00.000Z
-  - Notes: src/lib/sso/permissions.ts with app permission queries, access requests, role checks, sync logic
+  - Completed: 2025-12-21T18:50:00.000Z
+  - Notes: Implemented src/lib/sso/permissions.ts with app permission queries (getAppPermission, requestAppAccess), role checks (hasAppAccess, isAppAdmin, isAppSuperAdmin, isPending, isRevoked), permission sync logic with staleness detection
 
-- P0 — ⏳ PLANNED SSO Phase 2.3: Implement OAuth2 API Routes
+- P0 — ✅ COMPLETED SSO Phase 2.3: Implement OAuth2 API Routes
   - Owner: ai
-  - Expected: 2026-01-29T18:00:00.000Z
-  - Notes: Create /api/auth/sso/login, /api/auth/sso/callback, /api/auth/sso/logout routes with full OAuth flow + permission checks
+  - Completed: 2025-12-21T19:00:00.000Z
+  - Notes: Created /api/auth/sso/login (initiate OAuth with PKCE), /api/auth/sso/callback (code exchange, permission check, session creation), /api/auth/sso/logout (token revocation, session cleanup) with full error handling and security measures
 
-- P0 — ⏳ PLANNED SSO Phase 2.4: Create Session Management
+- P0 — ✅ COMPLETED SSO Phase 2.4: Create Session Management
   - Owner: ai
-  - Expected: 2026-01-29T18:00:00.000Z
-  - Notes: src/lib/sso/session.ts with MongoDB sessions collection; store tokens + app permissions
+  - Completed: 2025-12-21T18:55:00.000Z
+  - Notes: Implemented src/lib/sso/session.ts with MongoDB ssoSessions collection; session storage (tokens + user + permissions), refresh logic (50min interval), cleanup utilities, session validation
 
 - P0 — ⏳ PLANNED SSO Phase 2.5: Create SSO UI Components
   - Owner: ai
