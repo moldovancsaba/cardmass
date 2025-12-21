@@ -126,7 +126,7 @@ Record ownership changes here to avoid stale references elsewhere.
 ## 9. Appendix Links
 
 - End-user reference: `USER_GUIDE.md`
-- Technical deep dive: `ARCHITECTURE.md`, `AUTH_TESTING.md`, `TECH_STACK.md`
+- Technical deep dive: `ARCHITECTURE.md`, `TECH_STACK.md`
 - Operational scripts index: `WARP.md`
 - Historical context: `WARP.DEV_AI_CONVERSATION.md`, `RELEASE_NOTES.md`
 
