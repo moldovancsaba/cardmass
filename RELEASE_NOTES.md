@@ -1,5 +1,19 @@
 # RELEASE_NOTES
 
+## [v1.16.0] — 2025-12-21T21:31:11.890Z 🔐
+- **Critical Fix:** Removed legacy login that was blocking SSO visibility in production
+  - Deleted app/page.tsx (legacy universal login with email/password form)
+  - Deleted app/UniversalLoginPage.tsx (legacy login component)
+  - Root cause: Duplicate page.tsx files (app/ vs src/app/) - Next.js was serving legacy app/page.tsx
+  - Production site now displays ONLY SSO login button at https://cardmass.doneisbetter.com
+  - Landing page correctly shows "Sign in with SSO" CTA
+- **Authentication:** SSO is now the exclusive authentication method
+  - No email/password fields visible anywhere in the application
+  - All login flows redirect to OAuth2/OIDC SSO service
+  - Maintains backward compatibility with admin session cookies for existing sessions
+- **Impact:** Production users now see SSO-only login matching the implemented OAuth2 infrastructure
+- **Build:** Clean Next.js compilation with zero errors (same warnings as v1.15.0)
+
 ## [v1.15.0] — 2025-12-21T21:25:38.397Z
 - (update notes here)
 
