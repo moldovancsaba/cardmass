@@ -14,7 +14,7 @@ async function getBaseURL(): Promise<string> {
   const proto = h.get('x-forwarded-proto') ?? 'http'
   const host = h.get('x-forwarded-host') ?? h.get('host')
   if (host) return `${proto}://${host}`
-  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:4000'
+  return process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:6000'
 }
 
 async function fetchOrgBySlug(slug: string): Promise<{ uuid: string } | null> {

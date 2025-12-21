@@ -1,5 +1,8 @@
 # RELEASE_NOTES
 
+## [v1.8.0] — 2025-12-21T18:31:24.915Z
+- (update notes here)
+
 ## [v1.7.0] — 2025-12-21T13:36:32.549Z 📚
 - **Documentation Audit:** Comprehensive review and synchronization of all project documentation
   - Audited 16 markdown files for version consistency, technical accuracy, and cross-references

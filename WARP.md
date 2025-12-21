@@ -1,7 +1,7 @@
 # WARP.md
 
-Version: 1.7.0
-Updated: 2025-12-21T13:36:32.549Z
+Version: 1.8.0
+Updated: 2025-12-21T18:31:24.915Z
 
 > Reference: `HANDBOOK.md` describes the unified workflow. This file details day-to-day commands and scripts.
 
@@ -18,10 +18,10 @@ This file provides guidance to WARP (warp.dev) and AI assistants when working wi
 
 Common commands
 - Install: npm install
-- Dev (port 4000): npm run dev
+- Dev (port 6000): npm run dev
   - Alt: npm run dev:turbo (Turbopack)
 - Build: npm run build
-- Start (prod, port 4000): npm start
+- Start (prod, port 6000): npm start
 - Lint: npm run lint
 - Purge DB (danger — drops the database): npm run db:purge
 
