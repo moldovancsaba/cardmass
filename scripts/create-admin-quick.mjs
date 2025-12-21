@@ -126,7 +126,7 @@ async function main() {
     console.log(`   Name: ${name}`);
     console.log(`   Role: ${role}`);
     console.log(`   Password: <hashed with MD5>\n`);
-    console.log('💡 You can now login at http://localhost:6000/admin/login with:');
+    console.log('💡 You can now login at http://localhost:3000/admin/login with:');
     console.log(`   Email: ${email}`);
     console.log(`   Password: ${password}\n`);
 

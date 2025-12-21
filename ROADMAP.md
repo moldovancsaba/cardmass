@@ -1,8 +1,8 @@
 # ROADMAP
 
-Version: 1.18.0
+Version: 1.18.1
 
-Updated: 2025-12-21T22:13:35.068Z
+Updated: 2025-12-21T22:22:36.670Z
 
 > Source: consult `HANDBOOK.md` §5 for the authoritative roadmap summary. This file expands each milestone.
 
@@ -118,7 +118,7 @@ Migrate from custom MD5-based authentication to centralized SSO (Single Sign-On)
   Redirect URIs:
     - https://cardmass.com/api/auth/callback
     - https://cardmass.doneisbetter.com/api/auth/callback
-    - http://localhost:6000/api/auth/callback (dev)
+    - http://localhost:3000/api/auth/callback (dev)
   Allowed Scopes: openid profile email offline_access
   Homepage URL: https://cardmass.com
   ```
@@ -133,7 +133,7 @@ Migrate from custom MD5-based authentication to centralized SSO (Single Sign-On)
   SSO_BASE_URL=https://sso.doneisbetter.com
   SSO_CLIENT_ID=<uuid-from-step-1.1>
   SSO_CLIENT_SECRET=<uuid-from-step-1.1>
-  SSO_REDIRECT_URI=http://localhost:6000/api/auth/callback
+  SSO_REDIRECT_URI=http://localhost:3000/api/auth/callback
   
   # Legacy auth (keep during migration)
   MONGODB_URI=<existing>

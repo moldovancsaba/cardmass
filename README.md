@@ -1,10 +1,10 @@
 # cardmass
 
 
-Version: 1.18.0
-Updated: 2025-12-21T22:13:35.068Z
+Version: 1.18.1
+Updated: 2025-12-21T22:22:36.670Z
 
-![version](https://img.shields.io/badge/version-1.18.0-green?style=flat-square)
+![version](https://img.shields.io/badge/version-1.18.1-green?style=flat-square)
 
 Cardmass lets you classify a shared set of cards across multiple boards (pages). Each board defines areas (labeled territories) for a specific dimension like importance, difficulty, impact, cost, resourcing, etc. A card can have one placement per board, forming an N-dimensional position. Unplaced cards fall into the board's spock area (if present) — a virtual inbox that is never persisted.
 
@@ -30,7 +30,7 @@ Quickstart
    - .env.local must include MONGODB_URI and (optionally) MONGODB_DBNAME
    - Optional: NEXT_PUBLIC_BASE_URL (for server-side fetch to self)
 3) Run development server
-   - npm run dev (http://localhost:6000)
+   - npm run dev (http://localhost:3000)
 
 Admin Password Reset
 If you forget your super admin password, use the password reset script:

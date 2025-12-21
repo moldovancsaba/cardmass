@@ -1,5 +1,18 @@
 # RELEASE_NOTES
 
+## [v1.18.1] — 2025-12-21T22:22:36.670Z 🔧
+- **Port Change:** Changed development and production port from 6000 → 3000
+  - Reason: Port 6000 is reserved by macOS for X11 (Network Paging Protocol)
+  - Updated package.json scripts (dev, dev:turbo, start)
+  - Updated .env.local SSO_REDIRECT_URI: http://localhost:3000/api/auth/callback
+  - Updated all documentation references (*.md files)
+  - Updated test scripts and admin utilities
+- **SSO Configuration:** Update SSO app settings with new redirect URIs:
+  - Local: http://localhost:3000/api/auth/callback, http://localhost:3000/api/auth/sso/callback
+  - Production: https://cardmass.doneisbetter.com/api/auth/callback (unchanged)
+- **Impact:** Development server now runs on standard Next.js port 3000
+- **Action Required:** Re-register redirect URIs in SSO admin panel with port 3000
+
 ## [v1.18.0] — 2025-12-21T22:13:35.068Z 🎨
 - **DESIGN SYSTEM:** Established centralized design system to eliminate hardcoded styles
   - Created Button component (src/components/Button.tsx) with 5 variants and 3 sizes
@@ -25,7 +38,7 @@
   - Made home page client-side to support URL parameter handling with Suspense
 - **User Experience:** Clear error messages displayed to users when SSO authentication fails
 - **Note:** OAuth "invalid_redirect_uri" error requires registering redirect URIs in SSO app settings:
-  - Local: http://localhost:6000/api/auth/callback, http://localhost:6000/api/auth/sso/callback
+  - Local: http://localhost:3000/api/auth/callback, http://localhost:3000/api/auth/sso/callback
   - Production: https://cardmass.doneisbetter.com/api/auth/callback, https://cardmass.doneisbetter.com/api/auth/sso/callback
 - **Build:** Clean Next.js compilation with zero errors
 
