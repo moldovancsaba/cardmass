@@ -67,12 +67,13 @@ export async function getAuthenticatedUser(cookies: {
     
     if (legacyUser) {
       // WHAT: Map legacy role to unified role
-      // WHY: Legacy uses 'super-admin', unified uses 'superadmin'
-      let unifiedRole: AppRole = 'user';
-      if (legacyUser.role === 'super-admin') {
-        unifiedRole = 'superadmin';
-      } else if (legacyUser.role === 'admin') {
-        unifiedRole = 'admin';
+      // WHY: Legacy only has 'user' and 'super-admin'; map super-admin → superadmin, user → user
+      const unifiedRole: AppRole = legacyUser.role === 'super-admin' ? 'superadmin' : 'user';
+      
+      // WHAT: Ensure _id exists (required for user identification)
+      // WHY: MongoDB _id should always be present for validated users
+      if (!legacyUser._id) {
+        return null;
       }
       
       return {
