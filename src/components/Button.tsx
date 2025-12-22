@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 // WHAT: Button variant types
 // WHY: Define consistent button styles used across the app
-type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost' | 'outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface BaseButtonProps {
@@ -41,6 +41,8 @@ const variants: Record<ButtonVariant, string> = {
     'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-sm hover:from-blue-700 hover:to-cyan-700 focus:ring-blue-500',
   secondary:
     'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+  success:
+    'bg-green-700 text-white shadow-sm hover:bg-green-800 focus:ring-green-600',
   danger:
     'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   ghost:

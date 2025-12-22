@@ -74,7 +74,7 @@ function HomePageContent() {
 
           {/* Login CTA */}
           <div className="text-center">
-            <Button as="link" href="/api/auth/sso/login?return_to=/" fullWidth>
+            <Button as="link" href="/api/auth/sso/login?return_to=/" variant="success" fullWidth>
               Sign in with SSO
             </Button>
             <p className="mt-3 text-xs text-gray-500">Single Sign-On for all DoneIsBetter apps</p>
