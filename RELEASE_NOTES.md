@@ -1,5 +1,16 @@
 # RELEASE_NOTES
 
+## [v1.20.1] — 2025-12-22T20:40:39.055Z 🔍
+- **Enhanced Logging:** Added detailed console logging to SSO callback for debugging
+  - Logs user ID and email when querying permissions
+  - Logs complete permission object received from SSO
+  - Logs access status (has access / no access) with role info
+  - Logs each redirect decision (pending, revoked, no_access)
+  - Logs successful authentication with role
+- **Purpose:** Help diagnose "Authentication failed" issues
+- **Impact:** Easier to troubleshoot SSO permission problems by checking dev server logs
+- **Usage:** Watch terminal output when auth fails to see exact permission status
+
 ## [v1.20.0] — 2025-12-22T20:34:15.863Z 👑
 - **Admin Script:** Created script to grant SSO superadmin access to users
   - Script: scripts/grant-sso-superadmin.mjs
