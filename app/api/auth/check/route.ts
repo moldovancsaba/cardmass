@@ -1,25 +1,31 @@
 /**
  * GET /api/auth/check
- * WHAT: Verify admin session token from cookie
- * WHY: UI needs to know if user is authenticated
+ * WHAT: Verify session from BOTH legacy admin_session AND SSO sso_session cookies
+ * WHY: Support dual authentication during SSO migration
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { validateAdminToken } from '@/lib/auth';
+import { getAuthenticatedUser, hasAccess } from '@/lib/unified-auth';
 
 export async function GET(req: NextRequest) {
   try {
-    // WHAT: Extract session token from httpOnly cookie
-    const token = req.cookies.get('admin_session')?.value;
+    // WHAT: Extract both session cookies
+    // WHY: Support both legacy and SSO authentication
+    const adminSession = req.cookies.get('admin_session')?.value;
+    const ssoSession = req.cookies.get('sso_session')?.value;
     
-    if (!token) {
+    if (!adminSession && !ssoSession) {
       return NextResponse.json({ authenticated: false });
     }
     
-    // WHAT: Validate token and fetch user from database
-    const user = await validateAdminToken(token);
+    // WHAT: Check authentication from both systems
+    // WHY: Unified auth checks SSO first, then falls back to legacy
+    const user = await getAuthenticatedUser({
+      admin_session: adminSession,
+      sso_session: ssoSession,
+    });
     
-    if (!user) {
+    if (!user || !hasAccess(user)) {
       return NextResponse.json({ authenticated: false });
     }
     
@@ -27,11 +33,13 @@ export async function GET(req: NextRequest) {
       authenticated: true,
       user: {
         name: user.name,
+        email: user.email,
         role: user.role,
+        authSource: user.authSource,
       },
     });
   } catch (error) {
-    console.error('Auth check error:', error);
+    console.error('[Auth Check] Error:', error);
     return NextResponse.json({ authenticated: false });
   }
 }
