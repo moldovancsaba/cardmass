@@ -1,7 +1,7 @@
 # ARCHITECTURE
 
-Version: 1.22.0
-Updated: 2025-12-22T20:46:41.077Z
+Version: 1.22.1
+Updated: 2025-12-22T20:56:40.787Z
 
 > Reference: `HANDBOOK.md` is the canonical source; this file provides deep-dive appendices for architecture topics.
 
@@ -171,7 +171,7 @@ Fixed 3 pages that had NO authentication (anyone could access):
 10.1 Overview
 - Zero-trust model: every protected page requires authentication via EITHER admin session OR valid page password
 - Based on MessMass AUTHENTICATION_AND_ACCESS.md specification
-- Implemented: v1.22.0
+- Implemented: v1.22.1
 - Scope (initial): Tagger pages /{organizationUUID}/{boardUUID}/tagger
 
 10.2 Admin Session
@@ -298,7 +298,7 @@ c) DELETE /api/admin/users/[userId]
   - 403: Cannot delete last super-admin
   - 404: User not found
 
-11. Admin Dashboard (v1.22.0)
+11. Admin Dashboard (v1.22.1)
 
 11.1 Structure
 - Location: /admin/dashboard
@@ -564,7 +564,7 @@ API Route Handler
 - Version sync: package.json, all docs
 - Build verification: npm run build must pass before commit
 
-11. Organization Admin Panel (v1.22.0)
+11. Organization Admin Panel (v1.22.1)
 
 11.1 Overview
 - Location: /organization/admin?org={orgUUID}

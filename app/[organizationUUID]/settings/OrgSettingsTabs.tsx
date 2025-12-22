@@ -15,12 +15,11 @@ type TabId = 'org' | 'users' | 'boards'
 
 export default function OrgSettingsTabs({ 
   org, 
-  initialBoards,
-  userRole 
+  initialBoards
 }: { 
   org: Org; 
   initialBoards: BoardItem[];
-  userRole: 'super-admin' | 'org-admin' | 'member';
+  userRole?: 'super-admin' | 'org-admin' | 'member'; // Optional: for future role-based UI
 }) {
   const [activeTab, setActiveTab] = useState<TabId>('org')
 
@@ -299,6 +298,7 @@ function UsersTab({ orgUUID }: { orgUUID: string }) {
 
   useEffect(() => {
     loadUsers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orgUUID])
 
   async function handleRoleChange(userId: string, newRole: 'org-admin' | 'member') {

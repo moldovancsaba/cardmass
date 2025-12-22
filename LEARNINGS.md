@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 1.22.0
+Version: 1.22.1
 
-Updated: 2025-12-22T20:46:41.077Z
+Updated: 2025-12-22T20:56:40.787Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.
@@ -56,7 +56,7 @@ Updated: 2025-12-22T20:46:41.077Z
   Solution: Changed API response from `{ id: ... }` to `{ _id: ... }` and added `isSuperAdmin` boolean for clarity
   Impact: User removal, password regeneration, and role changes all work correctly; unified field naming across all user management endpoints.
 
-- Button styling fragmentation: Initial button standardization (v1.22.0) only covered admin panel tabs, missed 15+ other pages
+- Button styling fragmentation: Initial button standardization (v1.22.1) only covered admin panel tabs, missed 15+ other pages
   Why: Dashboard overview, organization pages, board management UI had inconsistent colors (indigo, purple, gray gradients) with poor contrast
   Pages affected: Dashboard quick actions, tabs, card links; Organization main page; Board list actions; Org settings; Organizations selector
   Solution: Comprehensive update to sky-600 (primary), gray-300 bordered (secondary), red-600 (destructive); added font-medium and white text throughout
