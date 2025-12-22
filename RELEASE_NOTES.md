@@ -1,5 +1,20 @@
 # RELEASE_NOTES
 
+## [v1.19.0] — 2025-12-22T09:23:58.253Z 🔍
+- **Debug Endpoint:** Added SSO diagnostic endpoint for troubleshooting authentication issues
+  - Created /api/auth/sso/debug route
+  - Displays environment configuration (SSO URLs, client ID, redirect URI)
+  - Shows cookie status (sso_session, sso_pkce_verifier, admin_session)
+  - Includes request metadata (URL, method, headers)
+  - Safely masks sensitive data (client secret, cookie values)
+- **Usage:** GET http://localhost:3000/api/auth/sso/debug
+- **Purpose:** Diagnose "Authentication failed" errors by checking:
+  - Environment variables loaded correctly
+  - PKCE verifier cookie being set
+  - Correct redirect URI configuration
+- **Impact:** Faster debugging of SSO authentication issues
+- **Build:** Clean Next.js compilation with zero errors
+
 ## [v1.18.1] — 2025-12-21T22:22:36.670Z 🔧
 - **Port Change:** Changed development and production port from 6000 → 3000
   - Reason: Port 6000 is reserved by macOS for X11 (Network Paging Protocol)
