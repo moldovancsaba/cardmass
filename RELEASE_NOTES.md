@@ -1,5 +1,8 @@
 # RELEASE_NOTES
 
+## [v1.22.0] — 2025-12-22T20:50:39.990Z
+- (update notes here)
+
 ## [v1.22.0] — 2025-12-22T20:46:41.077Z 🧹
 - **Cleanup Script:** Created script to remove legacy authentication data
   - Script: scripts/cleanup-legacy-auth.mjs
