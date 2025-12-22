@@ -1,5 +1,24 @@
 # RELEASE_NOTES
 
+## [v1.22.0] — 2025-12-22T20:46:41.077Z 🧹
+- **Cleanup Script:** Created script to remove legacy authentication data
+  - Script: scripts/cleanup-legacy-auth.mjs
+  - Removes MongoDB 'users' collection (legacy user accounts)
+  - Removes MongoDB 'sessions' collection (legacy admin sessions)
+  - Preserves MongoDB 'ssoSessions' collection (SSO sessions)
+- **Features:**
+  - Dry run mode (preview before deleting)
+  - Lists all legacy users before deletion
+  - Shows counts: users, sessions, SSO sessions
+  - Requires typing "DELETE" to confirm
+  - Cannot be undone warning
+- **Usage:**
+  - Preview: node scripts/cleanup-legacy-auth.mjs (dry run)
+  - Execute: node scripts/cleanup-legacy-auth.mjs --execute
+- **Purpose:** Clean up old auth data after migrating to SSO-only authentication
+- **Safety:** SSO sessions are explicitly preserved and not affected
+- **Impact:** Removes legacy auth remnants, makes CardMass SSO-exclusive
+
 ## [v1.21.0] — 2025-12-22T20:44:23.528Z ✅
 - **CRITICAL FIX:** Unified auth to support BOTH legacy and SSO sessions
   - Created src/lib/unified-auth.ts library
