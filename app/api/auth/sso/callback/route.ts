@@ -78,30 +78,40 @@ export async function GET(request: NextRequest) {
 
     // WHAT: Query SSO for app-specific permission
     // WHY: Check if user has access to CardMass and what role they have
+    console.log('[SSO Callback] Querying app permission for user:', userInfo.sub, userInfo.email);
     let permission = await getAppPermission(userInfo.sub, tokens.access_token);
+    console.log('[SSO Callback] Permission received:', JSON.stringify(permission, null, 2));
 
     // WHAT: Handle users without permission record
     // WHY: First-time users need to request access
     if (!hasAppAccess(permission)) {
+      console.log('[SSO Callback] User does NOT have access. Status:', permission.status, 'Role:', permission.role);
+      
       // WHAT: If no permission exists, create access request
       if (permission.status === 'none') {
         console.log('[SSO Callback] User has no access; requesting...');
         permission = await requestAppAccess(userInfo.sub, tokens.access_token);
+        console.log('[SSO Callback] Access requested. New permission:', JSON.stringify(permission, null, 2));
       }
 
       // WHAT: Redirect based on permission status
       if (isPending(permission)) {
+        console.log('[SSO Callback] Redirecting to /access-pending');
         return NextResponse.redirect(new URL('/access-pending', request.url));
       }
       if (isRevoked(permission)) {
+        console.log('[SSO Callback] Redirecting to /access-revoked');
         return NextResponse.redirect(new URL('/access-revoked', request.url));
       }
 
       // WHAT: Other non-access statuses
+      console.log('[SSO Callback] No access, redirecting to home with error');
       return NextResponse.redirect(
         new URL('/?error=no_access', request.url)
       );
     }
+    
+    console.log('[SSO Callback] User HAS access! Role:', permission.role);
 
     // WHAT: Create SSO session in MongoDB
     // WHY: Store tokens + user + permissions for subsequent requests
