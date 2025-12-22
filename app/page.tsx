@@ -4,11 +4,34 @@ import SpockNav from "@/components/SpockNav";
 import OrgHome from '@/components/OrgHome'
 import { Button } from '@/components/Button'
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 function HomePageContent() {
   const searchParams = useSearchParams()
   const error = searchParams?.get('error')
+  const [authState, setAuthState] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking')
+  const [userName, setUserName] = useState<string | null>(null)
+
+  // WHAT: Check authentication status on mount
+  // WHY: Only show organizations to authenticated users
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/check', { credentials: 'include' })
+        const data = await res.json()
+        if (data.authenticated) {
+          setAuthState('authenticated')
+          setUserName(data.user?.name || null)
+        } else {
+          setAuthState('unauthenticated')
+        }
+      } catch (err) {
+        console.error('[Auth Check] Failed:', err)
+        setAuthState('unauthenticated')
+      }
+    }
+    checkAuth()
+  }, [])
 
   // WHAT: Map error codes to user-friendly messages
   const errorMessages: Record<string, string> = {
@@ -20,30 +43,61 @@ function HomePageContent() {
     no_access: 'You do not have access to this application. Contact your administrator.',
   }
 
+  // WHAT: Show loading state while checking authentication
+  if (authState === 'checking') {
+    return (
+      <main className="min-h-dvh bg-white flex items-center justify-center">
+        <div className="text-gray-600">Checking authentication...</div>
+      </main>
+    )
+  }
+
+  // WHAT: Show login page for unauthenticated users
+  // WHY: Zero-trust - no content visible before authentication
+  if (authState === 'unauthenticated') {
+    return (
+      <main className="min-h-dvh bg-white flex items-center justify-center">
+        <section className="max-w-md w-full px-4">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">cardmass</h1>
+            <p className="text-gray-600">Manage organizations and boards</p>
+          </div>
+
+          {/* Error Message */}
+          {error && errorMessages[error] && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800">
+                <strong>Error:</strong> {errorMessages[error]}
+              </p>
+            </div>
+          )}
+
+          {/* Login CTA */}
+          <div className="text-center">
+            <Button as="link" href="/api/auth/sso/login?return_to=/" fullWidth>
+              Sign in with SSO
+            </Button>
+            <p className="mt-3 text-xs text-gray-500">Single Sign-On for all DoneIsBetter apps</p>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  // WHAT: Show organizations UI for authenticated users
   return (
     <main className="min-h-dvh bg-white">
       <SpockNav />
       <section className="mx-auto max-w-5xl px-4 py-10">
-        <h1 className="text-3xl font-bold mb-4">cardmass</h1>
-        <p className="mb-6">Manage organizations and boards (UUID routes, org-scoped).</p>
-
-        {/* Error Message */}
-        {error && errorMessages[error] && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-800">
-              <strong>Error:</strong> {errorMessages[error]}
-            </p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold">cardmass</h1>
+            {userName && <p className="text-sm text-gray-600 mt-1">Welcome, {userName}</p>}
           </div>
-        )}
-
-        {/* Primary SSO login CTA */}
-        <div className="mb-8">
-          <Button as="link" href="/api/auth/sso/login?return_to=/organizations">
-            Sign in with SSO
+          <Button as="link" href="/api/auth/logout" variant="ghost" size="sm">
+            Sign out
           </Button>
-          <p className="mt-2 text-xs text-gray-500">Single Sign-On for all DoneIsBetter apps</p>
         </div>
-
         <OrgHome />
       </section>
     </main>
