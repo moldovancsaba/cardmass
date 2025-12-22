@@ -1,5 +1,24 @@
 # RELEASE_NOTES
 
+## [v1.21.0] — 2025-12-22T20:44:23.528Z ✅
+- **CRITICAL FIX:** Unified auth to support BOTH legacy and SSO sessions
+  - Created src/lib/unified-auth.ts library
+  - Updated /api/auth/check to check BOTH admin_session AND sso_session cookies
+  - SSO login now works alongside legacy login (dual auth support)
+  - Checks SSO first (preferred), falls back to legacy for compatibility
+- **Root Cause:** CardMass had separate user systems:
+  - Legacy: MongoDB users collection + admin_session cookie
+  - SSO: MongoDB ssoSessions collection + sso_session cookie
+  - Pages only checked admin_session, ignoring sso_session
+- **Solution:** Unified authentication layer
+  - getAuthenticatedUser() checks both auth systems
+  - Returns UnifiedUser with consistent interface
+  - Role mapping: 'super-admin' (legacy) → 'superadmin' (SSO)
+  - authSource field indicates which system authenticated user
+- **Impact:** SSO login now fully functional! Users with SSO superadmin permissions can access CardMass
+- **Migration Path:** Supports gradual migration from legacy to SSO
+- **Build:** Clean Next.js compilation with zero errors
+
 ## [v1.20.1] — 2025-12-22T20:40:39.055Z 🔍
 - **Enhanced Logging:** Added detailed console logging to SSO callback for debugging
   - Logs user ID and email when querying permissions
