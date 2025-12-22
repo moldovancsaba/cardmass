@@ -27,23 +27,10 @@ export async function POST(req: NextRequest) {
     // WHAT: Clear both session cookies
     const response = NextResponse.json({ success: true });
     
-    // Clear legacy admin_session
-    response.cookies.set('admin_session', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
-    
-    // Clear SSO sso_session
-    response.cookies.set('sso_session', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
+    // WHAT: Delete cookies by setting them with immediate expiry
+    // WHY: maxAge: 0 or negative expires immediately
+    response.cookies.delete('admin_session');
+    response.cookies.delete('sso_session');
     
     return response;
   } catch (error) {
@@ -82,23 +69,10 @@ export async function GET(req: NextRequest) {
     // WHY: GET requests should redirect after logout (not JSON response)
     const response = NextResponse.redirect(new URL('/', req.url));
     
-    // Clear legacy admin_session
-    response.cookies.set('admin_session', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
-    
-    // Clear SSO sso_session
-    response.cookies.set('sso_session', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 0,
-      path: '/',
-    });
+    // WHAT: Delete cookies by setting them with immediate expiry
+    // WHY: Next.js cookies.delete() properly removes cookies
+    response.cookies.delete('admin_session');
+    response.cookies.delete('sso_session');
     
     return response;
   } catch (error) {

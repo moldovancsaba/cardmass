@@ -1,12 +1,12 @@
 # ROADMAP
 
-Version: 1.22.0
+Version: 1.22.1
 
-Updated: 2025-12-22T20:46:41.077Z
+Updated: 2025-12-22T20:56:40.787Z
 
 > Source: consult `HANDBOOK.md` §5 for the authoritative roadmap summary. This file expands each milestone.
 
-## Milestone: v1.22.0 — Documentation Excellence
+## Milestone: v1.22.1 — Documentation Excellence
 - Status: ✅ COMPLETED (2025-10-04T18:01:54.000Z)
 - Priority: P0
 
@@ -18,7 +18,7 @@ Updated: 2025-12-22T20:46:41.077Z
 
 ## Milestone: Q4 2025
 - Dependencies:
-  - v1.22.0 docs baseline
+  - v1.22.1 docs baseline
 
 ### Items
 - ✅ Automate version/timestamp/doc synchronization (script + pre-commit hook)
@@ -54,7 +54,7 @@ Updated: 2025-12-22T20:46:41.077Z
 - Zero-Trust Authentication & Access (admin-session + page passwords)
   - Owner: ai
   - Priority: P0
-  - Status: ✅ COMPLETED (v1.22.0 - 2025-10-02T12:47:30.000Z)
+  - Status: ✅ COMPLETED (v1.22.1 - 2025-10-02T12:47:30.000Z)
   - Dependencies: MongoDB users/pagePasswords; cookie settings; Next.js API routes
   - Notes: Based on MessMass AUTHENTICATION_AND_ACCESS; enforce server-side checks; Tagger pages protected; build passes; dev server running
   - Deliverables:
@@ -69,7 +69,7 @@ Updated: 2025-12-22T20:46:41.077Z
 
 ## Milestone: Q1 2026 — SSO Integration (DoneIsBetter Authentication)
 - Dependencies:
-  - SSO service at https://sso.doneisbetter.com (v1.22.0+)
+  - SSO service at https://sso.doneisbetter.com (v1.22.1+)
   - Current auth system (MD5-based) must remain operational during migration
 - Priority: P0
 - Owner: ai + csaba
