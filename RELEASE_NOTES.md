@@ -1,5 +1,23 @@
 # RELEASE_NOTES
 
+## [v1.20.0] — 2025-12-22T20:34:15.863Z 👑
+- **Admin Script:** Created script to grant SSO superadmin access to users
+  - Script: scripts/grant-sso-superadmin.mjs
+  - Usage: node scripts/grant-sso-superadmin.mjs <email>
+  - Grants highest-level CardMass access via SSO
+  - Interactive: prompts for SSO admin session cookie
+  - Validates user exists in SSO before granting permission
+  - Sets role to 'superadmin' with 'approved' status
+- **Features:**
+  - Searches SSO for user by email
+  - Grants CardMass app permission with superadmin role
+  - Clear success/error messages
+  - Instructions for next steps
+- **Use Case:** Quickly grant owner/admin rights to Google account or any SSO user
+- **Example:** node scripts/grant-sso-superadmin.mjs moldovancsaba@gmail.com
+- **Requirements:** User must have logged into SSO at least once
+- **Impact:** Streamlined process to grant highest-level access via SSO
+
 ## [v1.19.0] — 2025-12-22T09:23:58.253Z 🔍
 - **Debug Endpoint:** Added SSO diagnostic endpoint for troubleshooting authentication issues
   - Created /api/auth/sso/debug route
