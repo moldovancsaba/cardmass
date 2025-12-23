@@ -42,7 +42,7 @@ const variants: Record<ButtonVariant, string> = {
   secondary:
     'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
   success:
-    'bg-green-700 text-white shadow-sm hover:bg-green-800 focus:ring-green-600',
+    'bg-green-700 !text-white hover:!text-white shadow-sm hover:bg-green-800 focus:ring-green-600',
   danger:
     'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
   ghost:
