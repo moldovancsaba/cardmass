@@ -1,6 +1,6 @@
 {
   "name": "cardmass",
-  "version": "1.22.1",
+  "version": "1.22.2",
   "private": true,
   "scripts": {
     "dev": "npm run version:patch && NEXT_CACHE_DIR=/tmp/cardmass-next-cache next dev -p 3000",

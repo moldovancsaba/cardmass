@@ -7,7 +7,7 @@
 import { isUUIDv4 } from '@/lib/validation'
 import { notFound, redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { validateAdminToken, checkOrgAccess } from '@/lib/auth'
+import { getAuthenticatedUser } from '@/lib/unified-auth'
 import CardDetailsClient from './CardDetailsClient'
 
 export default async function CardDetailsPage(ctx: { params: Promise<{ organizationUUID: string; cardUUID: string }> }) {
@@ -19,26 +19,13 @@ export default async function CardDetailsPage(ctx: { params: Promise<{ organizat
     return notFound()
   }
   
-  // WHAT: Check authentication and org access
-  // WHY: Only authenticated users with org access can view cards
+  // WHAT: Check SSO authentication
   const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
+  const ssoToken = cookieStore.get('sso_session')?.value;
+  const user = await getAuthenticatedUser({ sso_session: ssoToken });
   
-  if (!token) {
+  if (!user) {
     redirect(`/?redirect=/${encodeURIComponent(org)}/cards/${encodeURIComponent(cardUUID)}`);
-  }
-  
-  const user = await validateAdminToken(token);
-  if (!user || !user._id) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}/cards/${encodeURIComponent(cardUUID)}`);
-  }
-  
-  // WHAT: Verify user has access to this organization
-  // WHY: Users should only view cards in orgs they belong to
-  const orgRole = await checkOrgAccess(user._id.toString(), org);
-  if (!orgRole) {
-    // User doesn't have access - redirect to org selector
-    redirect('/organizations');
   }
   
   // WHAT: Pass only IDs to client component for data fetching

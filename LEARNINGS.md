@@ -1,8 +1,8 @@
 # LEARNINGS
 
-Version: 1.22.1
+Version: 1.22.2
 
-Updated: 2025-12-22T20:56:40.787Z
+Updated: 2025-12-23T01:06:55.211Z
 
 - Architecture: Adopted UUID-first, organization-scoped model. All org/board/card IDs are UUID v4. Slugs are metadata only.
   Why: Enables centralized development with strict tenant scoping and hashed routes.

@@ -8,8 +8,8 @@
 
 import { isUUIDv4 } from '@/lib/validation'
 import { cookies } from 'next/headers'
-import { redirect, notFound } from 'next/navigation'
-import { validateAdminToken, checkOrgAccess } from '@/lib/auth'
+import { notFound } from 'next/navigation'
+import { getAuthenticatedUser } from '@/lib/unified-auth'
 import TaggerWithAuth from './TaggerWithAuth'
 
 export default async function TaggerPage(ctx: { params: Promise<{ organizationUUID: string, boardUUID: string }> }) {
@@ -21,21 +21,18 @@ export default async function TaggerPage(ctx: { params: Promise<{ organizationUU
     return notFound()
   }
   
-  // WHAT: Check authentication and org access (in addition to PasswordGate)
-  // WHY: Authenticated users must have org access to view boards
-  // NOTE: If no token, PasswordGate will handle auth prompt
+  // WHAT: Check SSO authentication (in addition to PasswordGate)
+  // WHY: Authenticated users bypass PasswordGate; unauthenticated users use password
+  // NOTE: If no SSO token, PasswordGate will handle auth prompt
   const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
+  const ssoToken = cookieStore.get('sso_session')?.value;
   
-  if (token) {
-    const user = await validateAdminToken(token);
-    if (user && user._id) {
-      const orgRole = await checkOrgAccess(user._id.toString(), org);
-      if (!orgRole) {
-        // WHAT: User is authenticated but doesn't have access to this org
-        // WHY: Redirect to org selector to choose accessible org
-        redirect('/organizations');
-      }
+  if (ssoToken) {
+    const user = await getAuthenticatedUser({ sso_session: ssoToken });
+    // WHAT: If authenticated via SSO, all orgs accessible
+    // WHY: App-level permission grants global access
+    if (!user) {
+      // Invalid SSO session - clear and let PasswordGate handle
     }
   }
 
