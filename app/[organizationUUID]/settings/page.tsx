@@ -2,7 +2,7 @@ import { isUUIDv4 } from "@/lib/validation";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { validateAdminToken, checkOrgAccess } from "@/lib/auth";
+import { getAuthenticatedUser, isAdmin } from "@/lib/unified-auth";
 import { fetchWithOrg } from "@/lib/http/fetchWithOrg";
 import OrgSettingsTabs from "./OrgSettingsTabs";
 
@@ -15,26 +15,20 @@ export default async function OrganizationSettingsPage(ctx: { params: Promise<{ 
   const { organizationUUID: org } = await ctx.params
   if (!isUUIDv4(org)) return notFound()
   
-  // WHAT: Check authentication and org access
+  // WHAT: Check SSO authentication and admin access
   const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
+  const ssoToken = cookieStore.get('sso_session')?.value;
+  const user = await getAuthenticatedUser({ sso_session: ssoToken });
   
-  if (!token) {
+  if (!user) {
     redirect(`/?redirect=/${encodeURIComponent(org)}/settings`);
   }
   
-  const user = await validateAdminToken(token);
-  if (!user || !user._id) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}/settings`);
-  }
-  
-  // WHAT: Verify user has admin access to this organization
-  const orgRole = await checkOrgAccess(user._id.toString(), org);
-  if (!orgRole || (orgRole !== 'org-admin' && orgRole !== 'super-admin')) {
-    // User doesn't have admin access - redirect to org main page
+  // WHAT: Verify user has admin or superadmin role
+  if (!isAdmin(user)) {
     redirect(`/${encodeURIComponent(org)}`);
   }
-
+  
   // WHAT: Fetch boards data for the settings tabs
   // WHY: Organization data will be fetched by the client component tabs
   type BoardItem = { uuid: string; slug?: string; updatedAt?: string; version?: number }
@@ -85,8 +79,7 @@ export default async function OrganizationSettingsPage(ctx: { params: Promise<{ 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <OrgSettingsTabs 
           org={orgData} 
-          initialBoards={boards} 
-          userRole={orgRole}
+          initialBoards={boards}
         />
       </section>
     </main>

@@ -10,7 +10,7 @@ import OrgHeader from "./OrgHeader";
 import { isUUIDv4 } from "@/lib/validation";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { validateAdminToken, checkOrgAccess } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/unified-auth";
 
 export default async function OrganizationMainPage(ctx: { params: Promise<{ organizationUUID: string }> }) {
   const { organizationUUID: org } = await ctx.params
@@ -19,27 +19,18 @@ export default async function OrganizationMainPage(ctx: { params: Promise<{ orga
   // WHY: Invalid UUIDs should 404 immediately
   if (!isUUIDv4(org)) return notFound()
   
-  // WHAT: Check authentication and org access
-  // WHY: Only authenticated users with org access can view organization
+  // WHAT: Check SSO authentication
   const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
+  const ssoToken = cookieStore.get('sso_session')?.value;
+  const user = await getAuthenticatedUser({ sso_session: ssoToken });
   
-  if (!token) {
+  if (!user) {
     redirect(`/?redirect=/${encodeURIComponent(org)}`);
   }
   
-  const user = await validateAdminToken(token);
-  if (!user || !user._id) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}`);
-  }
-  
-  // WHAT: Verify user has access to this organization
-  // WHY: Users should only view orgs they belong to
-  const orgRole = await checkOrgAccess(user._id.toString(), org);
-  if (!orgRole) {
-    // User doesn't have access - redirect to org selector
-    redirect('/organizations');
-  }
+  // WHAT: With SSO, all authenticated users can access all orgs
+  // WHY: App-level permissions grant access; role determines capabilities
+  const orgRole = user.role;
 
   // WHAT: Pass only IDs and role to client components for data fetching
   // WHY: Prevents server-side fetch failures that caused settings page 404 bug

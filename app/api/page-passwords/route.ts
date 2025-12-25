@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { validateAdminToken } from '@/lib/auth'
+import { getAuthenticatedUser, isAdmin } from '@/lib/unified-auth'
 import {
   getOrCreatePagePassword,
   validatePagePassword,
@@ -18,9 +18,10 @@ export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
-    // WHAT: Check admin authentication via session token
-    const token = request.cookies.get('admin_session')?.value;
-    const admin = token ? await validateAdminToken(token) : null;
+    // WHAT: Check SSO admin authentication
+    const ssoToken = request.cookies.get('sso_session')?.value;
+    const user = await getAuthenticatedUser({ sso_session: ssoToken });
+    const admin = user && isAdmin(user) ? user : null;
     
     if (!admin) {
       return NextResponse.json(
@@ -116,9 +117,10 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // WHAT: Check if request has valid admin session (bypass password check)
-    const token = request.cookies.get('admin_session')?.value;
-    const admin = token ? await validateAdminToken(token) : null;
+    // WHAT: Check if request has valid SSO admin session (bypass password check)
+    const ssoToken = request.cookies.get('sso_session')?.value;
+    const user = await getAuthenticatedUser({ sso_session: ssoToken });
+    const admin = user && isAdmin(user) ? user : null;
     
     if (admin) {
       return NextResponse.json({

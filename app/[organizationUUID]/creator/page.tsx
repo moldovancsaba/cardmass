@@ -3,7 +3,7 @@ import CreatorApp from "../../creator/ui/CreatorApp";
 import { isUUIDv4 } from "@/lib/validation";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { validateAdminToken, checkOrgAccess } from "@/lib/auth";
+import { getAuthenticatedUser } from "@/lib/unified-auth";
 
 /**
  * /[organizationUUID]/creator — org-scoped Creator (full grid)
@@ -17,26 +17,13 @@ export default async function OrganizationCreatorPage(ctx: { params: Promise<{ o
   // WHY: Invalid UUIDs should 404 immediately
   if (!isUUIDv4(org)) return notFound()
   
-  // WHAT: Check authentication and org access
-  // WHY: Only authenticated users with org access can create boards
+  // WHAT: Check SSO authentication
   const cookieStore = await cookies();
-  const token = cookieStore.get('admin_session')?.value;
+  const ssoToken = cookieStore.get('sso_session')?.value;
+  const user = await getAuthenticatedUser({ sso_session: ssoToken });
   
-  if (!token) {
+  if (!user) {
     redirect(`/?redirect=/${encodeURIComponent(org)}/creator`);
-  }
-  
-  const user = await validateAdminToken(token);
-  if (!user || !user._id) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}/creator`);
-  }
-  
-  // WHAT: Verify user has access to this organization
-  // WHY: Users should only create boards in orgs they belong to
-  const orgRole = await checkOrgAccess(user._id.toString(), org);
-  if (!orgRole) {
-    // User doesn't have access - redirect to org selector
-    redirect('/organizations');
   }
 
   return (

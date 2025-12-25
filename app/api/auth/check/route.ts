@@ -1,7 +1,6 @@
 /**
  * GET /api/auth/check
- * WHAT: Verify session from BOTH legacy admin_session AND SSO sso_session cookies
- * WHY: Support dual authentication during SSO migration
+ * WHAT: Verify SSO session only (admin_session disabled)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,26 +8,18 @@ import { getAuthenticatedUser, hasAccess } from '@/lib/unified-auth';
 
 export async function GET(req: NextRequest) {
   try {
-    // WHAT: Extract both session cookies
-    // WHY: Support both legacy and SSO authentication
-    const adminSession = req.cookies.get('admin_session')?.value;
+    // WHAT: Extract SSO cookie only
     const ssoSession = req.cookies.get('sso_session')?.value;
-    
-    if (!adminSession && !ssoSession) {
+    if (!ssoSession) {
       return NextResponse.json({ authenticated: false });
     }
-    
-    // WHAT: Check authentication from both systems
-    // WHY: Unified auth checks SSO first, then falls back to legacy
-    const user = await getAuthenticatedUser({
-      admin_session: adminSession,
-      sso_session: ssoSession,
-    });
-    
+
+    // WHAT: Validate SSO session
+    const user = await getAuthenticatedUser({ sso_session: ssoSession });
     if (!user || !hasAccess(user)) {
       return NextResponse.json({ authenticated: false });
     }
-    
+
     return NextResponse.json({
       authenticated: true,
       user: {

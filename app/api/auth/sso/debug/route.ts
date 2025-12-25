@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
     cookies: {
       sso_session: cookieStore.get('sso_session')?.value ? '***EXISTS***' : '***NOT SET***',
       sso_pkce_verifier: cookieStore.get('sso_pkce_verifier')?.value ? '***EXISTS***' : '***NOT SET***',
-      admin_session: cookieStore.get('admin_session')?.value ? '***EXISTS***' : '***NOT SET***',
     },
     request: {
       url: request.url,
