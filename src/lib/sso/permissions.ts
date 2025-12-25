@@ -19,10 +19,14 @@ const SSO_CLIENT_ID = process.env.SSO_CLIENT_ID || '';
 export type PermissionStatus = 'approved' | 'pending' | 'revoked' | 'none';
 
 /**
- * WHAT: App role hierarchy
+ * WHAT: App role hierarchy (aligned with SSO v5.28.0+)
  * WHY: Different permission levels within CardMass
+ * guest: Limited access, can only register
+ * user: Basic app access
+ * admin: Full app management
+ * owner: System owner, immutable role (previously superadmin)
  */
-export type AppRole = 'none' | 'user' | 'admin' | 'superadmin';
+export type AppRole = 'none' | 'guest' | 'user' | 'admin' | 'owner';
 
 /**
  * WHAT: Complete app permission record
@@ -126,22 +130,30 @@ export function hasAppAccess(permission: AppPermission): boolean {
 }
 
 /**
- * WHAT: Check if user is admin or superadmin in CardMass
+ * WHAT: Check if user is admin or owner in CardMass
  * WHY: Gate access to admin features (org settings, user management)
  */
 export function isAppAdmin(permission: AppPermission): boolean {
   return (
     hasAppAccess(permission) &&
-    (permission.role === 'admin' || permission.role === 'superadmin')
+    (permission.role === 'admin' || permission.role === 'owner')
   );
 }
 
 /**
- * WHAT: Check if user is superadmin in CardMass
- * WHY: Gate access to superadmin-only features (system settings)
+ * WHAT: Check if user is owner in CardMass
+ * WHY: Gate access to owner-only features (system settings, immutable privileges)
+ * NOTE: Owner role replaces superadmin (aligned with SSO v5.28.0+)
+ */
+export function isAppOwner(permission: AppPermission): boolean {
+  return hasAppAccess(permission) && permission.role === 'owner';
+}
+
+/**
+ * @deprecated Use isAppOwner() instead. Superadmin role renamed to owner in SSO v5.28.0+
  */
 export function isAppSuperAdmin(permission: AppPermission): boolean {
-  return hasAppAccess(permission) && permission.role === 'superadmin';
+  return isAppOwner(permission);
 }
 
 /**
