@@ -19,7 +19,7 @@ export interface UnifiedUser {
   id: string;                    // SSO user ID (UUID)
   email: string;                 // Email address
   name: string;                  // Full name
-  role: AppRole;                 // 'none' | 'user' | 'admin' | 'superadmin'
+  role: AppRole;                 // 'none' | 'guest' | 'user' | 'admin' | 'owner'
   authSource: 'sso';             // Authentication source (SSO only)
   ssoUserId?: string;            // SSO user ID
 }
@@ -62,9 +62,16 @@ export function hasAccess(user: UnifiedUser | null): boolean {
 }
 
 export function isAdmin(user: UnifiedUser | null): boolean {
-  return user !== null && (user.role === 'admin' || user.role === 'superadmin');
+  return user !== null && (user.role === 'admin' || user.role === 'owner');
 }
 
+export function isOwner(user: UnifiedUser | null): boolean {
+  return user !== null && user.role === 'owner';
+}
+
+/**
+ * @deprecated Use isOwner() instead. Superadmin role renamed to owner in SSO v5.28.0+
+ */
 export function isSuperAdmin(user: UnifiedUser | null): boolean {
-  return user !== null && user.role === 'superadmin';
+  return isOwner(user);
 }
