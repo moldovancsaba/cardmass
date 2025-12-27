@@ -31,12 +31,19 @@ export default function OrganizationsPage() {
     async function loadData() {
       try {
         // WHAT: Authentication disabled - fetch all organizations directly
-        // TODO: Re-enable auth check when SSO is working
         const orgsRes = await fetch('/api/v1/organizations')
         if (!orgsRes.ok) throw new Error('Failed to load organizations')
         
-        const orgsData = await orgsRes.json()
-        setOrganizations(orgsData.organizations || [])
+        // WHAT: API returns array directly, not wrapped in object
+        const orgsArray = await orgsRes.json()
+        // WHAT: Map to OrgAccess format expected by UI
+        setOrganizations((Array.isArray(orgsArray) ? orgsArray : []).map(org => ({
+          organizationUUID: org.uuid,
+          role: 'member' as const, // Default role since auth is disabled
+          name: org.name,
+          slug: org.slug,
+          description: org.description,
+        })))
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load')
       } finally {

@@ -5,23 +5,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser, isSuperAdmin } from '@/lib/unified-auth';
 import { getDb } from '@/lib/db';
+// Authentication temporarily disabled
 
 export async function GET(req: NextRequest) {
   try {
-    const ssoToken = req.cookies.get('sso_session')?.value;
-    const user = await getAuthenticatedUser({ sso_session: ssoToken });
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    
-    // WHAT: Get all organizations from database
-    // WHY: SSO controls access via app permissions; all authenticated users see all orgs
+    // WHAT: Authentication disabled - return all organizations
     const db = await getDb();
     const orgsCol = db.collection('organizations');
     const allOrgs = await orgsCol.find({ isActive: true }).toArray();
@@ -29,7 +18,7 @@ export async function GET(req: NextRequest) {
     // WHAT: Map to organization access format
     const organizations = allOrgs.map(org => ({
       organizationUUID: org.uuid,
-      role: isSuperAdmin(user) ? 'superadmin' : user.role,
+      role: 'member' as const, // Default role since auth is disabled
     }));
     
     return NextResponse.json({
