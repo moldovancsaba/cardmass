@@ -14,7 +14,11 @@
     "version:patch": "node scripts/sync-version-timestamps.mjs --patch",
     "version:minor": "node scripts/sync-version-timestamps.mjs --minor",
     "version:major": "node scripts/sync-version-timestamps.mjs --major",
-    "hooks:install": "bash scripts/install-hooks.sh"
+    "hooks:install": "bash scripts/install-hooks.sh",
+    "sso:validate": "node scripts/validate-sso-env.mjs",
+    "sso:validate:commit": "node scripts/validate-sso-env.mjs --commit",
+    "sso:validate:deploy": "node scripts/validate-sso-env.mjs --commit --push",
+    "sso:check:vercel": "node scripts/validate-sso-env.mjs --vercel-check https://cardmass.doneisbetter.com"
   },
   "dependencies": {
     "dotenv": "^16",
