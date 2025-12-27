@@ -6,7 +6,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 interface OrgAccess {
@@ -24,8 +23,6 @@ interface UserInfo {
 }
 
 export default function OrganizationsPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<UserInfo | null>(null)
   const [organizations, setOrganizations] = useState<OrgAccess[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -33,40 +30,13 @@ export default function OrganizationsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        // WHAT: Check authentication
-        const authRes = await fetch('/api/auth/check')
-        const authData = await authRes.json()
-        
-        if (!authData.authenticated) {
-          router.push('/?redirect=/organizations')
-          return
-        }
-        
-        setUser(authData.user)
-        
-        // WHAT: Fetch user's accessible organizations
-        const orgsRes = await fetch('/api/auth/organizations')
+        // WHAT: Authentication disabled - fetch all organizations directly
+        // TODO: Re-enable auth check when SSO is working
+        const orgsRes = await fetch('/api/v1/organizations')
         if (!orgsRes.ok) throw new Error('Failed to load organizations')
         
         const orgsData = await orgsRes.json()
-        
-        // WHAT: Enrich with organization details
-        const enriched = await Promise.all(
-          orgsData.organizations.map(async (orgAccess: OrgAccess) => {
-            try {
-              const res = await fetch(`/api/v1/organizations/${orgAccess.organizationUUID}`)
-              if (res.ok) {
-                const org = await res.json()
-                return { ...orgAccess, ...org }
-              }
-            } catch {
-              // Ignore fetch errors for individual orgs
-            }
-            return orgAccess
-          })
-        )
-        
-        setOrganizations(enriched)
+        setOrganizations(orgsData.organizations || [])
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load')
       } finally {
@@ -75,16 +45,9 @@ export default function OrganizationsPage() {
     }
     
     loadData()
-  }, [router])
+  }, [])
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      router.push('/')
-    } catch (error) {
-      console.error('Logout failed:', error)
-    }
-  }
+  // Logout removed - authentication disabled
 
   if (loading) {
     return (
@@ -99,12 +62,12 @@ export default function OrganizationsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={() => router.push('/')}
-            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-medium"
+          <Link
+            href="/"
+            className="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 font-medium inline-block"
           >
-            Back to Login
-          </button>
+            Back to Home
+          </Link>
         </div>
       </div>
     )
@@ -118,16 +81,7 @@ export default function OrganizationsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Select Organization</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Logged in as <span className="font-medium">{user?.name}</span>
-              </p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
-            >
-              Logout
-            </button>
           </div>
         </div>
       </header>
