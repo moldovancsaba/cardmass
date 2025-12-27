@@ -25,34 +25,9 @@ export interface Board {
 }
 
 /**
- * Admin user document (stored in MongoDB)
- * WHAT: Represents a user with authentication credentials and organization access
- * WHY: Enables multi-tenant access control with role-based permissions
+ * @deprecated UserDoc interface removed - CardMass now uses SSO for all user management
+ * Users are managed in the SSO system, not in CardMass database
  */
-export interface UserDoc {
-  _id?: import('mongodb').ObjectId;
-  email: string;
-  name: string;
-  /** Global role: 'super-admin' (all orgs), 'user' (specific orgs only) */
-  role: 'user' | 'super-admin';
-  /** Per project convention: MD5-hashed password */
-  password: string;
-  /**
-   * Organization access control
-   * Array of { orgUUID, role } where role is 'org-admin' or 'member'
-   * - org-admin: Can manage users, boards, and passwords within the org
-   * - member: Can view and work on boards they have access to
-   * Empty array or missing = no org access (super-admin bypasses this)
-   */
-  organizationAccess?: Array<{
-    organizationUUID: string;
-    role: 'org-admin' | 'member';
-  }>;
-  /** ISO 8601 with milliseconds, UTC */
-  createdAt: string;
-  /** ISO 8601 with milliseconds, UTC */
-  updatedAt: string;
-}
 
 /** Page password record to guard specific pages. WHAT: Per-page access token. WHY: Zero-trust rule requires valid token for non-admin viewers. */
 export interface PagePasswordDoc {

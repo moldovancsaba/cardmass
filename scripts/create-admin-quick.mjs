@@ -1,8 +1,11 @@
 /**
+ * @deprecated This script is deprecated - CardMass now uses SSO for all user management
+ * Users should be created in the SSO system, not in CardMass database
+ * 
  * create-admin-quick.mjs
  * 
- * WHAT: Non-interactive admin user creation script.
- * WHY: Quick bootstrap for zero-trust authentication system.
+ * WHAT: Non-interactive admin user creation script (LEGACY - DO NOT USE)
+ * WHY: Quick bootstrap for zero-trust authentication system (REPLACED BY SSO)
  * 
  * Usage:
  *   node scripts/create-admin-quick.mjs <email> <name> <password> [role]

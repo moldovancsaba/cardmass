@@ -99,7 +99,15 @@ export async function getAppPermission(
   }
 
   if (!response.ok) {
-    throw new Error(`Failed to get permission: ${response.status}`);
+    const errorText = await response.text().catch(() => 'Unknown error');
+    console.error('[SSO Permissions] Failed to get permission:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText,
+      userId,
+      clientId: SSO_CLIENT_ID,
+    });
+    throw new Error(`Failed to get permission: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   return await response.json();
