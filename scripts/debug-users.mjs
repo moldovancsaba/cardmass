@@ -1,8 +1,11 @@
 /**
+ * @deprecated This script is deprecated - CardMass now uses SSO for all user management
+ * Users are managed in the SSO system, not in CardMass database
+ * 
  * debug-users.mjs
  * 
- * WHAT: Debug script to inspect users collection and test password hashing.
- * WHY: Troubleshoot login issues.
+ * WHAT: Debug script to inspect users collection and test password hashing (LEGACY - DO NOT USE)
+ * WHY: Troubleshoot login issues (REPLACED BY SSO)
  */
 
 import { MongoClient } from 'mongodb';

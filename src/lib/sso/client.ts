@@ -56,8 +56,10 @@ if (typeof window === 'undefined') {
 // WHAT: JWKS endpoint for RS256 JWT verification
 // WHY: SSO signs tokens with RS256, need public keys to verify
 // NOTE: Try standard OIDC path first, fallback to /api path if needed
-const JWKS_URI = `${SSO_BASE_URL}/.well-known/jwks.json`;
-const JWKS = createRemoteJWKSet(new URL(JWKS_URI));
+const JWKS_URI_STANDARD = `${SSO_BASE_URL}/.well-known/jwks.json`;
+const JWKS_URI_FALLBACK = `${SSO_BASE_URL}/api/.well-known/jwks.json`;
+// WHAT: Use standard path; jose library will handle fetch errors gracefully
+const JWKS = createRemoteJWKSet(new URL(JWKS_URI_STANDARD));
 
 // ============================================================================
 // Types
@@ -299,10 +301,30 @@ export async function parseIdToken(idToken: string): Promise<IdTokenPayload> {
   try {
     // WHAT: Verify JWT signature and decode payload
     // WHY: Ensures token was issued by SSO and not tampered with
-    const { payload } = await jose.jwtVerify(idToken, JWKS, {
-      issuer: SSO_BASE_URL,
-      audience: SSO_CLIENT_ID,
-    });
+    let payload;
+    try {
+      const result = await jose.jwtVerify(idToken, JWKS, {
+        issuer: SSO_BASE_URL,
+        audience: SSO_CLIENT_ID,
+      });
+      payload = result.payload;
+    } catch (jwksError: any) {
+      // WHAT: If JWKS fetch fails, try fallback endpoint
+      // WHY: SSO rewrite might not be deployed yet
+      if (jwksError.code === 'ERR_JWKS_MULTIPLE_MATCHES' || 
+          jwksError.message?.includes('fetch') ||
+          jwksError.message?.includes('404')) {
+        console.warn('[SSO] Standard JWKS endpoint failed, trying fallback:', jwksError.message);
+        const fallbackJWKS = createRemoteJWKSet(new URL(JWKS_URI_FALLBACK));
+        const result = await jose.jwtVerify(idToken, fallbackJWKS, {
+          issuer: SSO_BASE_URL,
+          audience: SSO_CLIENT_ID,
+        });
+        payload = result.payload;
+      } else {
+        throw jwksError;
+      }
+    }
 
     // WHAT: Extract and validate required ID token fields
     // WHY: JWTPayload is a generic type; need to validate structure
@@ -326,7 +348,8 @@ export async function parseIdToken(idToken: string): Promise<IdTokenPayload> {
       aud: typeof payload.aud === 'string' ? payload.aud : '',
     };
   } catch (error) {
-    throw new Error(`ID token verification failed: ${error}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(`ID token verification failed: ${errorMessage}`);
   }
 }
 

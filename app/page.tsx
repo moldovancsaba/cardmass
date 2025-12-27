@@ -40,6 +40,7 @@ function HomePageContent() {
     token_exchange_failed: 'Token exchange failed. Check redirect URI configuration.',
     token_verification_failed: 'Token verification failed. Check SSO service status.',
     sso_not_configured: 'SSO not configured. Check environment variables.',
+    permission_check_failed: 'Permission check failed. Check SSO service status.',
     user_not_found: 'User not found in SSO system.',
     oauth_denied: 'You denied access to the application.',
     invalid_callback: 'Invalid OAuth callback. Please try again.',

@@ -70,11 +70,15 @@ export async function GET(request: NextRequest) {
 
     // WHAT: Exchange authorization code for tokens
     // WHY: Complete OAuth flow; get access/refresh/ID tokens
+    console.log('[SSO Callback] Exchanging code for tokens...');
     const tokens = await exchangeCodeForTokens(code, codeVerifier);
+    console.log('[SSO Callback] Token exchange successful. Has id_token:', !!tokens.id_token);
 
     // WHAT: Parse and verify ID token
     // WHY: Extract user info and verify JWT signature
+    console.log('[SSO Callback] Parsing ID token...');
     const userInfo = await parseIdToken(tokens.id_token);
+    console.log('[SSO Callback] ID token parsed. User:', userInfo.email, 'Sub:', userInfo.sub);
 
     // WHAT: Query SSO for app-specific permission
     // WHY: Check if user has access to CardMass and what role they have
@@ -151,17 +155,26 @@ export async function GET(request: NextRequest) {
     // WHAT: Enhanced error logging with full details
     // WHY: Help diagnose SSO authentication failures
     const searchParams = request.nextUrl.searchParams;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    const errorName = error instanceof Error ? error.name : undefined;
+    
     const errorDetails = {
-      message: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      name: error instanceof Error ? error.name : undefined,
+      message: errorMessage,
+      stack: errorStack,
+      name: errorName,
       code: searchParams.get('code') ? 'present' : 'missing',
       state: searchParams.get('state') ? 'present' : 'missing',
       error: searchParams.get('error'),
       url: request.url,
+      timestamp: new Date().toISOString(),
     };
     
-    console.error('[SSO Callback] Error details:', JSON.stringify(errorDetails, null, 2));
+    console.error('[SSO Callback] ============================================');
+    console.error('[SSO Callback] AUTHENTICATION FAILED - Full Error Details:');
+    console.error('[SSO Callback] ============================================');
+    console.error(JSON.stringify(errorDetails, null, 2));
+    console.error('[SSO Callback] ============================================');
     
     // WHAT: Extract specific error information for user-friendly messages
     // WHY: Different errors need different handling
@@ -169,16 +182,29 @@ export async function GET(request: NextRequest) {
     if (error instanceof Error) {
       if (error.message.includes('Token exchange failed')) {
         errorCode = 'token_exchange_failed';
-        console.error('[SSO Callback] Token exchange error - check redirect_uri, client_id, client_secret');
+        console.error('[SSO Callback] ROOT CAUSE: Token exchange error');
+        console.error('[SSO Callback] Check: redirect_uri, client_id, client_secret match SSO settings');
       } else if (error.message.includes('ID token verification failed')) {
         errorCode = 'token_verification_failed';
-        console.error('[SSO Callback] ID token verification error - check JWKS endpoint');
+        console.error('[SSO Callback] ROOT CAUSE: ID token verification error');
+        console.error('[SSO Callback] Check: JWKS endpoint accessible, token signature valid');
+        console.error('[SSO Callback] Error details:', errorMessage);
       } else if (error.message.includes('SSO not configured')) {
         errorCode = 'sso_not_configured';
-        console.error('[SSO Callback] SSO configuration missing - check environment variables');
+        console.error('[SSO Callback] ROOT CAUSE: SSO configuration missing');
+        console.error('[SSO Callback] Check: SSO_CLIENT_ID, SSO_CLIENT_SECRET, SSO_REDIRECT_URI env vars');
       } else if (error.message.includes('User not found')) {
         errorCode = 'user_not_found';
-        console.error('[SSO Callback] User lookup failed - check SSO user database');
+        console.error('[SSO Callback] ROOT CAUSE: User lookup failed');
+        console.error('[SSO Callback] Check: User exists in SSO database (users or publicUsers collection)');
+      } else if (error.message.includes('Failed to get permission')) {
+        errorCode = 'permission_check_failed';
+        console.error('[SSO Callback] ROOT CAUSE: Permission API call failed');
+        console.error('[SSO Callback] Check: SSO permissions API accessible, access token valid');
+      } else {
+        console.error('[SSO Callback] ROOT CAUSE: Unknown error');
+        console.error('[SSO Callback] Full error:', errorMessage);
+        console.error('[SSO Callback] Error type:', errorName);
       }
     }
     

@@ -1,15 +1,18 @@
 # Authentication and Access Control
 
-**Version**: 1.7.0  
-**Last Updated**: 2025-12-21T13:36:32.549Z
+**Version**: 2.0.0  
+**Last Updated**: 2025-01-XX
+
+> **IMPORTANT**: CardMass now uses SSO (Single Sign-On) for all user authentication and management. Legacy user management has been removed.
 
 > Summary guidance lives in `HANDBOOK.md` §3. This document dives into full authentication specs.
 
 ## Overview
 
-CardMass implements a zero-trust authentication and access control system inspired by MessMass. The system enables:
+CardMass implements a zero-trust authentication and access control system using SSO (Single Sign-On). The system enables:
 
-- **Admin Sessions**: Full access bypass for authenticated administrators
+- **SSO Authentication**: All users authenticate via SSO (OAuth2/OIDC)
+- **App Permissions**: User access and roles are managed in SSO
 - **Page Passwords**: Per-board password protection for non-admin viewers
 - **Shareable Links**: Auto-login via URL password parameters
 
@@ -19,24 +22,23 @@ CardMass implements a zero-trust authentication and access control system inspir
 
 The zero-trust rule: **No content is accessible without valid authentication.**
 
-Two authentication paths:
-1. **Admin Session** (bypasses all page passwords)
+Authentication paths:
+1. **SSO Session** (primary - all users authenticate via SSO)
 2. **Valid Page Password** (grants access to specific board)
 
 ### Components
 
 #### 1. Data Models
 
-**UserDoc** (`src/lib/types.ts`)
+**UnifiedUser** (`src/lib/unified-auth.ts`)
 ```typescript
-interface UserDoc {
-  _id?: ObjectId;
-  email: string;
-  name: string;
-  role: 'admin' | 'super-admin';
-  password: string; // MD5-style hash
-  createdAt: string; // ISO 8601 with ms
-  updatedAt: string; // ISO 8601 with ms
+interface UnifiedUser {
+  id: string;                    // SSO user ID (UUID)
+  email: string;                 // Email address
+  name: string;                  // Full name
+  role: AppRole;                 // 'none' | 'guest' | 'user' | 'admin' | 'owner'
+  authSource: 'sso';             // Authentication source (SSO only)
+  ssoUserId?: string;            // SSO user ID
 }
 ```
 
@@ -56,19 +58,18 @@ interface PagePasswordDoc {
 
 #### 2. MongoDB Collections
 
-- **users**: Admin user accounts
-- **sessions**: Active admin session tokens (30-day expiry)
+- **ssoSessions**: SSO session tokens and user data (30-day expiry)
 - **pagePasswords**: Page-level access passwords
+
+**Note**: Legacy `users` and `sessions` collections have been removed. All user management is handled by SSO.
 
 #### 3. Authentication Library
 
-**`src/lib/auth.ts`**
-- `loginAdmin(email, password)` - Creates session token
-- `validateAdminToken(token)` - Verifies session validity
-- `logoutAdmin(token)` - Invalidates session
-- `createAdminUser(...)` - Creates new admin (super-admin only)
-- `getAllAdmins()` - Lists all admin users
-- `getAdminByEmail(email)` - Fetches admin by email
+**`src/lib/unified-auth.ts`** (SSO-only)
+- `getAuthenticatedUser(cookies)` - Validates SSO session and returns user
+- `hasAccess(user)` - Checks if user has any access
+- `isAdmin(user)` - Checks if user is admin or owner
+- `isOwner(user)` - Checks if user is owner
 
 **`src/lib/pagePassword.ts`** (MessMass-style)
 - `getOrCreatePagePassword(pageId, pageType, regenerate)` - Idempotent password creation
@@ -77,10 +78,10 @@ interface PagePasswordDoc {
 
 #### 4. API Endpoints
 
-**Admin Authentication**
-- `POST /api/auth/login` - Admin login (sets httpOnly cookie)
-- `POST /api/auth/logout` - Session termination
-- `GET /api/auth/check` - Session status check
+**SSO Authentication**
+- `GET /api/auth/sso/login` - Initiate SSO OAuth flow
+- `GET /api/auth/sso/callback` - SSO OAuth callback (handles token exchange)
+- `GET /api/auth/check` - SSO session status check
 
 **Page Passwords**
 - `POST /api/page-passwords` - Create/retrieve board password (admin-only)
@@ -109,32 +110,36 @@ interface PagePasswordDoc {
 
 ## Usage
 
-### Bootstrap: Create First Admin
+### Bootstrap: SSO Setup
 
-```bash
-node scripts/create-admin.mjs
-```
+**Note**: CardMass no longer manages users locally. All users must be created in the SSO system.
 
-Prompts for:
-- Email
-- Name
-- Password (will be MD5-hashed)
-- Role (admin or super-admin)
+1. Configure SSO environment variables:
+   - `SSO_BASE_URL` - SSO service URL
+   - `SSO_CLIENT_ID` - OAuth client ID
+   - `SSO_CLIENT_SECRET` - OAuth client secret
+   - `SSO_REDIRECT_URI` - OAuth callback URL
 
-### Admin Login
+2. Create users in SSO system (not in CardMass)
 
-1. Navigate to `/admin/login`
-2. Enter email and password
-3. Session cookie (`admin_session`) set for 30 days
-4. All protected pages accessible without passwords
+3. Grant app permissions in SSO for users who need access to CardMass
+
+### SSO Login
+
+1. Navigate to CardMass homepage
+2. Click "Sign in with SSO"
+3. Redirected to SSO login page
+4. After authentication, redirected back to CardMass
+5. SSO session cookie (`sso_session`) set for 30 days
+6. All protected pages accessible based on SSO permissions
 
 ### Generate Page Password
 
-**Via API** (admin-only):
+**Via API** (SSO authenticated users only):
 ```bash
 curl -X POST http://localhost:3000/api/page-passwords \
   -H "Content-Type: application/json" \
-  -b "admin_session=<token>" \
+  -b "sso_session=<token>" \
   -d '{
     "pageId": "board-uuid-here",
     "pageType": "tagger",
@@ -187,16 +192,16 @@ Response:
 4. Password validated server-side
 5. Cookie set for future visits
 
-**For Admin Users:**
-- Login at `/admin/login`
-- All boards accessible without passwords
+**For SSO Authenticated Users:**
+- Sign in via SSO
+- All boards accessible based on SSO permissions
 
 ## Security Considerations
 
 ### Password Storage
-- **Admin passwords**: MD5-hashed (NOT cryptographically secure; MVP only)
+- **User passwords**: Managed by SSO (not stored in CardMass)
 - **Page passwords**: 32-char hex tokens (crypto.randomBytes)
-- **Session tokens**: 32-char hex tokens (crypto.randomBytes)
+- **SSO session tokens**: Stored in MongoDB `ssoSessions` collection
 
 ### Session Management
 - **httpOnly cookies**: Prevents XSS attacks
@@ -209,10 +214,10 @@ Response:
 - Usage tracking (count, lastUsedAt)
 - Optional expiration (expiresAt field)
 
-### Admin Bypass
-- Admin sessions checked first
+### SSO Authentication
+- SSO sessions checked first
 - Page passwords secondary fallback
-- No password required for admins
+- User permissions managed by SSO
 
 ## Future Enhancements
 
