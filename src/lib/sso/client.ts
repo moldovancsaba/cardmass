@@ -55,7 +55,9 @@ if (typeof window === 'undefined') {
 
 // WHAT: JWKS endpoint for RS256 JWT verification
 // WHY: SSO signs tokens with RS256, need public keys to verify
-const JWKS_URI = `${SSO_BASE_URL}/.well-known/jwks.json`;
+// NOTE: Using /api/.well-known/jwks.json until SSO rewrite is deployed
+// TODO: Change back to /.well-known/jwks.json after SSO rewrite is deployed
+const JWKS_URI = `${SSO_BASE_URL}/api/.well-known/jwks.json`;
 const JWKS = createRemoteJWKSet(new URL(JWKS_URI));
 
 // ============================================================================
