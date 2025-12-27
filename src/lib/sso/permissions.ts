@@ -100,14 +100,27 @@ export async function getAppPermission(
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => 'Unknown error');
-    console.error('[SSO Permissions] Failed to get permission:', {
+    const errorDetails = {
       status: response.status,
       statusText: response.statusText,
       error: errorText,
       userId,
       clientId: SSO_CLIENT_ID,
-    });
-    throw new Error(`Failed to get permission: ${response.status} ${response.statusText} - ${errorText}`);
+      url: `${SSO_BASE_URL}/api/users/${userId}/apps/${SSO_CLIENT_ID}/permissions`,
+    };
+    console.error('[SSO Permissions] Failed to get permission:', JSON.stringify(errorDetails, null, 2));
+    
+    // WHAT: Provide more specific error messages based on status code
+    // WHY: Help diagnose the root cause
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(`Failed to get permission: Access token invalid or expired (${response.status})`);
+    } else if (response.status === 500) {
+      throw new Error(`Failed to get permission: SSO server error (${response.status})`);
+    } else if (response.status >= 500) {
+      throw new Error(`Failed to get permission: SSO service unavailable (${response.status})`);
+    } else {
+      throw new Error(`Failed to get permission: ${response.status} ${response.statusText} - ${errorText}`);
+    }
   }
 
   return await response.json();
