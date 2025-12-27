@@ -19,25 +19,9 @@ function OrganizationAdminContent() {
   const [activeTab, setActiveTab] = useState<'users' | 'boards' | 'passwords'>('users')
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/auth/check')
-        const data = await res.json()
-        
-        if (!data.authenticated) {
-          router.push('/admin/login?redirect=/organization/admin')
-          return
-        }
-        
-        // User authenticated - proceed
-        setLoading(false)
-      } catch {
-        router.push('/admin/login')
-      }
-    }
-    
-    checkAuth()
-  }, [router])
+    // WHAT: Authentication disabled - skip auth check
+    setLoading(false)
+  }, [])
 
   if (loading) {
     return (

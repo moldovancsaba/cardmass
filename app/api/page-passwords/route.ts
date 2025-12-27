@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthenticatedUser, isAdmin } from '@/lib/unified-auth'
+// Authentication temporarily disabled
 import {
   getOrCreatePagePassword,
   validatePagePassword,
@@ -18,17 +18,8 @@ export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
-    // WHAT: Check SSO admin authentication
-    const ssoToken = request.cookies.get('sso_session')?.value;
-    const user = await getAuthenticatedUser({ sso_session: ssoToken });
-    const admin = user && isAdmin(user) ? user : null;
-    
-    if (!admin) {
-      return NextResponse.json(
-        { error: 'Unauthorized — admin access required' },
-        { status: 401 }
-      )
-    }
+    // WHAT: Authentication disabled - always allow
+    // No auth check needed
 
     const body = await request.json()
     const pageId = String(body?.pageId || '').trim()
@@ -117,10 +108,8 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    // WHAT: Check if request has valid SSO admin session (bypass password check)
-    const ssoToken = request.cookies.get('sso_session')?.value;
-    const user = await getAuthenticatedUser({ sso_session: ssoToken });
-    const admin = user && isAdmin(user) ? user : null;
+    // WHAT: Authentication disabled - always allow
+    const admin = true;
     
     if (admin) {
       return NextResponse.json({
