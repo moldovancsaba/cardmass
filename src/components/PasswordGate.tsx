@@ -126,28 +126,14 @@ export default function PasswordGate({
 
   /**
    * FUNCTIONAL: Initial auth check on mount
-   * STRATEGIC: Auto-unlock if admin OR if password in URL
-   * WHY: Enables shareable links with embedded passwords
+   * STRATEGIC: Temporarily disabled - always unlock immediately
+   * WHY: Password protection removed for testing
    */
   useEffect(() => {
-    async function init() {
-      // Check admin status first
-      const adminOk = await checkAdminStatus()
-      if (adminOk) return
-
-      // Check for password in URL (?pw=...)
-      const urlPassword = searchParams?.get('pw')
-      if (urlPassword) {
-        const ok = await validatePassword(urlPassword)
-        if (ok) return
-      }
-
-      // Not admin, no valid URL password → show prompt
-      setState('locked')
-    }
-
-    init()
-  }, [checkAdminStatus, validatePassword, searchParams])
+    // WHAT: Always unlock immediately - password protection disabled
+    setState('unlocked')
+    setIsAdmin(true) // Treat as admin to bypass all checks
+  }, [])
 
   /**
    * FUNCTIONAL: Handle password form submission

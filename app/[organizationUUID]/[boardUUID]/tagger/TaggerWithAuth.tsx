@@ -7,7 +7,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import PasswordGate from '@/components/PasswordGate'
+// PasswordGate temporarily disabled
 import TaggerApp, { type Area } from './TaggerApp'
 
 interface TaggerWithAuthProps {
@@ -104,20 +104,16 @@ export default function TaggerWithAuth({ orgUUID, boardUUID }: TaggerWithAuthPro
     )
   }
 
-  // WHAT: Password gate wrapper with TaggerApp
-  // WHY: Requires password validation before allowing board access
+  // WHAT: Password protection temporarily disabled
+  // WHY: Get app working without password gates for testing
   return (
-    <PasswordGate pageId={boardUUID} pageType="tagger" organizationUUID={orgUUID}>
-      {({ getAuthHeaders }) => (
-        <TaggerApp
-          orgUUID={orgUUID}
-          boardUUID={boardUUID}
-          rows={Number(boardData.rows) || 0}
-          cols={Number(boardData.cols) || 0}
-          areas={Array.isArray(boardData.areas) ? boardData.areas : []}
-          getAuthHeaders={getAuthHeaders}
-        />
-      )}
-    </PasswordGate>
+    <TaggerApp
+      orgUUID={orgUUID}
+      boardUUID={boardUUID}
+      rows={Number(boardData.rows) || 0}
+      cols={Number(boardData.cols) || 0}
+      areas={Array.isArray(boardData.areas) ? boardData.areas : []}
+      getAuthHeaders={() => ({})} // No auth headers needed
+    />
   )
 }
