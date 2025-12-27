@@ -1,5 +1,15 @@
 # Development Workflow Rules
 
+## Definition of Done (DoD)
+
+A task is **complete** when:
+1. ✅ All related tasks are finished
+2. ✅ Code builds successfully (`npm run build`)
+3. ✅ Changes are committed with clear messages
+4. ✅ Changes are pushed to main
+5. ✅ Documentation updated (if applicable)
+6. ✅ Follows project patterns and architecture
+
 ## Pre-Commit Build Check (REQUIRED)
 
 **ALWAYS** run a local build before committing and pushing to GitHub:
@@ -14,18 +24,19 @@
 - Broken builds would deploy broken code to production
 - Catching errors locally prevents production issues
 
-### Workflow:
+### Complete Workflow:
 ```bash
-# 1. Make changes
+# 1. Make changes and finish related tasks
 # 2. Test locally
 npm run build
 
-# 3. If build succeeds:
+# 3. If build succeeds (DoD alignment):
 git add -A
 git commit -m "Description"
 git push origin main
 
 # 4. Auto-deployment will trigger on successful push
+# 5. Workflow is complete when tasks are done AND DoD is met
 ```
 
 ### Exception:
@@ -40,4 +51,5 @@ When working across multiple projects (e.g., cardmass + sso):
 2. Commit each project separately
 3. Push each project separately
 4. Verify each deployment separately
+5. Ensure DoD is met for each project
 
