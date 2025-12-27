@@ -1,0 +1,43 @@
+# Development Workflow Rules
+
+## Pre-Commit Build Check (REQUIRED)
+
+**ALWAYS** run a local build before committing and pushing to GitHub:
+
+1. **Run build**: `npm run build` (or project-specific build command)
+2. **Verify success**: Build must complete without errors
+3. **Only then commit**: If build fails, fix errors before committing
+4. **Push to main**: After successful build and commit
+
+### Why?
+- Auto-deployment triggers on every push to main
+- Broken builds would deploy broken code to production
+- Catching errors locally prevents production issues
+
+### Workflow:
+```bash
+# 1. Make changes
+# 2. Test locally
+npm run build
+
+# 3. If build succeeds:
+git add -A
+git commit -m "Description"
+git push origin main
+
+# 4. Auto-deployment will trigger on successful push
+```
+
+### Exception:
+- Documentation-only changes (markdown files) may skip build
+- But still verify with `npm run build` if unsure
+
+## Multi-Project Workflow
+
+When working across multiple projects (e.g., cardmass + sso):
+
+1. Build each project separately
+2. Commit each project separately
+3. Push each project separately
+4. Verify each deployment separately
+
