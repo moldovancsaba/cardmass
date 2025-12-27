@@ -148,9 +148,42 @@ export async function GET(request: NextRequest) {
     console.log('[SSO Callback] OAuth successful, redirecting to:', returnTo);
     return NextResponse.redirect(new URL(returnTo, request.url));
   } catch (error) {
-    console.error('[SSO Callback] Error:', error);
+    // WHAT: Enhanced error logging with full details
+    // WHY: Help diagnose SSO authentication failures
+    const searchParams = request.nextUrl.searchParams;
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined,
+      code: searchParams.get('code') ? 'present' : 'missing',
+      state: searchParams.get('state') ? 'present' : 'missing',
+      error: searchParams.get('error'),
+      url: request.url,
+    };
+    
+    console.error('[SSO Callback] Error details:', JSON.stringify(errorDetails, null, 2));
+    
+    // WHAT: Extract specific error information for user-friendly messages
+    // WHY: Different errors need different handling
+    let errorCode = 'auth_failed';
+    if (error instanceof Error) {
+      if (error.message.includes('Token exchange failed')) {
+        errorCode = 'token_exchange_failed';
+        console.error('[SSO Callback] Token exchange error - check redirect_uri, client_id, client_secret');
+      } else if (error.message.includes('ID token verification failed')) {
+        errorCode = 'token_verification_failed';
+        console.error('[SSO Callback] ID token verification error - check JWKS endpoint');
+      } else if (error.message.includes('SSO not configured')) {
+        errorCode = 'sso_not_configured';
+        console.error('[SSO Callback] SSO configuration missing - check environment variables');
+      } else if (error.message.includes('User not found')) {
+        errorCode = 'user_not_found';
+        console.error('[SSO Callback] User lookup failed - check SSO user database');
+      }
+    }
+    
     return NextResponse.redirect(
-      new URL('/?error=auth_failed', request.url)
+      new URL(`/?error=${errorCode}`, request.url)
     );
   }
 }

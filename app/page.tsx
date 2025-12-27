@@ -37,6 +37,10 @@ function HomePageContent() {
   // WHAT: Map error codes to user-friendly messages
   const errorMessages: Record<string, string> = {
     auth_failed: 'Authentication failed. Please try again.',
+    token_exchange_failed: 'Token exchange failed. Check redirect URI configuration.',
+    token_verification_failed: 'Token verification failed. Check SSO service status.',
+    sso_not_configured: 'SSO not configured. Check environment variables.',
+    user_not_found: 'User not found in SSO system.',
     oauth_denied: 'You denied access to the application.',
     invalid_callback: 'Invalid OAuth callback. Please try again.',
     invalid_state: 'Security validation failed. Please try again.',

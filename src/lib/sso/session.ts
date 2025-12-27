@@ -239,10 +239,13 @@ export async function cleanupExpiredSessions(): Promise<number> {
  * WHY: Determine if user is authenticated
  */
 export function isSessionValid(session: SSOSessionDoc): boolean {
+  // WHAT: Handle both 'active' (SSO internal) and 'approved' (API response) statuses
+  // WHY: SSO has inconsistent status values between database and API
+  const isApproved = session.appPermission.status === 'approved' || session.appPermission.status === 'active';
   return (
     session.expiresAt > new Date() &&
     session.appPermission.hasAccess &&
-    session.appPermission.status === 'approved'
+    isApproved
   );
 }
 

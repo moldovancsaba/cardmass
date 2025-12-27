@@ -29,8 +29,9 @@ function validateSSOConfig() {
 /**
  * WHAT: App permission status
  * WHY: SSO manages app access with approval workflow
+ * NOTE: SSO uses 'active' internally but API may return 'approved' - we handle both
  */
-export type PermissionStatus = 'approved' | 'pending' | 'revoked' | 'none';
+export type PermissionStatus = 'approved' | 'active' | 'pending' | 'revoked' | 'none';
 
 /**
  * WHAT: App role hierarchy (aligned with SSO v5.28.0+)
@@ -146,9 +147,13 @@ export async function requestAppAccess(
 /**
  * WHAT: Check if user has any access to CardMass
  * WHY: Gate entry to the app
+ * NOTE: SSO uses 'active' internally, but API may return 'approved' - check both
  */
 export function hasAppAccess(permission: AppPermission): boolean {
-  return permission.hasAccess && permission.status === 'approved';
+  // WHAT: Handle both 'active' (SSO internal) and 'approved' (API response) statuses
+  // WHY: SSO has inconsistent status values between database and API
+  const isApproved = permission.status === 'approved' || permission.status === 'active';
+  return permission.hasAccess && isApproved;
 }
 
 /**
