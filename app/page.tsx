@@ -80,14 +80,13 @@ function HomePageContent() {
 
           {/* Login CTA */}
           <div className="text-center">
-            <Link
+            <a
               href="/api/auth/sso/login?return_to=/"
-              prefetch={false}
               className="inline-flex items-center justify-center w-full px-5 py-3 text-base rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-green-700 hover:bg-green-800 focus:ring-green-600 shadow-sm"
               style={{ color: '#ffffff' }}
             >
               Sign in with SSO
-            </Link>
+            </a>
             <p className="mt-3 text-xs text-gray-500">Single Sign-On for all DoneIsBetter apps</p>
           </div>
         </section>
