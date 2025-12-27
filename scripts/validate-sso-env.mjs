@@ -112,7 +112,7 @@ function loadProcessEnv() {
  * WHAT: Validate a single environment variable
  * WHY: Ensure format and presence match requirements
  */
-function validateEnvVar(key, value, config) {
+function validateEnvVar(key, value, config, source = 'local') {
   const errors = []
   const warnings = []
 
@@ -121,6 +121,17 @@ function validateEnvVar(key, value, config) {
       errors.push(`Missing required variable: ${key}`)
     }
     return { valid: !config.required, errors, warnings }
+  }
+
+  // WHAT: Handle masked secrets from Vercel debug endpoint
+  // WHY: Debug endpoint returns "***SET***" for security; treat as valid
+  if (source === 'Vercel' && (value === '***SET***' || value === '***NOT SET***')) {
+    if (value === '***SET***') {
+      return { valid: true, errors: [], warnings: [] }
+    } else {
+      errors.push(`Missing required variable: ${key}`)
+      return { valid: false, errors, warnings }
+    }
   }
 
   if (config.pattern && !config.pattern.test(value)) {
@@ -150,7 +161,7 @@ function validateSSOEnv(env, source = 'local') {
 
   for (const [key, config] of Object.entries(REQUIRED_ENV_VARS)) {
     const value = env[key]
-    const validation = validateEnvVar(key, value, config)
+    const validation = validateEnvVar(key, value, config, source)
 
     if (!value || value.trim() === '') {
       if (config.required) {
