@@ -1,8 +1,7 @@
 import { isUUIDv4 } from "@/lib/validation";
-import { notFound, redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getAuthenticatedUser, isAdmin } from "@/lib/unified-auth";
+// Authentication temporarily disabled
 import { fetchWithOrg } from "@/lib/http/fetchWithOrg";
 import OrgSettingsTabs from "./OrgSettingsTabs";
 
@@ -15,19 +14,7 @@ export default async function OrganizationSettingsPage(ctx: { params: Promise<{ 
   const { organizationUUID: org } = await ctx.params
   if (!isUUIDv4(org)) return notFound()
   
-  // WHAT: Check SSO authentication and admin access
-  const cookieStore = await cookies();
-  const ssoToken = cookieStore.get('sso_session')?.value;
-  const user = await getAuthenticatedUser({ sso_session: ssoToken });
-  
-  if (!user) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}/settings`);
-  }
-  
-  // WHAT: Verify user has admin or superadmin role
-  if (!isAdmin(user)) {
-    redirect(`/${encodeURIComponent(org)}`);
-  }
+  // WHAT: Authentication temporarily disabled for testing
   
   // WHAT: Fetch boards data for the settings tabs
   // WHY: Organization data will be fetched by the client component tabs
