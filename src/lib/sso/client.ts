@@ -308,13 +308,14 @@ export async function parseIdToken(idToken: string): Promise<IdTokenPayload> {
         audience: SSO_CLIENT_ID,
       });
       payload = result.payload;
-    } catch (jwksError: any) {
+    } catch (jwksError: unknown) {
       // WHAT: If JWKS fetch fails, try fallback endpoint
       // WHY: SSO rewrite might not be deployed yet
-      if (jwksError.code === 'ERR_JWKS_MULTIPLE_MATCHES' || 
-          jwksError.message?.includes('fetch') ||
-          jwksError.message?.includes('404')) {
-        console.warn('[SSO] Standard JWKS endpoint failed, trying fallback:', jwksError.message);
+      const error = jwksError as { code?: string; message?: string };
+      if (error.code === 'ERR_JWKS_MULTIPLE_MATCHES' || 
+          error.message?.includes('fetch') ||
+          error.message?.includes('404')) {
+        console.warn('[SSO] Standard JWKS endpoint failed, trying fallback:', error.message);
         const fallbackJWKS = createRemoteJWKSet(new URL(JWKS_URI_FALLBACK));
         const result = await jose.jwtVerify(idToken, fallbackJWKS, {
           issuer: SSO_BASE_URL,
