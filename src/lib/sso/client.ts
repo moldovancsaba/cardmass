@@ -14,6 +14,45 @@ const SSO_CLIENT_ID = process.env.SSO_CLIENT_ID || '';
 const SSO_CLIENT_SECRET = process.env.SSO_CLIENT_SECRET || '';
 const SSO_REDIRECT_URI = process.env.SSO_REDIRECT_URI || '';
 
+/**
+ * WHAT: Validate SSO configuration at module load
+ * WHY: Fail fast with clear error messages if configuration is missing
+ */
+function validateSSOConfig() {
+  const errors: string[] = [];
+  
+  if (!SSO_CLIENT_ID || SSO_CLIENT_ID.trim() === '') {
+    errors.push('SSO_CLIENT_ID is required but not set. Add it to .env.local or Vercel environment variables.');
+  }
+  
+  if (!SSO_CLIENT_SECRET || SSO_CLIENT_SECRET.trim() === '') {
+    errors.push('SSO_CLIENT_SECRET is required but not set. Add it to .env.local or Vercel environment variables.');
+  }
+  
+  if (!SSO_REDIRECT_URI || SSO_REDIRECT_URI.trim() === '') {
+    errors.push('SSO_REDIRECT_URI is required but not set. Add it to .env.local or Vercel environment variables.');
+  }
+  
+  if (errors.length > 0) {
+    throw new Error(
+      `SSO Configuration Error:\n${errors.map(e => `  - ${e}`).join('\n')}\n\n` +
+      `Run 'npm run sso:validate' to check your configuration.`
+    );
+  }
+}
+
+// WHAT: Validate configuration when module loads (only in Node.js runtime)
+// WHY: Catch configuration errors early, before OAuth flow starts
+if (typeof window === 'undefined') {
+  try {
+    validateSSOConfig();
+  } catch (error) {
+    // WHAT: Log error but don't throw in module scope
+    // WHY: Allow app to start; errors will be caught when SSO functions are called
+    console.error('[SSO Config]', error instanceof Error ? error.message : String(error));
+  }
+}
+
 // WHAT: JWKS endpoint for RS256 JWT verification
 // WHY: SSO signs tokens with RS256, need public keys to verify
 const JWKS_URI = `${SSO_BASE_URL}/.well-known/jwks.json`;
@@ -175,6 +214,15 @@ export function buildAuthorizeUrl(params: {
   state: string;
   prompt?: 'login' | 'none';
 }): string {
+  // WHAT: Validate configuration before building URL
+  // WHY: Provide clear error if SSO is not configured
+  if (!SSO_CLIENT_ID || !SSO_REDIRECT_URI) {
+    throw new Error(
+      'SSO not configured: SSO_CLIENT_ID and SSO_REDIRECT_URI are required. ' +
+      'Check your .env.local or Vercel environment variables.'
+    );
+  }
+  
   const searchParams = new URLSearchParams({
     response_type: 'code',
     client_id: SSO_CLIENT_ID,
@@ -204,6 +252,15 @@ export async function exchangeCodeForTokens(
   code: string,
   codeVerifier: string
 ): Promise<OAuthTokens> {
+  // WHAT: Validate configuration before token exchange
+  // WHY: Provide clear error if SSO is not configured
+  if (!SSO_CLIENT_ID || !SSO_CLIENT_SECRET || !SSO_REDIRECT_URI) {
+    throw new Error(
+      'SSO not configured: SSO_CLIENT_ID, SSO_CLIENT_SECRET, and SSO_REDIRECT_URI are required. ' +
+      'Check your .env.local or Vercel environment variables.'
+    );
+  }
+  
   const response = await fetch(`${SSO_BASE_URL}/api/oauth/token`, {
     method: 'POST',
     headers: {
