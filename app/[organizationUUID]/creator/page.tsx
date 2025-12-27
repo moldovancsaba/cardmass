@@ -1,9 +1,8 @@
 import SpockNav from "@/components/SpockNav";
 import CreatorApp from "../../creator/ui/CreatorApp";
 import { isUUIDv4 } from "@/lib/validation";
-import { notFound, redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { getAuthenticatedUser } from "@/lib/unified-auth";
+import { notFound } from "next/navigation";
+// Authentication temporarily disabled
 
 /**
  * /[organizationUUID]/creator — org-scoped Creator (full grid)
@@ -17,14 +16,7 @@ export default async function OrganizationCreatorPage(ctx: { params: Promise<{ o
   // WHY: Invalid UUIDs should 404 immediately
   if (!isUUIDv4(org)) return notFound()
   
-  // WHAT: Check SSO authentication
-  const cookieStore = await cookies();
-  const ssoToken = cookieStore.get('sso_session')?.value;
-  const user = await getAuthenticatedUser({ sso_session: ssoToken });
-  
-  if (!user) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}/creator`);
-  }
+  // WHAT: Authentication temporarily disabled for testing
 
   return (
     <main className="min-h-dvh bg-white">

@@ -5,9 +5,8 @@
  */
 
 import { isUUIDv4 } from '@/lib/validation'
-import { notFound, redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
-import { getAuthenticatedUser } from '@/lib/unified-auth'
+import { notFound } from 'next/navigation'
+// Authentication temporarily disabled
 import CardDetailsClient from './CardDetailsClient'
 
 export default async function CardDetailsPage(ctx: { params: Promise<{ organizationUUID: string; cardUUID: string }> }) {
@@ -19,14 +18,7 @@ export default async function CardDetailsPage(ctx: { params: Promise<{ organizat
     return notFound()
   }
   
-  // WHAT: Check SSO authentication
-  const cookieStore = await cookies();
-  const ssoToken = cookieStore.get('sso_session')?.value;
-  const user = await getAuthenticatedUser({ sso_session: ssoToken });
-  
-  if (!user) {
-    redirect(`/?redirect=/${encodeURIComponent(org)}/cards/${encodeURIComponent(cardUUID)}`);
-  }
+  // WHAT: Authentication temporarily disabled for testing
   
   // WHAT: Pass only IDs to client component for data fetching
   // WHY: Prevents server-side fetch failures that caused settings page 404 bug
