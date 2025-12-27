@@ -8,6 +8,20 @@
 const SSO_BASE_URL = process.env.SSO_BASE_URL || 'https://sso.doneisbetter.com';
 const SSO_CLIENT_ID = process.env.SSO_CLIENT_ID || '';
 
+/**
+ * WHAT: Validate SSO configuration before making API calls
+ * WHY: Provide clear error messages if configuration is missing
+ */
+function validateSSOConfig() {
+  if (!SSO_CLIENT_ID || SSO_CLIENT_ID.trim() === '') {
+    throw new Error(
+      'SSO_CLIENT_ID is required but not set. ' +
+      'Add it to .env.local or Vercel environment variables. ' +
+      "Run 'npm run sso:validate' to check your configuration."
+    );
+  }
+}
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -57,6 +71,10 @@ export async function getAppPermission(
   userId: string,
   accessToken: string
 ): Promise<AppPermission> {
+  // WHAT: Validate configuration before API call
+  // WHY: Provide clear error if SSO is not configured
+  validateSSOConfig();
+  
   const response = await fetch(
     `${SSO_BASE_URL}/api/users/${userId}/apps/${SSO_CLIENT_ID}/permissions`,
     {
@@ -98,6 +116,10 @@ export async function requestAppAccess(
   userId: string,
   accessToken: string
 ): Promise<AppPermission> {
+  // WHAT: Validate configuration before API call
+  // WHY: Provide clear error if SSO is not configured
+  validateSSOConfig();
+  
   const response = await fetch(
     `${SSO_BASE_URL}/api/users/${userId}/apps/${SSO_CLIENT_ID}/request-access`,
     {
