@@ -28,7 +28,7 @@ if (!SSO_CLIENT_ID) {
 
 // WHAT: SSO database connection
 // WHY: Need to connect to the SSO MongoDB to grant app permissions
-const SSO_MONGODB_URI = 'REDACTED_ROTATED_2026-08-14';
+const SSO_MONGODB_URI = 'REDACTED_ROTATE_ME_2026-08-14';
 const SSO_DB_NAME = 'sso';
 
 async function grantDirectAccess() {
